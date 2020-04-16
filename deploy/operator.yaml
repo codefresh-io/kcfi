@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cf-onprem-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cf-onprem-operator
+  template:
+    metadata:
+      labels:
+        name: cf-onprem-operator
+    spec:
+      serviceAccountName: cf-onprem-operator
+      containers:
+        - name: cf-onprem-operator
+          # Replace this with the built image name
+          image: REPLACE_IMAGE
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "cf-onprem-operator"
