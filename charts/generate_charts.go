@@ -54,15 +54,17 @@ import (
 
 func ChartsMap() map[string][]*loader.BufferedFile {
   chartsMap := make(map[string][]*loader.BufferedFile)
-	
+	var fileName, fileData string
+
 	{{ range $dir, $chartFiles := .ChartsDirMap }}
 	/********
 	/*
     Chart directory {{ $dir }}
 	*/
-	{{ range $name, $data := $chartFiles }}
-	fileName: := "{{ $name }}"` + "\n" +
-	"fileData := `{{$data}}`" + "\n" + `
+	{{ range $_, $data := $chartFiles }}
+	//--------------------------------
+	fileName = "{{ $data.Name }}"
+	fileData = ` + "`{{ $data.Data }}`" + `
 	bufferedFile = &loader.BufferedFile{Name: fileName, Data: []byte(fileData)}
 	chartsMap["{{$dir}}"] = append(chartsMap["{{$dir}}"], bufferedFile)
 
@@ -106,7 +108,6 @@ func LoadDir(dir string) ([]StringFile, error) {
 	rules.AddDefaults()
 
 	topdir += string(filepath.Separator)
-
 	walk := func(name string, fi os.FileInfo, err error) error {
 		n := strings.TrimPrefix(name, topdir)
 		if n == "" {
@@ -181,7 +182,7 @@ func main() {
 		var dir string
 		if f.IsDir() {
 			dir = f.Name()
-			chartsDirMap[filepath.Base(dir)], err = LoadDir(dir)
+			chartsDirMap[filepath.Base(dir)], err = LoadDir(path.Join(currentDir, dir))
 			if err != nil {
 				fmt.Printf("generate_template ERROR: failed to load chart directory %s, %v \n", dir, err)
 				os.Exit(1)
