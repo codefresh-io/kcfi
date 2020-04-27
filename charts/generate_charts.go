@@ -39,7 +39,7 @@ reads all files in folder and appends them to template map
 
 var (
 	chartsGeneratorName = "charts/generate_charts.go"
-	chartsPackageName = "codefresh_charts"
+	chartsPackageName = "charts"
 	outfileBaseName = "charts_generated.go"
 )
 
@@ -194,7 +194,7 @@ func main() {
 			fmt.Printf("No files in %s\n", currentDir)
 	}
 
-	outfileDir := path.Join(filepath.Dir(currentDir), "pkg", chartsPackageName)
+	outfileDir := path.Join(filepath.Dir(currentDir), "pkg", "embeded", chartsPackageName)
 	outfileName := path.Join(outfileDir, outfileBaseName)
 	if _, err := os.Stat(outfileDir); os.IsNotExist(err) {
     os.MkdirAll(outfileDir, os.ModePerm)
