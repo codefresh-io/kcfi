@@ -171,6 +171,9 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 		// Hidden documentation generator command: 'helm docs'
 		newDocsCmd(out),
 
+		//Codefresh
+		newOperatorCmd(actionConfig, out),
+
 		// Setup the special hidden __complete command to allow for dynamic auto-completion
 		completion.NewCompleteCmd(settings, out),
 	)
