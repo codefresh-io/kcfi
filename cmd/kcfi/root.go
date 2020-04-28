@@ -34,6 +34,14 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 )
 
+var kcfiUsage = `Codefresh installer
+actions:
+- kcfi init [ /path/to/codefresh-config-dir ] - < pprepare configuration directory
+- kcfi appy [ -f <config-file> ] - install codefresh
+- kcfi operator deploy|status|delete - manage codefresh operator
+- kcfi private-registry push-release|push-image 
+
+`
 var globalUsage = `The Kubernetes package manager
 
 Common actions for Helm:
@@ -76,9 +84,9 @@ By default, the default directories depend on the Operating System. The defaults
 
 func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                    "helm",
-		Short:                  "The Helm package manager for Kubernetes.",
-		Long:                   globalUsage,
+		Use:                    "kcfi",
+		Short:                  "The Codefresh installer",
+		Long:                   kcfiUsage,
 		SilenceUsage:           true,
 		BashCompletionFunction: completion.GetBashCustomFunction(),
 	}
@@ -138,8 +146,19 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	flags.ParseErrorsWhitelist.UnknownFlags = true
 	flags.Parse(args)
 
+		//Codefresh
+  cmd.AddCommand(newOperatorCmd(actionConfig, out))
+
+	helmCmd := &cobra.Command{
+		Use:                    "helm",
+		Short:                  "The Helm",
+		Long:                   globalUsage,
+		SilenceUsage:           true,
+		BashCompletionFunction: completion.GetBashCustomFunction(),
+	}
+
 	// Add subcommands
-	cmd.AddCommand(
+	helmCmd.AddCommand(
 		// chart commands
 		newCreateCmd(out),
 		newDependencyCmd(out),
@@ -171,12 +190,11 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 		// Hidden documentation generator command: 'helm docs'
 		newDocsCmd(out),
 
-		//Codefresh
-		newOperatorCmd(actionConfig, out),
-
 		// Setup the special hidden __complete command to allow for dynamic auto-completion
 		completion.NewCompleteCmd(settings, out),
 	)
+
+	cmd.AddCommand(helmCmd)
 
 	// Add *experimental* subcommands
 	// registryClient, err := registry.NewClient(
@@ -194,7 +212,7 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	// )
 
 	// Find and add plugins
-	loadPlugins(cmd, out)
+	loadPlugins(helmCmd, out)
 
 	return cmd
 }
