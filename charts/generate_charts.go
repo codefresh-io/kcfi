@@ -50,11 +50,18 @@ package {{.PackageName}}
 
 import (
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/chart"
 )
+
+func Load(chartName string) (*chart.Chart, error) {
+	chartsMap := ChartsMap()
+	return loader.LoadFiles(chartsMap[chartName])
+}
 
 func ChartsMap() map[string][]*loader.BufferedFile {
   chartsMap := make(map[string][]*loader.BufferedFile)
 	var fileName, fileData string
+	var bufferedFile *loader.BufferedFile
 
 	{{ range $dir, $chartFiles := .ChartsDirMap }}
 	/********

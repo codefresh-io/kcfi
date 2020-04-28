@@ -17,7 +17,7 @@ limitations under the License.
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"io"
 
 	"github.com/spf13/cobra"
@@ -26,7 +26,7 @@ import (
 	//"github.com/codefresh-io/onprem-operator/pkg/helm-internal/completion"
 	
 	"helm.sh/helm/v3/pkg/action"
-	cAction "github.com/codefresh-io/onprem-operator/pkg/action"
+	//cAction "github.com/codefresh-io/onprem-operator/pkg/action"
 )
 
 const operatorDesc = `
@@ -46,18 +46,9 @@ func newOperatorCmd(cfg *action.Configuration, out io.Writer) *cobra.Command {
 		Args:    require.NoArgs,
 	}
 
-	deploySubCmd := &cobra.Command{
-		Use:     "deploy",
-		Short:   "deploys Codefresh Operator",
-		Long:    deployDesc,
-		Args:    require.NoArgs,
-		RunE:    func(cmd *cobra.Command, args []string) error {
-			operator := cAction.NewOperator()
-			output, _ := operator.Deploy()
-			fmt.Fprint(out, output)
-			return nil
-		},
-	}
+	releaseName := "cf-onprem-operator"
+  embededChart := "codefresh-operator"
+	deploySubCmd := newEmbededChartUpgradeCmd(releaseName, embededChart, cfg, out)
 
 	operatorCommand.AddCommand(deploySubCmd)
 	return operatorCommand

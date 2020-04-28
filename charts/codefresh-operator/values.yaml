@@ -1,1 +1,1 @@
-dummy: "1"
+image: "codefresh/cf-onprem-operator:1.0.98-operator"

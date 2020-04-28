@@ -86,6 +86,7 @@ rules:
   verbs:
   - get
 - apiGroups:
+  - codefresh.io
   - charts.helm.k8s.io
   resources:
   - '*'

@@ -44,12 +44,17 @@ import (
 const FeatureGateOCI = gates.Gate("HELM_EXPERIMENTAL_OCI")
 
 var (
-	settings = cli.New()
+	settings *cli.EnvSettings
 	defaultNamespace = "codefresh"
 )
 
 func init() {
 	log.SetFlags(log.Lshortfile)
+	// Set Codefresh default namespace
+	if _, ok := os.LookupEnv("HELM_NAMESPACE"); !ok {
+		os.Setenv("HELM_NAMESPACE", defaultNamespace) 
+	}
+	settings = cli.New()
 }
 
 func debug(format string, v ...interface{}) {
@@ -70,10 +75,6 @@ func initKubeLogs() {
 func main() {
 	initKubeLogs()
 
-	// Set Codefresh default namespace
-	if _, ok := os.LookupEnv("HELM_NAMESPACE"); !ok {
-		os.Setenv("HELM_NAMESPACE", defaultNamespace) 
-	}
 	actionConfig := new(action.Configuration)
 	cmd := newRootCmd(actionConfig, os.Stdout, os.Args[1:])
 

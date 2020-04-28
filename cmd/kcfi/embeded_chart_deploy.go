@@ -27,13 +27,15 @@ import (
 	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/completion"
 	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/chart/loader"
+
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/cli/values"
-	"helm.sh/helm/v3/pkg/downloader"
+	//"helm.sh/helm/v3/pkg/downloader"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"helm.sh/helm/v3/pkg/release"
+
+	"github.com/codefresh-io/onprem-operator/pkg/embeded/charts"
 )
 
 const embededChartDeployDesc = `
@@ -63,25 +65,12 @@ set for a key called 'foo', the 'newbar' value would take precedence:
     $ helm upgrade --set foo=bar --set foo=newbar redis ./redis
 `
 
-func embededChartRunInstall(release string, embededChart string, args []string, client *action.Install, valueOpts *values.Options, out io.Writer) (*release.Release, error) {
+func embededChartRunInstall(releaseName string, embededChart string, args []string, client *action.Install, valueOpts *values.Options, out io.Writer) (*release.Release, error) {
 	debug("Original chart version: %q", client.Version)
 	if client.Version == "" && client.Devel {
 		debug("setting version to >0.0.0-0")
 		client.Version = ">0.0.0-0"
 	}
-
-	name, chart, err := client.NameAndChart(args)
-	if err != nil {
-		return nil, err
-	}
-	client.ReleaseName = name
-
-	cp, err := client.ChartPathOptions.LocateChart(chart, settings)
-	if err != nil {
-		return nil, err
-	}
-
-	debug("CHART PATH: %s\n", cp)
 
 	p := getter.All(settings)
 	vals, err := valueOpts.MergeValues(p)
@@ -90,10 +79,11 @@ func embededChartRunInstall(release string, embededChart string, args []string, 
 	}
 
 	// Check chart dependencies to make sure all are present in /charts
-	chartRequested, err := loader.Load(cp)
+	chartRequested, err := charts.Load(embededChart)
 	if err != nil {
 		return nil, err
 	}
+	client.ReleaseName = releaseName
 
 	validInstallableChart, err := isChartInstallable(chartRequested)
 	if !validInstallableChart {
@@ -104,139 +94,125 @@ func embededChartRunInstall(release string, embededChart string, args []string, 
 		fmt.Fprintln(out, "WARNING: This chart is deprecated")
 	}
 
-	if req := chartRequested.Metadata.Dependencies; req != nil {
-		// If CheckDependencies returns an error, we have unfulfilled dependencies.
-		// As of Helm 2.4.0, this is treated as a stopping condition:
-		// https://github.com/helm/helm/issues/2209
-		if err := action.CheckDependencies(chartRequested, req); err != nil {
-			if client.DependencyUpdate {
-				man := &downloader.Manager{
-					Out:              out,
-					ChartPath:        cp,
-					Keyring:          client.ChartPathOptions.Keyring,
-					SkipUpdate:       false,
-					Getters:          p,
-					RepositoryConfig: settings.RepositoryConfig,
-					RepositoryCache:  settings.RepositoryCache,
-					Debug:            settings.Debug,
-				}
-				if err := man.Update(); err != nil {
-					return nil, err
-				}
-				// Reload the chart with the updated Chart.lock file.
-				if chartRequested, err = loader.Load(cp); err != nil {
-					return nil, errors.Wrap(err, "failed reloading chart after repo update")
-				}
-			} else {
-				return nil, err
-			}
-		}
-	}
+	// if req := chartRequested.Metadata.Dependencies; req != nil {
+	// 	// If CheckDependencies returns an error, we have unfulfilled dependencies.
+	// 	// As of Helm 2.4.0, this is treated as a stopping condition:
+	// 	// https://github.com/helm/helm/issues/2209
+	// 	if err := action.CheckDependencies(chartRequested, req); err != nil {
+	// 		if client.DependencyUpdate {
+	// 			man := &downloader.Manager{
+	// 				Out:              out,
+	// 				ChartPath:        cp,
+	// 				Keyring:          client.ChartPathOptions.Keyring,
+	// 				SkipUpdate:       false,
+	// 				Getters:          p,
+	// 				RepositoryConfig: settings.RepositoryConfig,
+	// 				RepositoryCache:  settings.RepositoryCache,
+	// 				Debug:            settings.Debug,
+	// 			}
+	// 			if err := man.Update(); err != nil {
+	// 				return nil, err
+	// 			}
+	// 			// Reload the chart with the updated Chart.lock file.
+	// 			if chartRequested, err = loader.Load(cp); err != nil {
+	// 				return nil, errors.Wrap(err, "failed reloading chart after repo update")
+	// 			}
+	// 		} else {
+	// 			return nil, err
+	// 		}
+	// 	}
+	// }
 
 	client.Namespace = settings.Namespace()
 	return client.Run(chartRequested, vals)
 }
 
-
-func embededChartRunEFunc(release string, embededChart string, cfg *action.Configuration, out io.Writer) func(cmd *cobra.Command, args []string) error {
-	client := action.NewUpgrade(cfg)
-	valueOpts := &values.Options{}
-	var outfmt output.Format
-	var createNamespace bool
-
-	RunE := func(cmd *cobra.Command, args []string) error {
-		// Fixes #7002 - Support reading values from STDIN for `upgrade` command
-		// Must load values AFTER determining if we have to call install so that values loaded from stdin are are not read twice
-		if client.Install {
-			// If a release does not exist, install it.
-			histClient := action.NewHistory(cfg)
-			histClient.Max = 1
-			if _, err := histClient.Run(args[0]); err == driver.ErrReleaseNotFound {
-				// Only print this to stdout for table output
-				if outfmt == output.Table {
-					fmt.Fprintf(out, "Release %q does not exist. Installing it now.\n", args[0])
-				}
-				instClient := action.NewInstall(cfg)
-				instClient.CreateNamespace = createNamespace
-				instClient.ChartPathOptions = client.ChartPathOptions
-				instClient.DryRun = client.DryRun
-				instClient.DisableHooks = client.DisableHooks
-				instClient.SkipCRDs = client.SkipCRDs
-				instClient.Timeout = client.Timeout
-				instClient.Wait = client.Wait
-				instClient.Devel = client.Devel
-				instClient.Namespace = client.Namespace
-				instClient.Atomic = client.Atomic
-				instClient.PostRenderer = client.PostRenderer
-				instClient.DisableOpenAPIValidation = client.DisableOpenAPIValidation
-				instClient.SubNotes = client.SubNotes
-
-				rel, err := embededChartRunInstall(release, embededChart, args, instClient, valueOpts, out)
-				if err != nil {
-					return err
-				}
-				return outfmt.Write(out, &statusPrinter{rel, settings.Debug})
-			} else if err != nil {
-				return err
-			}
-		}
-
-		if client.Version == "" && client.Devel {
-			debug("setting version to >0.0.0-0")
-			client.Version = ">0.0.0-0"
-		}
-
-		chartPath, err := client.ChartPathOptions.LocateChart(args[1], settings)
-		if err != nil {
-			return err
-		}
-
-		vals, err := valueOpts.MergeValues(getter.All(settings))
-		if err != nil {
-			return err
-		}
-
-		// Check chart dependencies to make sure all are present in /charts
-		ch, err := loader.Load(chartPath)
-		if err != nil {
-			return err
-		}
-		if req := ch.Metadata.Dependencies; req != nil {
-			if err := action.CheckDependencies(ch, req); err != nil {
-				return err
-			}
-		}
-
-		if ch.Metadata.Deprecated {
-			fmt.Fprintln(out, "WARNING: This chart is deprecated")
-		}
-
-		rel, err := client.Run(args[0], ch, vals)
-		if err != nil {
-			return errors.Wrap(err, "UPGRADE FAILED")
-		}
-
-		if outfmt == output.Table {
-			fmt.Fprintf(out, "Release %q has been upgraded. Happy Helming!\n", args[0])
-		}
-
-		return outfmt.Write(out, &statusPrinter{rel, settings.Debug})
-	}
-	return RunE
-}
-
-func newEmbededChartUpgradeCmd(release string, embededChart string, cfg *action.Configuration, out io.Writer) *cobra.Command {
+func newEmbededChartUpgradeCmd(releaseName string, embededChart string, cfg *action.Configuration, out io.Writer) *cobra.Command {
 	client := action.NewUpgrade(cfg)
 	valueOpts := &values.Options{}
 	var outfmt output.Format
 	var createNamespace bool
 
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("deploys %s chart", embededChart),
+		Use:   "deploy",
 		Short: "deploys embeded chart",
 		Long:  embededChartDeployDesc,
 		Args:  require.NoArgs,
-		RunE: embededChartRunEFunc(release, embededChart, cfg, out),
+		//RunE: embededChartRunEFunc(releaseName, embededChart, cfg, client, valueOpts, createNamespace, outfmt, out),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Fixes #7002 - Support reading values from STDIN for `upgrade` command
+			// Must load values AFTER determining if we have to call install so that values loaded from stdin are are not read twice
+			if client.Install {
+				// If a release does not exist, install it.
+				histClient := action.NewHistory(cfg)
+				histClient.Max = 1
+				if _, err := histClient.Run(releaseName); err == driver.ErrReleaseNotFound {
+					// Only print this to stdout for table output
+					if outfmt == output.Table {
+						fmt.Fprintf(out, "Release %q does not exist. Installing it now.\n", releaseName)
+					}
+					instClient := action.NewInstall(cfg)
+					instClient.CreateNamespace = createNamespace
+					instClient.ChartPathOptions = client.ChartPathOptions
+					instClient.DryRun = client.DryRun
+					instClient.DisableHooks = client.DisableHooks
+					instClient.SkipCRDs = client.SkipCRDs
+					instClient.Timeout = client.Timeout
+					instClient.Wait = client.Wait
+					instClient.Devel = client.Devel
+					instClient.Namespace = client.Namespace
+					instClient.Atomic = client.Atomic
+					instClient.PostRenderer = client.PostRenderer
+					instClient.DisableOpenAPIValidation = client.DisableOpenAPIValidation
+					instClient.SubNotes = client.SubNotes
+	
+					rel, err := embededChartRunInstall(releaseName, embededChart, args, instClient, valueOpts, out)
+					if err != nil {
+						return err
+					}
+					return outfmt.Write(out, &statusPrinter{rel, settings.Debug})
+				} else if err != nil {
+					return err
+				}
+			}
+	
+			if client.Version == "" && client.Devel {
+				debug("setting version to >0.0.0-0")
+				client.Version = ">0.0.0-0"
+			}
+	
+			vals, err := valueOpts.MergeValues(getter.All(settings))
+			if err != nil {
+				return err
+			}
+	
+			// Check chart dependencies to make sure all are present in /charts
+			ch, err := charts.Load(embededChart)
+			if err != nil {
+				return err
+			}
+	
+			if req := ch.Metadata.Dependencies; req != nil {
+				if err := action.CheckDependencies(ch, req); err != nil {
+					return err
+				}
+			}
+	
+			if ch.Metadata.Deprecated {
+				fmt.Fprintln(out, "WARNING: This chart is deprecated")
+			}
+	
+			rel, err := client.Run(releaseName, ch, vals)
+			if err != nil {
+				return errors.Wrap(err, "UPGRADE FAILED")
+			}
+	
+			if outfmt == output.Table {
+				fmt.Fprintf(out, "Release %q has been upgraded. Happy Helming!\n", releaseName)
+			}
+	
+			return outfmt.Write(out, &statusPrinter{rel, settings.Debug})
+		},
 	}
 
 	// Function providing dynamic auto-completion
@@ -252,7 +228,7 @@ func newEmbededChartUpgradeCmd(release string, embededChart string, cfg *action.
 
 	f := cmd.Flags()
 	f.BoolVar(&createNamespace, "create-namespace", false, "if --install is set, create the release namespace if not present")
-	f.BoolVarP(&client.Install, "install", "i", false, "if a release by this name doesn't already exist, run an install")
+	f.BoolVarP(&client.Install, "install", "i", true, "if a release by this name doesn't already exist, run an install")
 	f.BoolVar(&client.Devel, "devel", false, "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored")
 	f.BoolVar(&client.DryRun, "dry-run", false, "simulate an upgrade")
 	f.BoolVar(&client.Recreate, "recreate-pods", false, "performs pods restart for the resource if applicable")

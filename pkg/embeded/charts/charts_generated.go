@@ -4,11 +4,18 @@ package charts
 
 import (
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/chart"
 )
+
+func Load(chartName string) (*chart.Chart, error) {
+	chartsMap := ChartsMap()
+	return loader.LoadFiles(chartsMap[chartName])
+}
 
 func ChartsMap() map[string][]*loader.BufferedFile {
   chartsMap := make(map[string][]*loader.BufferedFile)
 	var fileName, fileData string
+	var bufferedFile *loader.BufferedFile
 
 	
 	/********
@@ -30,9 +37,9 @@ version: 1.0.0`
 	fileData = `apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: codefreshes.charts.helm.k8s.io
+  name: codefreshes.codefresh.io
 spec:
-  group: charts.helm.k8s.io
+  group: codefresh.io
   names:
     kind: Codefresh
     listKind: CodefreshList
@@ -74,7 +81,7 @@ spec:
       containers:
         - name: cf-onprem-operator
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: {{ .Values.image }}
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
@@ -182,6 +189,7 @@ rules:
   verbs:
   - get
 - apiGroups:
+  - codefresh.io
   - charts.helm.k8s.io
   resources:
   - '*'
@@ -229,7 +237,7 @@ metadata:
 	
 	//--------------------------------
 	fileName = "values.yaml"
-	fileData = `dummy: "1"`
+	fileData = `image: "codefresh/cf-onprem-operator:1.0.98-operator"`
 	bufferedFile = &loader.BufferedFile{Name: fileName, Data: []byte(fileData)}
 	chartsMap["codefresh-operator"] = append(chartsMap["codefresh-operator"], bufferedFile)
 
