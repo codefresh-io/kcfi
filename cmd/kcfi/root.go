@@ -146,8 +146,11 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	flags.ParseErrorsWhitelist.UnknownFlags = true
 	flags.Parse(args)
 
-		//Codefresh
-  cmd.AddCommand(newOperatorCmd(actionConfig, out))
+	//Add Codefresh subcommands
+	cmd.AddCommand(
+		newOperatorCmd(actionConfig, out),
+	  cfInitCmd(out),
+  )
 
 	helmCmd := &cobra.Command{
 		Use:                    "helm",

@@ -39,30 +39,9 @@ import (
 )
 
 const embededChartDeployDesc = `
-This command upgrades a release to a new version of a chart.
-
-The upgrade arguments must be a release and chart. The chart
-argument can be either: a chart reference('example/mariadb'), a path to a chart directory,
-a packaged chart, or a fully qualified URL. For chart references, the latest
-version will be specified unless the '--version' flag is set.
-
-To override values in a chart, use either the '--values' flag and pass in a file
-or use the '--set' flag and pass configuration from the command line, to force string
-values, use '--set-string'. In case a value is large and therefore
-you want not to use neither '--values' nor '--set', use '--set-file' to read the
-single large value from file.
-
-You can specify the '--values'/'-f' flag multiple times. The priority will be given to the
-last (right-most) file specified. For example, if both myvalues.yaml and override.yaml
-contained a key called 'Test', the value set in override.yaml would take precedence:
-
-    $ helm upgrade -f myvalues.yaml -f override.yaml redis ./redis
-
-You can specify the '--set' flag multiple times. The priority will be given to the
-last (right-most) set specified. For example, if both 'bar' and 'newbar' values are
-set for a key called 'foo', the 'newbar' value would take precedence:
-
-    $ helm upgrade --set foo=bar --set foo=newbar redis ./redis
+This command deploys embeded chart
+Accepts parameters of helm upgrade: 
+kcfi <chart-name> deploy [-f <values-file>] [--set key=value] [--set-file key=/path/to/file] [--atomic]
 `
 
 func embededChartRunInstall(releaseName string, embededChart string, args []string, client *action.Install, valueOpts *values.Options, out io.Writer) (*release.Release, error) {
