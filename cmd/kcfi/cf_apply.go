@@ -27,6 +27,7 @@ import (
 	"helm.sh/helm/v3/cmd/helm/require"
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/cli/values"
+	"helm.sh/helm/v3/pkg/getter"
 	helm "helm.sh/helm/v3/pkg/action"
 	"github.com/codefresh-io/onprem-operator/pkg/action"
 )
@@ -56,9 +57,15 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 					return err
 				}
 				client.ConfigFile = path.Join(stageDir, action.DefaultConfigFileName)
-
 			}
-			return client.Run()
+			// merging configFile with valueOpts
+			valueOpts.ValueFiles = append([]string{client.ConfigFile}, valueOpts.ValueFiles...)
+			vals, err := valueOpts.MergeValues(getter.All(settings))
+			if err != nil {
+				return err
+			}
+
+			return client.Run(vals)
 		},
 	}
 

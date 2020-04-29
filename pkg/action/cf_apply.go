@@ -95,7 +95,7 @@ func NewCfApply(cfg *helm.Configuration) *CfApply {
 }
 
 // Run the action
-func (o *CfApply) Run() error {
-	fmt.Printf("Applying Codefresh configuration from %s", o.ConfigFile)
+func (o *CfApply) Run(vals map[string]interface{}) error {
+	fmt.Printf("Applying Codefresh configuration from %s\n%v", o.ConfigFile, vals)
 	return nil
 }
