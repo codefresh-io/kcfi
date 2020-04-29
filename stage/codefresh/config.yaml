@@ -1,19 +1,43 @@
+installer:
+  release: 1.0.98
+  # type: 
+  #   "operator" - apply codefresh crd definition
+  #   "helm" - install/upgrade helm chart from client
+  type: operator
+  operator:
+    #image: codefresh/cf-onprem-operator:latest
+    # serviceAccount:
+    # skipCrd:
+  helm:
+  #  chart: 
+  #  version:
+  #  repo: 
+
+docker:
+  codefreshRegistrySa: docker/sa.json
+  # usePrivateRegistry: false
+  # privateRegistry:
+  #   address:
+  #   username:
+  #   password:
+  #   configFile:
+  
+
+tls:
+  selfSigned: false
+  cert: certs/ssl.crt
+  key: certs/private.key
+
+kubernetes:
+  namespace: codefresh
+  #kubeContext: 
+  #kubeConfig:
+
+### Helm values
 global:
-
-### expose codefresh internal registry from ingress
-  #registryPort: 443
-  #exposeRegistry: true
-
-### configuring external mongo database service
-  #mongodbRootUser: my-mongo-admin-user
-  #mongodbRootPassword: yeqTeVwqVa9qDqebq
-  #mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
-  #mongoSkipUserCreation: true
-  #mongoDeploy: false   # disables deployment of internal mongo service
-
   appProtocol: https
 ### Codefresh App domain name
-  appUrl: your-domain.com
+  appUrl: 
 
 # Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
@@ -34,13 +58,19 @@ global:
 #    NO_PROXY: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-payments,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store,cf-tasker-kubernetes"
 #    no_proxy: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-payments,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store,cf-tasker-kubernetes"
 
+### expose codefresh internal registry from ingress
+  #registryPort: 443
+  #exposeRegistry: true
+
+### configuring external mongo database service
+  #mongodbRootUser: my-mongo-admin-user
+  #mongodbRootPassword: yeqTeVwqVa9qDqebq
+  #mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
+  #mongoSkipUserCreation: true
+  #mongoDeploy: false   # disables deployment of internal mongo service
+
 ### Firebase secret
 firebaseSecret: 
-
-tls:
-  selfSigned: false
-  cert: certs/ssl.crt
-  key: certs/private.key
 
 ## Custom annotations for Codefresh ingress resource that override defaults
 #annotations:
@@ -170,7 +200,6 @@ runner:
   storageSize: 100Gi
   storageClass:
   #existingPvc: cf-runner-0
-
 
 # backups:
 #   #enabled: true

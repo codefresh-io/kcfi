@@ -149,7 +149,8 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	//Add Codefresh subcommands
 	cmd.AddCommand(
 		newOperatorCmd(actionConfig, out),
-	  cfInitCmd(out),
+		cfInitCmd(out),
+		cfApplyCmd(actionConfig, out),
   )
 
 	helmCmd := &cobra.Command{

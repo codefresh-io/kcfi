@@ -27,8 +27,8 @@ import (
 	"github.com/codefresh-io/onprem-operator/pkg/action"
 )
 
-const initDesc = `
-This command initialize installer by creating staging directory for Codefresh configuration
+const cfInitDesc = `
+This command initializes installer by creating staging directory for Codefresh configuration
    kcfi init [/path/to/codefresh-config-dir]
 by default creates in current directory
 `
@@ -38,7 +38,7 @@ func cfInitCmd(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "initialize stage config directory",
-		Long:  initDesc,
+		Long:  cfInitDesc,
 		Args:  require.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var stageDir string
