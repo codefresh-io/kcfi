@@ -14,7 +14,7 @@ installer:
   #  repo: 
 
 docker:
-  codefreshRegistrySa: docker/sa.json
+  codefreshRegistrySa: sa.json
   # usePrivateRegistry: false
   # privateRegistry:
   #   address:

@@ -26,6 +26,8 @@ import (
 const (
 	// DefaultConfigFileName - 
 	DefaultConfigFileName = "config.yaml"
+
+	stageOutputDir = "out" 
 )
 
 // CfInit is an action to create Codefresh config stage directory

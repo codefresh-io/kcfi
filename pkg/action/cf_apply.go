@@ -18,11 +18,26 @@ package action
 
 import (
 	"fmt"
-//	"path"
+	"path"
+	"path/filepath"
 	"time"
+	"io/ioutil"
+
+	"github.com/pkg/errors"
+	"github.com/stretchr/objx"
 
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/postrender"
+)
+
+var (
+	keyRelease = "installer.release"
+	
+	keyDockerCodefreshRegistrySa = "docker.codefreshRegistrySa"
+	keyDockerUsePrivateRegistry = "docker.usePrivateRegistry"
+	keyDockerprivateRegistryAddress = "docker.privateRegistry.address"
+	keyDockerprivateRegistryUsername = "docker.privateRegistry.username"
+	keyDockerprivateRegistryPassword = "docker.privateRegistry.password"
 )
 
 // CfApply is an action to creat or update Codefresh
@@ -87,6 +102,8 @@ type CfApply struct {
 	DisableOpenAPIValidation bool
 }
 
+
+
 // NewCfApply creates object
 func NewCfApply(cfg *helm.Configuration) *CfApply {
 	return &CfApply{
@@ -94,8 +111,63 @@ func NewCfApply(cfg *helm.Configuration) *CfApply {
 	}
 }
 
+// AddDockerRegistryVars - adds docker registry to vals
+func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) error {
+	
+	var registryAddress, registryUsername, registryPassword string
+	var err error
+	valsX := objx.New(vals)
+	usePrivateRegistry := valsX.Get(keyDockerUsePrivateRegistry).Bool(false)
+	if !usePrivateRegistry {
+		// using Codefresh Enterprise registry
+		registryAddress = "gcr.io"
+		registryUsername = "_json_key"
+		cfRegistrySaVal := valsX.Get(keyDockerCodefreshRegistrySa).Str("sa.json")
+		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
+    registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
+    if err != nil {
+        return errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
+		}
+		registryPassword = string(registryPasswordB)
+	} else {
+		registryAddress = valsX.Get(keyDockerprivateRegistryAddress).String()
+		registryUsername = valsX.Get(keyDockerprivateRegistryUsername).String()
+		registryPassword = valsX.Get(keyDockerprivateRegistryPassword).String()
+		if len(registryAddress) == 0 || len(registryUsername) == 0 || len(registryPassword) == 0 {
+			err = fmt.Errorf("missing private registry data: ")
+			if len(registryAddress) == 0 {
+				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryAddress)
+			}
+			if len(registryUsername) == 0 {
+				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryUsername)
+			}
+			if len(registryPassword) == 0 {
+				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryPassword)
+			}
+			return err
+		}
+	}
+	// Creating 
+	registryTplData := map[string]interface{}{
+		"RegistryAddress": registryAddress,
+		"DockerCfg": fmt.Sprintf("%s:%s", registryUsername, registryPassword),
+	} 
+	registryValues, err := ExecuteTemplateToValues(RegistryValuesTpl, registryTplData)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Error to parse docker registry values"))
+  }
+  vals = MergeMaps(vals, registryValues)
+	return nil
+}
+
 // Run the action
 func (o *CfApply) Run(vals map[string]interface{}) error {
-	fmt.Printf("Applying Codefresh configuration from %s\n%v", o.ConfigFile, vals)
+	fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
+	
+	err := o.AddDockerRegistryVars(vals)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to parse docker registry values")
+	}
+	
 	return nil
 }
