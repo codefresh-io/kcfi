@@ -20,34 +20,34 @@ import (
 	"bytes"
 	"text/template"
 	"github.com/codefresh-io/onprem-operator/pkg/engine"
-	yaml "gopkg.in/yaml.v2"
+	"sigs.k8s.io/yaml"
 )
 
 // ExecuteTemplate - executes templates in tpl str with config as values
-func ExecuteTemplate(tplStr string, data interface{}) ([]byte, error) {
+func ExecuteTemplate(tplStr string, data interface{}) (string, error) {
 
 	template, err := template.New("base").Funcs(engine.FuncMap()).Parse(tplStr)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	buf := bytes.NewBufferString("")
 	err = template.Execute(buf, data)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return buf.Bytes(), nil
+	return buf.String(), nil
 }
 
 // ExecuteTemplateToValues - exacutes template to map[string]interface{}
 func ExecuteTemplateToValues(tplStr string, data interface{}) (map[string]interface{}, error) {
-	tplResultB, err := ExecuteTemplate(tplStr, data)
+	tplResultS, err := ExecuteTemplate(tplStr, data)
 	if err != nil {
 		return nil, err
 	}
-	var tplResult map[string]interface{}
-	err = yaml.Unmarshal(tplResultB, &tplResult)
+	tplResult := map[string]interface{}{}
+	err = yaml.Unmarshal([]byte(tplResultS), &tplResult)
 	return tplResult, err
 }
 
@@ -71,41 +71,54 @@ func MergeMaps(a, b map[string]interface{}) map[string]interface{} {
 	return out
 }
 
+
 // ValuesTpl is a template to format final helm values
 var ValuesTpl = `
 {{ . | toYaml }}
 
 `
 
+//CfResourceTpl template to final Codefresh custom resource
+var CfResourceTpl = `
+apiVersion: codefresh.io/v1alpha1
+kind: Codefresh
+metadata:
+  name: cf
+  namespace: {{ .kubernetes.namespace }}
+spec:
+{{ . | toYaml | indent 2 }}
+`
+
 // RegistryValuesTpl template
 var RegistryValuesTpl = `
+{{ $auth := ((printf "%s:%s" .RegistryUsername ( .RegistryPassword | b64enc)) | b64enc) }}
 dockerconfigjson:
   auths:
-    {{.RegistryAddress}}:
-      auth: {{.DockerCfg | b64enc }}
+    {{.RegistryAddress | toString }}:
+      auth: {{ $auth }}
 global:
   dockerconfigjson:
     auths:
-      {{.RegistryAddress}}:
-        auth: {{.DockerCfg | b64enc }}
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
 cfui:
   dockerconfigjson:
     auths:
-      {{.RegistryAddress}}:
-        auth: {{.DockerCfg | b64enc }}
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
 runtime-environment-manager:
   dockerconfigjson:
     auths:
-      {{.RegistryAddress}}:
-        auth: {{.DockerCfg | b64enc }}
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
 onboarding-status:
   dockerconfigjson:
     auths:
-      {{.RegistryAddress}}:
-        auth: {{.DockerCfg | b64enc }}
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
 cfanalytic:
   dockerconfigjson:
     auths:
-      {{.RegistryAddress}}:
-        auth: {{.DockerCfg | b64enc }}
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
 `

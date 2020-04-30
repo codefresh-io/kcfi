@@ -18,7 +18,8 @@ package action
 
 import (
 	"fmt"
-  "path"
+	"path"
+	"path/filepath"
 	"github.com/codefresh-io/onprem-operator/pkg/embeded/stage"
 // 
 )
@@ -27,7 +28,8 @@ const (
 	// DefaultConfigFileName - 
 	DefaultConfigFileName = "config.yaml"
 
-	stageOutputDir = "out" 
+	// AssetsDir - folder name where we save kubernetes and helm assets
+	AssetsDir = "assets" 
 )
 
 // CfInit is an action to create Codefresh config stage directory
@@ -48,3 +50,9 @@ func (o *CfInit) Run() error {
 	fmt.Printf("Creating stage directory in %s\n", path.Join(o.stageDir, assetName))
 	return stage.RestoreAssets(o.stageDir, assetName)
 }
+
+// GetAssetsDir - retur assets dir
+func GetAssetsDir(configFile string) string {
+	return path.Join(filepath.Dir(configFile), AssetsDir)
+}
+

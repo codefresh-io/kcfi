@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"time"
 	"io/ioutil"
-
+	// yaml "gopkg.in/yaml.v2"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
@@ -112,7 +112,7 @@ func NewCfApply(cfg *helm.Configuration) *CfApply {
 }
 
 // AddDockerRegistryVars - adds docker registry to vals
-func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) error {
+func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) (map[string]interface{}, error) {
 	
 	var registryAddress, registryUsername, registryPassword string
 	var err error
@@ -120,13 +120,13 @@ func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) error {
 	usePrivateRegistry := valsX.Get(keyDockerUsePrivateRegistry).Bool(false)
 	if !usePrivateRegistry {
 		// using Codefresh Enterprise registry
-		registryAddress = "gcr.io"
+		registryAddress = "gcrio"
 		registryUsername = "_json_key"
 		cfRegistrySaVal := valsX.Get(keyDockerCodefreshRegistrySa).Str("sa.json")
 		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
     registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
     if err != nil {
-        return errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
+        return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
 		}
 		registryPassword = string(registryPasswordB)
 	} else {
@@ -144,30 +144,54 @@ func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) error {
 			if len(registryPassword) == 0 {
 				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryPassword)
 			}
-			return err
+			return nil, err
 		}
 	}
 	// Creating 
 	registryTplData := map[string]interface{}{
 		"RegistryAddress": registryAddress,
-		"DockerCfg": fmt.Sprintf("%s:%s", registryUsername, registryPassword),
+		"RegistryUsername": registryUsername,
+		"RegistryPassword": registryPassword,
 	} 
 	registryValues, err := ExecuteTemplateToValues(RegistryValuesTpl, registryTplData)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Error to parse docker registry values"))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error to parse docker registry values"))
   }
-  vals = MergeMaps(vals, registryValues)
-	return nil
+
+	return registryValues, nil
 }
 
 // Run the action
 func (o *CfApply) Run(vals map[string]interface{}) error {
 	fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	
-	err := o.AddDockerRegistryVars(vals)
+	registryValues, err := o.AddDockerRegistryVars(vals)
+	//_, err := o.AddDockerRegistryVars(vals)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to parse docker registry values")
 	}
-	
+	base := map[string]interface{}{}
+	base = MergeMaps(base, vals)
+	base = MergeMaps(base, registryValues)
+	valuesTplResult, err := ExecuteTemplate(ValuesTpl, base)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to generate values.yaml")
+	}
+
+	valuesYamlPath := path.Join(GetAssetsDir(o.ConfigFile), "values.yaml")
+	err = ioutil.WriteFile(valuesYamlPath, []byte(valuesTplResult), 0644)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to write %s ", valuesYamlPath)
+	}
+
+	cfResourceTplResult, err := ExecuteTemplate(CfResourceTpl, base)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to generate codefresh-resource.yaml")
+	}
+	cfResourceYamlPath := path.Join(GetAssetsDir(o.ConfigFile), "codefresh-resource.yaml")
+	err = ioutil.WriteFile(cfResourceYamlPath, []byte(cfResourceTplResult), 0644)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
+	}
 	return nil
 }
