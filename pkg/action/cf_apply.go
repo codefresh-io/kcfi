@@ -28,6 +28,7 @@ import (
 
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/postrender"
+	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
 var (
@@ -120,7 +121,7 @@ func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) (map[strin
 	usePrivateRegistry := valsX.Get(keyDockerUsePrivateRegistry).Bool(false)
 	if !usePrivateRegistry {
 		// using Codefresh Enterprise registry
-		registryAddress = "gcrio"
+		registryAddress = "gcr.io"
 		registryUsername = "_json_key"
 		cfRegistrySaVal := valsX.Get(keyDockerCodefreshRegistrySa).Str("sa.json")
 		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
@@ -164,6 +165,7 @@ func (o *CfApply) AddDockerRegistryVars (vals map[string]interface{}) (map[strin
 // Run the action
 func (o *CfApply) Run(vals map[string]interface{}) error {
 	fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
+	// fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	
 	registryValues, err := o.AddDockerRegistryVars(vals)
 	//_, err := o.AddDockerRegistryVars(vals)
@@ -173,6 +175,20 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	base := map[string]interface{}{}
 	base = MergeMaps(base, vals)
 	base = MergeMaps(base, registryValues)
+
+	// If a release does not exist add seeded jobs
+	histClient := helm.NewHistory(o.cfg)
+	histClient.Max = 1
+	if _, err := histClient.Run(CodefreshReleaseName); err == driver.ErrReleaseNotFound {
+		seedJobsValues := map[string]interface{}{
+			"global": map[string]interface{}{
+				"seedJobs": true,
+				"certsJobs": true,
+			},
+		}
+		base = MergeMaps(base, seedJobsValues)
+	}
+
 	valuesTplResult, err := ExecuteTemplate(ValuesTpl, base)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to generate values.yaml")
@@ -183,6 +199,7 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write %s ", valuesYamlPath)
 	}
+	fmt.Printf("values.yaml has been generated in %s\n", valuesYamlPath)
 
 	cfResourceTplResult, err := ExecuteTemplate(CfResourceTpl, base)
 	if err != nil {
@@ -193,5 +210,6 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
 	}
+	fmt.Printf("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
 	return nil
 }

@@ -91,7 +91,7 @@ spec:
 
 // RegistryValuesTpl template
 var RegistryValuesTpl = `
-{{ $auth := ((printf "%s:%s" .RegistryUsername ( .RegistryPassword | b64enc)) | b64enc) }}
+{{ $auth := ((printf "%s:%s" .RegistryUsername .RegistryPassword ) | b64enc) }}
 dockerconfigjson:
   auths:
     {{.RegistryAddress | toString }}:

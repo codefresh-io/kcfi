@@ -48,10 +48,10 @@ spec:
   scope: Namespaced
   subresources:
     status: {}
-  validation:
-    openAPIV3Schema:
-      type: object
-      x-kubernetes-preserve-unknown-fields: true
+  # validation:
+  #   openAPIV3Schema:
+  #     type: object
+  #     x-kubernetes-preserve-unknown-fields: true
   versions:
   - name: v1alpha1
     served: true
@@ -108,99 +108,106 @@ metadata:
   name: cf-onprem-operator
 rules:
 - apiGroups:
-  - ""
-  resources:
-  - pods
-  - services
-  - services/finalizers
-  - endpoints
-  - persistentvolumeclaims
-  - events
-  - configmaps
-  - secrets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - get
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  - secrets
-  verbs:
   - '*'
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  verbs:
-  - get
-  - create
-- apiGroups:
-  - apps
-  resourceNames:
-  - cf-onprem-operator
-  resources:
-  - deployments/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  - deployments
-  verbs:
-  - get
-- apiGroups:
-  - codefresh.io
-  - charts.helm.k8s.io
   resources:
   - '*'
   verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+  - '*'
+
+# - apiGroups:
+#   - ""
+#   resources:
+#   - pods
+#   - services
+#   - services/finalizers
+#   - endpoints
+#   - persistentvolumeclaims
+#   - events
+#   - configmaps
+#   - secrets
+#   verbs:
+#   - create
+#   - delete
+#   - get
+#   - list
+#   - patch
+#   - update
+#   - watch
+# - apiGroups:
+#   - apps
+#   resources:
+#   - deployments
+#   - daemonsets
+#   - replicasets
+#   - statefulsets
+#   verbs:
+#   - create
+#   - delete
+#   - get
+#   - list
+#   - patch
+#   - update
+#   - watch
+# - apiGroups:
+#   - ""
+#   resources:
+#   - namespaces
+#   verbs:
+#   - get
+# - apiGroups:
+#   - ""
+#   resources:
+#   - configmaps
+#   - secrets
+#   verbs:
+#   - '*'
+# - apiGroups:
+#   - ""
+#   resources:
+#   - events
+#   verbs:
+#   - create
+# - apiGroups:
+#   - monitoring.coreos.com
+#   resources:
+#   - servicemonitors
+#   verbs:
+#   - get
+#   - create
+# - apiGroups:
+#   - apps
+#   resourceNames:
+#   - cf-onprem-operator
+#   resources:
+#   - deployments/finalizers
+#   verbs:
+#   - update
+# - apiGroups:
+#   - ""
+#   resources:
+#   - pods
+#   verbs:
+#   - get
+# - apiGroups:
+#   - apps
+#   resources:
+#   - replicasets
+#   - deployments
+#   verbs:
+#   - get
+# - apiGroups:
+#   - codefresh.io
+#   - charts.helm.k8s.io
+#   resources:
+#   - '*'
+#   verbs:
+#   - create
+#   - delete
+#   - get
+#   - list
+#   - patch
+#   - update
+#   - watch
 `
 	bufferedFile = &loader.BufferedFile{Name: fileName, Data: []byte(fileData)}
 	chartsMap["codefresh-operator"] = append(chartsMap["codefresh-operator"], bufferedFile)

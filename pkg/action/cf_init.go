@@ -29,7 +29,10 @@ const (
 	DefaultConfigFileName = "config.yaml"
 
 	// AssetsDir - folder name where we save kubernetes and helm assets
-	AssetsDir = "assets" 
+	AssetsDir = "assets"
+
+	CodefreshReleaseName = "cf"
+	OperatorReleaseName = "cf-onprem-operator"
 )
 
 // CfInit is an action to create Codefresh config stage directory
