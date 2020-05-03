@@ -173,7 +173,25 @@ func (o *CfApply) ApplyCodefresh() error {
 			return errors.Wrapf(err, "Failed to apply %s\n", cfResourceYamlPath)
 		}   
     } else if installerType == installerTypeHelm {
-		
+		// first we will error if operator chart is installed:
+		histClient := helm.NewHistory(o.cfg)
+		histClient.Max = 1
+		if operatorRelease, _ := histClient.Run(operatorHelmReleaseName); operatorRelease != nil {
+			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
+		}
+		codefreshHelChartName := valsX.Get(keyCodefreshHelmChart).Str("codefresh.tgz")
+		_, err = DeployHelmRelease(
+			codefreshHelmReleaseName, 
+			codefreshHelChartName, 
+			o.vals, 
+			o.cfg, 
+			o.Helm,
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to deploy operator chart")	
+		}		
+	} else { 
+		return fmt.Errorf("Error: unknown instraller type %s", installerType)
 	}
 
 	fmt.Printf("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)

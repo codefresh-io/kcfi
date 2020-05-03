@@ -11,9 +11,9 @@ metadata:
       #serviceAccountName:
       #skipCRD:
     helm:
-    #  chart: 
-    #  version:
-    #  repo: 
+      chart: codefresh.tgz 
+      #repo
+      #version:
 
 docker:
   codefreshRegistrySa: sa.json

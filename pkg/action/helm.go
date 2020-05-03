@@ -11,6 +11,7 @@ import (
 
 func DeployHelmRelease(releaseName string, chart string, vals map[string]interface{}, cfg *helm.Configuration, client *helm.Upgrade) (*release.Release, error) {
 	var release *release.Release
+	fmt.Printf("Deploying release %s of chart %s", releaseName, chart)
 	// Checking if chart already installed and decide to use install or upgrade helm client
 	histClient := helm.NewHistory(cfg)
 	histClient.Max = 1

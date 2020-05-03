@@ -56,6 +56,9 @@ var (
 	operatorHelmReleaseName = "cf-onprem-operator"
 	operatorHelmChartName = "codefresh-operator"
 	
+	keyCodefreshHelmChart = "metadata.installer.helm.chart"
+	codefreshHelmReleaseName = "cf"
+
 )
 
 // CfInit is an action to create Codefresh config stage directory
