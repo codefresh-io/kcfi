@@ -97,6 +97,10 @@ dockerconfigjson:
     {{.RegistryAddress | toString }}:
       auth: {{ $auth }}
 global:
+  {{- if .docker.usePrivateRegistry }}
+  privateRegistry: true
+  dockerRegistry: {{ printf "%s/" .RegistryAddress }}
+  {{- end }}
   dockerconfigjson:
     auths:
       {{.RegistryAddress | toString }}:

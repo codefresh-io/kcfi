@@ -1,17 +1,21 @@
-installer:
-  release: 1.0.98
-  # type: 
-  #   "operator" - apply codefresh crd definition
-  #   "helm" - install/upgrade helm chart from client
-  type: operator
-  operator:
-    #image: codefresh/cf-onprem-operator:latest
-    # serviceAccount:
-    # skipCrd:
-  helm:
-  #  chart: 
-  #  version:
-  #  repo: 
+metadata:
+  kind: codefresh
+  installer:
+    release: 1.0.98
+    # type: 
+    #   "operator" - apply codefresh crd definition
+    #   "helm" - install/upgrade helm chart from client
+    type: operator
+    operator:
+      ### action is apply|replace|none (by kubectl apply|replace -f <codefresh-resource.yaml>)
+      action: apply
+      #image: codefresh/cf-onprem-operator:latest
+      #serviceAccount:
+      #skipCrd:
+    helm:
+    #  chart: 
+    #  version:
+    #  repo: 
 
 docker:
   codefreshRegistrySa: sa.json

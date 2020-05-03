@@ -17,17 +17,15 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1
 	github.com/opencontainers/image-spec v1.0.1
 	github.com/pkg/errors v0.9.1
-	github.com/shuLhan/go-bindata v3.4.0+incompatible // indirect
-	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/objx v0.2.0
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904
-	gopkg.in/yaml.v2 v2.2.8
 	helm.sh/helm/v3 v3.2.0
 	k8s.io/apimachinery v0.18.0
+	k8s.io/cli-runtime v0.18.0
 	k8s.io/client-go v0.18.0
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/yaml v1.2.0

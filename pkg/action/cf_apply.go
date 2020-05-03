@@ -21,6 +21,7 @@ import (
 	"path"
 	"path/filepath"
 	"time"
+	"os"
 	"io/ioutil"
 	// yaml "gopkg.in/yaml.v2"
 	"github.com/pkg/errors"
@@ -29,6 +30,12 @@ import (
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/storage/driver"
+
+	"k8s.io/cli-runtime/pkg/resource"
+//	"k8s.io/cli-runtime/pkg/genericclioptions"
+//	kubeapply "k8s.io/kubectl/pkg/cmd/apply"
+//	kubereplace "k8s.io/kubectl/pkg/cmd/replace"
+
 )
 
 var (
@@ -39,6 +46,8 @@ var (
 	keyDockerprivateRegistryAddress = "docker.privateRegistry.address"
 	keyDockerprivateRegistryUsername = "docker.privateRegistry.username"
 	keyDockerprivateRegistryPassword = "docker.privateRegistry.password"
+
+	keyInstallerType = "metadata.installer.type"
 )
 
 // CfApply is an action to creat or update Codefresh
@@ -211,5 +220,28 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 		return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
 	}
 	fmt.Printf("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
-	return nil
+
+  cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
+	}
+	cfResources, err := o.cfg.KubeClient.Build(cfResourceYamlReader, true)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
+	}
+	fmt.Printf("applying %s\n %v", cfResourceYamlPath, cfResources)
+	//_, err := o.cfg.KubeClient.Update()
+
+	err = cfResources.Visit(func(info *resource.Info, err error) error {
+		if err != nil {
+			return err
+		}
+
+		helper := resource.NewHelper(info.Client, info.Mapping)
+		_, err = helper.Replace(info.Namespace, info.Name, true, info.Object)
+		return err
+	})
+	return err
 }
+
+
