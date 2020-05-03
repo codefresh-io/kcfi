@@ -35,6 +35,24 @@ const (
 	OperatorReleaseName = "cf-onprem-operator"
 )
 
+var (
+	keyKind = "metadata.kind"
+	kindCodefresh = "codefresh"
+	kindK8sAgent = "k8sAgent"
+	kindVenona = "venona"
+	
+	keyDockerCodefreshRegistrySa = "docker.codefreshRegistrySa"
+	keyDockerUsePrivateRegistry = "docker.usePrivateRegistry"
+	keyDockerprivateRegistryAddress = "docker.privateRegistry.address"
+	keyDockerprivateRegistryUsername = "docker.privateRegistry.username"
+	keyDockerprivateRegistryPassword = "docker.privateRegistry.password"
+
+	keyRelease = "metadata.installer.release"	
+	keyInstallerType = "metadata.installer.type"
+	installerTypeOperator = "operator"
+	installerTypeHelm = "helm"
+)
+
 // CfInit is an action to create Codefresh config stage directory
 type CfInit struct {
 	stageDir string
