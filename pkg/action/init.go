@@ -21,7 +21,6 @@ import (
 	"path"
 	"path/filepath"
 	"github.com/codefresh-io/onprem-operator/pkg/embeded/stage"
-// 
 )
 
 const (
@@ -77,3 +76,6 @@ func GetAssetsDir(configFile string) string {
 	return path.Join(filepath.Dir(configFile), AssetsDir)
 }
 
+func debug(format string, v ...interface{}) {
+	fmt.Printf(format, v...)
+}
