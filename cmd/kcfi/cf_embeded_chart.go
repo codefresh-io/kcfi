@@ -35,7 +35,7 @@ import (
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"helm.sh/helm/v3/pkg/release"
 
-	"github.com/codefresh-io/onprem-operator/pkg/embeded/charts"
+	"github.com/codefresh-io/onprem-operator/pkg/charts"
 )
 
 const embededChartDeployDesc = `
