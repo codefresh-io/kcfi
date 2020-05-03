@@ -50,6 +50,12 @@ var (
 	keyInstallerType = "metadata.installer.type"
 	installerTypeOperator = "operator"
 	installerTypeHelm = "helm"
+
+	keyOperatorChartValues = "metadata.installer.operator"
+
+	operatorHelmReleaseName = "cf-onprem-operator"
+	operatorHelmChartName = "codefresh-operator"
+	
 )
 
 // CfInit is an action to create Codefresh config stage directory

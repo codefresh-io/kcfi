@@ -7,11 +7,9 @@ metadata:
     #   "helm" - install/upgrade helm chart from client
     type: operator
     operator:
-      ### action is apply|replace|none (by kubectl apply|replace -f <codefresh-resource.yaml>)
-      action: apply
       #image: codefresh/cf-onprem-operator:latest
-      #serviceAccount:
-      #skipCrd:
+      #serviceAccountName:
+      #skipCRD:
     helm:
     #  chart: 
     #  version:

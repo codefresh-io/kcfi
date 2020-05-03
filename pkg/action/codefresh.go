@@ -133,6 +133,24 @@ func (o *CfApply) ApplyCodefresh() error {
     valsX := objx.New(o.vals)
     installerType := valsX.Get(keyInstallerType).String()
     if installerType == installerTypeOperator {
+		
+		// Deploy Codefresh Operator with wait first
+		operatorChartValues := valsX.Get(keyOperatorChartValues).MSI(map[string]interface{}{})
+		helmWaitBak := o.Helm.Wait
+		o.Helm.Wait = true
+		_, err = DeployHelmRelease(
+					operatorHelmReleaseName, 
+					operatorHelmChartName, 
+					operatorChartValues, 
+					o.cfg, 
+					o.Helm,
+				)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to deploy operator chart")	
+		}
+		o.Helm.Wait = helmWaitBak
+
+		// Update Codefresh resourtc 
         cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
         if err != nil {
             return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
@@ -150,9 +168,69 @@ func (o *CfApply) ApplyCodefresh() error {
             helper := resource.NewHelper(info.Client, info.Mapping)
             _, err = helper.Replace(info.Namespace, info.Name, true, info.Object)
             return err
-        })
-        return err     
-    }
+		})
+		if err != nil {
+			return errors.Wrapf(err, "Failed to apply %s\n", cfResourceYamlPath)
+		}   
+    } else if installerType == installerTypeHelm {
+		
+	}
 
+	fmt.Printf("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
     return nil
 }
+
+// ValuesTpl is a template to format final helm values
+var ValuesTpl = `
+{{ . | toYaml }}
+
+`
+
+//CfResourceTpl template to final Codefresh custom resource
+var CfResourceTpl = `
+apiVersion: codefresh.io/v1alpha1
+kind: Codefresh
+metadata:
+  name: cf
+  namespace: {{ .kubernetes.namespace }}
+spec:
+{{ . | toYaml | indent 2 }}
+`
+
+// RegistryValuesTpl template
+var RegistryValuesTpl = `
+{{ $auth := ((printf "%s:%s" .RegistryUsername .RegistryPassword ) | b64enc) }}
+dockerconfigjson:
+  auths:
+    {{.RegistryAddress | toString }}:
+      auth: {{ $auth }}
+global:
+  {{- if .docker.usePrivateRegistry }}
+  privateRegistry: true
+  dockerRegistry: {{ printf "%s/" .RegistryAddress }}
+  {{- end }}
+  dockerconfigjson:
+    auths:
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
+cfui:
+  dockerconfigjson:
+    auths:
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
+runtime-environment-manager:
+  dockerconfigjson:
+    auths:
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
+onboarding-status:
+  dockerconfigjson:
+    auths:
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
+cfanalytic:
+  dockerconfigjson:
+    auths:
+      {{.RegistryAddress | toString }}:
+        auth: {{ $auth }}
+`

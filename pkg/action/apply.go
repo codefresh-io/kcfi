@@ -117,8 +117,6 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 		return fmt.Errorf("Wrong installer kind %s", kind)
 
 	}
-
-
 }
 
 

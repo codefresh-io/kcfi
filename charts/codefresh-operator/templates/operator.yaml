@@ -12,7 +12,7 @@ spec:
       labels:
         name: cf-onprem-operator
     spec:
-      serviceAccountName: cf-onprem-operator
+      serviceAccountName: {{ .Values.serviceAccountName | default "cf-onprem-operator" }}
       containers:
         - name: cf-onprem-operator
           # Replace this with the built image name
