@@ -46,9 +46,9 @@ func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
 		registryUsername = "_json_key"
 		cfRegistrySaVal := valsX.Get(keyDockerCodefreshRegistrySa).Str("sa.json")
 		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
-    registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
-    if err != nil {
-        return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
+		registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
 		}
 		registryPassword = string(registryPasswordB)
 	} else {
@@ -90,24 +90,23 @@ func (o *CfApply) ApplyCodefresh() error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to parse docker registry values")
 	}
-	base := map[string]interface{}{}
-	base = MergeMaps(base, o.vals)
-	base = MergeMaps(base, registryValues)
-
+	o.vals = MergeMaps(o.vals, registryValues)
+	valsX := objx.New(o.vals)
+	
 	// If a release does not exist add seeded jobs
 	histClient := helm.NewHistory(o.cfg)
 	histClient.Max = 1
-	if _, err := histClient.Run(CodefreshReleaseName); err == driver.ErrReleaseNotFound {
+	if _, err := histClient.Run(codefreshHelmReleaseName); err == driver.ErrReleaseNotFound {
 		seedJobsValues := map[string]interface{}{
 			"global": map[string]interface{}{
 				"seedJobs": true,
 				"certsJobs": true,
 			},
 		}
-		base = MergeMaps(base, seedJobsValues)
+		o.vals = MergeMaps(o.vals, seedJobsValues)
 	}
 
-	valuesTplResult, err := ExecuteTemplate(ValuesTpl, base)
+	valuesTplResult, err := ExecuteTemplate(ValuesTpl, o.vals)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to generate values.yaml")
 	}
@@ -119,7 +118,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 	fmt.Printf("values.yaml has been generated in %s\n", valuesYamlPath)
 
-	cfResourceTplResult, err := ExecuteTemplate(CfResourceTpl, base)
+	cfResourceTplResult, err := ExecuteTemplate(CfResourceTpl, o.vals)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to generate codefresh-resource.yaml")
 	}
@@ -130,7 +129,6 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 	fmt.Printf("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
 
-    valsX := objx.New(o.vals)
     installerType := valsX.Get(keyInstallerType).String()
     if installerType == installerTypeOperator {
 		
