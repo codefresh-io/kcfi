@@ -21,7 +21,7 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 		fmt.Printf("Release %q does not exist. Installing it now.\n", releaseName)
 		
 		instClient := helm.NewInstall(cfg)
-		instClient.CreateNamespace = true //TODO
+		instClient.CreateNamespace = false //TODO
 		instClient.ChartPathOptions = client.ChartPathOptions
 		instClient.DryRun = client.DryRun
 		instClient.DisableHooks = client.DisableHooks
@@ -34,12 +34,6 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 		instClient.PostRenderer = client.PostRenderer
 		instClient.DisableOpenAPIValidation = client.DisableOpenAPIValidation
 		instClient.SubNotes = client.SubNotes
-
-		debug("Original chart version: %q", instClient.Version)
-		if instClient.Version == "" && instClient.Devel {
-			debug("setting version to >0.0.0-0")
-			instClient.Version = ">0.0.0-0"
-		}
 	
 		// Check chart dependencies to make sure all are present in /charts
 		chartRequested, err := charts.Load(chart)
@@ -51,16 +45,10 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 		if chartRequested.Metadata.Deprecated {
 			fmt.Println("WARNING: This chart is deprecated")
 		}
-		release, err = instClient.Run(chartRequested, vals)
+		return instClient.Run(chartRequested, vals)
 	
 	} else if err != nil {
 		return nil, err
-	}
-
-	// Upgrading
-	if client.Version == "" && client.Devel {
-		debug("setting version to >0.0.0-0")
-		client.Version = ">0.0.0-0"
 	}
 
 	// Check chart dependencies to make sure all are present in /charts
