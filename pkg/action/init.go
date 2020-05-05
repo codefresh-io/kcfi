@@ -17,8 +17,11 @@ limitations under the License.
 package action
 
 import (
+	"os"
 	"fmt"
+	"strings"
 	"regexp"
+	"io/ioutil"
 	"path"
 	"path/filepath"
 	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
@@ -64,15 +67,15 @@ const (
 
 // CfInit is an action to create Codefresh config stage directory
 type CfInit struct {
-	productName string
-	stageDir string
+	ProductName string
+	StageDir string
 }
 
 // NewCfInit creates object
 func NewCfInit(productName, stageDir string) *CfInit {
 	return &CfInit{
-		productName: productName,
-		stageDir: stageDir,
+		ProductName: productName,
+		StageDir: stageDir,
 	}
 }
 
@@ -80,16 +83,82 @@ func NewCfInit(productName, stageDir string) *CfInit {
 func (o *CfInit) Run() error {
 	var isValidProduct bool
 	for _, name := range StageDirsList() {
-		if o.productName == name {
+		if o.ProductName == name {
 			isValidProduct = true
 			break
 		}
 	}
 	if !isValidProduct {
-	   return fmt.Errorf("Unknown product %s", o.productName)
+	   return fmt.Errorf("Unknown product %s", o.ProductName)
 	}
-	fmt.Printf("Creating stage directory in %s\n", path.Join(o.stageDir, o.productName))
-	return stage.RestoreAssets(o.stageDir, o.productName)
+
+	var err error
+	var restoreDir string
+	if len(o.StageDir) == 0 {
+		o.StageDir, err = os.Getwd()
+		if err != nil {
+			return err
+		}
+		restoreDir = path.Join(o.StageDir, o.ProductName)
+	} else {
+		restoreDir = o.StageDir
+	}
+	
+	fmt.Printf("Creating stage directory in %s\n", restoreDir )
+	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
+		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
+	}
+	return restoreStageAssets(restoreDir, o.ProductName)
+}
+
+// restoreStageAssets restores an asset with replacing first folder under the given directory recursively
+func restoreStageAssets(dir, name string) error {
+	children, err := stage.AssetDir(name)
+	// File
+	if err != nil {
+		return restoreAsset(dir, name)
+	}
+	// Dir
+	for _, child := range children {
+		err = restoreStageAssets(dir, fmt.Sprintf("%s/%s", name, child))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// restoreAsset restores an asset under the given directory with removing first folder
+func restoreAsset(dir, name string) error {
+	data, err := stage.Asset(name)
+	if err != nil {
+		return err
+	}
+	info, err := stage.AssetInfo(name)
+	if err != nil {
+		return err
+	}
+
+	stageFileNameReplaceRe, _ := regexp.Compile(`^(.*?/)(.*$)$`)
+	stageFileName := stageFileNameReplaceRe.ReplaceAllString(name, "$2")
+	err = os.MkdirAll(_filePath(dir, filepath.Dir(stageFileName)), os.FileMode(0755))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(_filePath(dir, stageFileName), data, info.Mode())
+	if err != nil {
+		return err
+	}
+	err = os.Chtimes(_filePath(dir, stageFileName), info.ModTime(), info.ModTime())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func _filePath(dir, name string) string {
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
+	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
 
 // StageDirsList - returns list of registered staging dir
@@ -97,7 +166,7 @@ func StageDirsList() []string {
 	var stageDirsList []string
 	var stageName string
 	stageDirsMap := make(map[string]int)
-	stageNameReplaceRe, _ := regexp.Compile(`^(.*)/(.*$)$`)
+	stageNameReplaceRe, _ := regexp.Compile(`^(.*?)/(.*$)$`)
 
 	for _, name := range stage.AssetNames() {
 		stageName = stageNameReplaceRe.ReplaceAllString(name, "$1")

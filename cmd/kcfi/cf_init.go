@@ -19,55 +19,50 @@ package main
 import (
 
 	"io"
-	"os"
-
+	"fmt"
+	"strings"
 	"github.com/spf13/cobra"
 
 	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/kcfi/pkg/action"
-	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
 )
 
 
 
-func cfInitDesk() string {
-	cfInitDesk := `This command initializes installer by creating staging directory for Codefresh configuration
-	kcfi init <product> [-d /path/to/config-dir]
+func cfInitDesc() string {
+	cfInitDesc := `
+This command initializes installer by creating stage directory for Codefresh product configuration
+
+  kcfi init <product> [-d /path/to/stage-dir]
 	
-	products are:
-	`
-	
-	for _, name := range action.StageDirsList() {
-		cfInitDesk += fmt.Sprintf("    %s", name)
-	}
-	cfInitDesk += `
-	by default it create stage in current directory
-	`
-	return cfInitDesk
+products are: `
+    cfInitDesc += strings.Join(action.StageDirsList(), ", ")
+	cfInitDesc += `
+by default it creates stage in current directory
+`
+	return cfInitDesc
 }
 
+func cfInitUse() string {
+	cfInitUse := fmt.Sprintf("init %s [ -d /path/to/stagedir]", strings.Join(action.StageDirsList(), "|"))
+	return cfInitUse
+}
 
 func cfInitCmd(out io.Writer) *cobra.Command {
-	
+	var productName, stageDir string
 	cmd := &cobra.Command{
-		Use:   "init",
+		Use:   cfInitUse(),
 		Short: "initialize stage config directory",
 		Long:  cfInitDesc(),
 		Args:  require.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var stageDir string
-			var err error
-			if len(args) > 0 {
-				stageDir = args[0]
-			} else {
-				stageDir, err = os.Getwd()
-				if err != nil {
-					return err
-				}
-			}
-			client := action.NewCfInit(stageDir)
+			productName = args[0]
+			client := action.NewCfInit(productName, stageDir)
 			return client.Run()
 		},
 	}
+
+	f := cmd.Flags()
+	f.StringVarP(&stageDir, "stage-dir", "d", "", "Codefresh config file")	
 	return cmd
 }
