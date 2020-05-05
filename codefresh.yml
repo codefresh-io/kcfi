@@ -43,7 +43,7 @@ steps:
     commands:
       - hack/build.sh
       - cd cmd/kcfi
-      - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate
+      - goreleaser release -f ../../.goreleaser.yml --rm-dist --skip-validate
     when:
       branch:
         only: [master]
