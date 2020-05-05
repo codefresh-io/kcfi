@@ -93,6 +93,9 @@ func (o *CfApply) ApplyCodefresh() error {
 	o.vals = MergeMaps(o.vals, registryValues)
 	valsX := objx.New(o.vals)
 	
+	namespace := valsX.Get(keyNamespace).String()
+	o.Helm.Namespace = namespace
+
 	// If a release does not exist add seeded jobs
 	histClient := helm.NewHistory(o.cfg)
 	histClient.Max = 1

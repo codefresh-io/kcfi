@@ -112,7 +112,7 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()
-
+		
 	default:
 		return fmt.Errorf("Wrong installer kind %s", kind)
 

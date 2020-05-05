@@ -32,9 +32,7 @@ const (
 
 	CodefreshReleaseName = "cf"
 	OperatorReleaseName = "cf-onprem-operator"
-)
 
-var (
 	keyKind = "metadata.kind"
 	kindCodefresh = "codefresh"
 	kindK8sAgent = "k8sAgent"
@@ -58,6 +56,8 @@ var (
 	
 	keyCodefreshHelmChart = "metadata.installer.helm.chart"
 	codefreshHelmReleaseName = "cf"
+
+	keyNamespace = "kubernetes.namespace"
 
 )
 

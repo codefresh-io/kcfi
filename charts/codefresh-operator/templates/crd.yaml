@@ -1,4 +1,4 @@
-{{ if not .Value.skipCRD }}
+{{ if not .Values.skipCRD }}
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
