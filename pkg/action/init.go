@@ -18,6 +18,7 @@ package action
 
 import (
 	"fmt"
+	"regexp"
 	"path"
 	"path/filepath"
 	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
@@ -63,21 +64,49 @@ const (
 
 // CfInit is an action to create Codefresh config stage directory
 type CfInit struct {
+	productName string
 	stageDir string
 }
 
 // NewCfInit creates object
-func NewCfInit(stageDir string) *CfInit {
+func NewCfInit(productName, stageDir string) *CfInit {
 	return &CfInit{
+		productName: productName,
 		stageDir: stageDir,
 	}
 }
 
 // Run the action
 func (o *CfInit) Run() error {
-	assetName := "codefresh"
-	fmt.Printf("Creating stage directory in %s\n", path.Join(o.stageDir, assetName))
-	return stage.RestoreAssets(o.stageDir, assetName)
+	var isValidProduct bool
+	for _, name := range StageDirsList() {
+		if o.productName == name {
+			isValidProduct = true
+			break
+		}
+	}
+	if !isValidProduct {
+	   return fmt.Errorf("Unknown product %s", o.productName)
+	}
+	fmt.Printf("Creating stage directory in %s\n", path.Join(o.stageDir, o.productName))
+	return stage.RestoreAssets(o.stageDir, o.productName)
+}
+
+// StageDirsList - returns list of registered staging dir
+func StageDirsList() []string {	
+	var stageDirsList []string
+	var stageName string
+	stageDirsMap := make(map[string]int)
+	stageNameReplaceRe, _ := regexp.Compile(`^(.*)/(.*$)$`)
+
+	for _, name := range stage.AssetNames() {
+		stageName = stageNameReplaceRe.ReplaceAllString(name, "$1")
+		if _, stageNameListed := stageDirsMap[stageName]; !stageNameListed {
+			stageDirsMap[stageName] = 1
+			stageDirsList = append(stageDirsList, stageName)
+		}
+	}
+	return stageDirsList
 }
 
 // GetAssetsDir - retur assets dir
