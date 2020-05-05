@@ -29,7 +29,7 @@ import (
 	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/getter"
 	helm "helm.sh/helm/v3/pkg/action"
-	"github.com/codefresh-io/onprem-operator/pkg/action"
+	"github.com/codefresh-io/kcfi/pkg/action"
 )
 
 const cfApplyDesc = `

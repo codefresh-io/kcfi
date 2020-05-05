@@ -4,7 +4,7 @@
 // ../stage/codefresh/certs/tls.md
 // ../stage/codefresh/config.yaml
 // ../stage/codefresh/docker/docker.md
-// ../stage/k8sagent/config.yaml
+// ../stage/k8s-agent/config.yaml
 package stage
 
 import (
@@ -161,22 +161,22 @@ func codefreshDockerDockerMd() (*asset, error) {
 	return a, nil
 }
 
-var _k8sagentConfigYaml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x01\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00")
+var _k8sAgentConfigYaml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xca\x4d\x2d\x49\x4c\x49\x2c\x49\xb4\xe2\x52\x50\xc8\xce\xcc\x4b\xb1\x52\xc8\xb6\x28\xd6\x4d\x4c\x4f\xcd\x2b\x01\x04\x00\x00\xff\xff\x73\xdb\xf5\x15\x1b\x00\x00\x00")
 
-func k8sagentConfigYamlBytes() ([]byte, error) {
+func k8sAgentConfigYamlBytes() ([]byte, error) {
 	return bindataRead(
-		_k8sagentConfigYaml,
-		"k8sagent/config.yaml",
+		_k8sAgentConfigYaml,
+		"k8s-agent/config.yaml",
 	)
 }
 
-func k8sagentConfigYaml() (*asset, error) {
-	bytes, err := k8sagentConfigYamlBytes()
+func k8sAgentConfigYaml() (*asset, error) {
+	bytes, err := k8sAgentConfigYamlBytes()
 	if err != nil {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8sagent/config.yaml", size: 0, mode: os.FileMode(420), modTime: time.Unix(1588605719, 0)}
+	info := bindataFileInfo{name: "k8s-agent/config.yaml", size: 27, mode: os.FileMode(420), modTime: time.Unix(1588688342, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -237,7 +237,7 @@ var _bindata = map[string]func() (*asset, error){
 	"codefresh/certs/tls.md":     codefreshCertsTlsMd,
 	"codefresh/config.yaml":      codefreshConfigYaml,
 	"codefresh/docker/docker.md": codefreshDockerDockerMd,
-	"k8sagent/config.yaml":       k8sagentConfigYaml,
+	"k8s-agent/config.yaml":      k8sAgentConfigYaml,
 }
 
 // AssetDir returns the file names below a certain
@@ -293,8 +293,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 			"docker.md": &bintree{codefreshDockerDockerMd, map[string]*bintree{}},
 		}},
 	}},
-	"k8sagent": &bintree{nil, map[string]*bintree{
-		"config.yaml": &bintree{k8sagentConfigYaml, map[string]*bintree{}},
+	"k8s-agent": &bintree{nil, map[string]*bintree{
+		"config.yaml": &bintree{k8sAgentConfigYaml, map[string]*bintree{}},
 	}},
 }}
 

@@ -8,7 +8,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/chart"
 
-	eCharts "github.com/codefresh-io/onprem-operator/pkg/embeded/charts"
+	eCharts "github.com/codefresh-io/kcfi/pkg/embeded/charts"
 )
 
 func Load(chartName string) (*chart.Chart, error){

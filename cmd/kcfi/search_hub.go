@@ -25,7 +25,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/monocular"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/monocular"
 	"helm.sh/helm/v3/pkg/cli/output"
 )
 

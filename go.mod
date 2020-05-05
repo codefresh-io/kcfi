@@ -1,4 +1,4 @@
-module github.com/codefresh-io/onprem-operator
+module github.com/codefresh-io/kcfi
 
 go 1.13
 
@@ -11,8 +11,6 @@ require (
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/docker/docker v1.4.2-0.20200203170920-46ec8731fbce
 	github.com/docker/go-units v0.4.0
-	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
-	github.com/go-delve/delve v1.4.0 // indirect
 	github.com/gofrs/flock v0.7.1
 	github.com/gosuri/uitable v0.0.4
 	github.com/mattn/go-shellwords v1.0.10

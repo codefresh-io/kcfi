@@ -25,7 +25,7 @@ import (
 	"time"
 
 	//"helm.sh/helm/v3/internal/version"
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/version"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/version"
 	"helm.sh/helm/v3/pkg/chart"
 )
 

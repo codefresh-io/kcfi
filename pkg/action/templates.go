@@ -19,7 +19,7 @@ package action
 import (
 	"bytes"
 	"text/template"
-	"github.com/codefresh-io/onprem-operator/pkg/engine"
+	"github.com/codefresh-io/kcfi/pkg/engine"
 	"sigs.k8s.io/yaml"
 )
 

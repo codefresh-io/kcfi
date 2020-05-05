@@ -24,7 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/completion"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
 	"helm.sh/helm/v3/pkg/plugin"
 	"helm.sh/helm/v3/pkg/plugin/installer"
 )

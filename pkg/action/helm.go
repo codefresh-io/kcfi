@@ -5,7 +5,7 @@ import (
 	"github.com/pkg/errors"
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
-	"github.com/codefresh-io/onprem-operator/pkg/charts"
+	"github.com/codefresh-io/kcfi/pkg/charts"
 	"helm.sh/helm/v3/pkg/storage/driver"
 )
 

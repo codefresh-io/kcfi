@@ -28,7 +28,7 @@ import (
 	shellwords "github.com/mattn/go-shellwords"
 	"github.com/spf13/cobra"
 
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/test"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/test"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/cli"

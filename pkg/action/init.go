@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"path"
 	"path/filepath"
-	"github.com/codefresh-io/onprem-operator/pkg/embeded/stage"
+	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
 )
 
 const (

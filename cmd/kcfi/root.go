@@ -27,10 +27,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	//"github.com/codefresh-io/onprem-operator/pkg/helm-internal/completion"
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/completion"
-	//"github.com/codefresh-io/onprem-operator/pkg/helm-internal/experimental/registry"
-	//"github.com/codefresh-io/onprem-operator/pkg/helm-internal/experimental/registry"
+	//"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
+	//"github.com/codefresh-io/kcfi/pkg/helm-internal/experimental/registry"
+	//"github.com/codefresh-io/kcfi/pkg/helm-internal/experimental/registry"
 	"helm.sh/helm/v3/pkg/action"
 )
 
@@ -151,7 +151,7 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 		newOperatorCmd(actionConfig, out),
 		cfInitCmd(out),
 		cfApplyCmd(actionConfig, out),
-  )
+	)
 
 	helmCmd := &cobra.Command{
 		Use:                    "helm",

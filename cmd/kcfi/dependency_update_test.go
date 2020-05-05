@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/test/ensure"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/test/ensure"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/helmpath"

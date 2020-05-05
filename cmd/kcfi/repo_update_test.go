@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codefresh-io/onprem-operator/pkg/helm-internal/test/ensure"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/test/ensure"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/repo/repotest"
