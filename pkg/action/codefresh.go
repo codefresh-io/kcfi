@@ -23,6 +23,7 @@ import (
 	"os"
 	"io/ioutil"
 
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"github.com/pkg/errors"
     "github.com/stretchr/objx"
     
@@ -164,10 +165,16 @@ func (o *CfApply) ApplyCodefresh() error {
         err = cfResources.Visit(func(info *resource.Info, err error) error {
             if err != nil {
                 return err
-            }
-
-            helper := resource.NewHelper(info.Client, info.Mapping)
-            _, err = helper.Replace(info.Namespace, info.Name, true, info.Object)
+            }			
+			helper := resource.NewHelper(info.Client, info.Mapping)
+			if err = info.Get(); err != nil {
+				if !kerrors.IsNotFound(err) {
+					return errors.Wrapf(err, fmt.Sprintf("retrieving current configuration of:\n%s\nfrom server for:", info.String()))
+				}
+				_, err = helper.Create(info.Namespace, true, info.Object)				
+			} else {
+				_, err = helper.Replace(info.Namespace, info.Name, true, info.Object)				
+			}	
             return err
 		})
 		if err != nil {

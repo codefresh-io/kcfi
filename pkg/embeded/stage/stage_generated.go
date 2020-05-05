@@ -4,6 +4,7 @@
 // ../stage/codefresh/certs/tls.md
 // ../stage/codefresh/config.yaml
 // ../stage/codefresh/docker/docker.md
+// ../stage/k8sagent/config.yaml
 package stage
 
 import (
@@ -160,6 +161,26 @@ func codefreshDockerDockerMd() (*asset, error) {
 	return a, nil
 }
 
+var _k8sagentConfigYaml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x01\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00")
+
+func k8sagentConfigYamlBytes() ([]byte, error) {
+	return bindataRead(
+		_k8sagentConfigYaml,
+		"k8sagent/config.yaml",
+	)
+}
+
+func k8sagentConfigYaml() (*asset, error) {
+	bytes, err := k8sagentConfigYamlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "k8sagent/config.yaml", size: 0, mode: os.FileMode(420), modTime: time.Unix(1588605719, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -216,6 +237,7 @@ var _bindata = map[string]func() (*asset, error){
 	"codefresh/certs/tls.md":     codefreshCertsTlsMd,
 	"codefresh/config.yaml":      codefreshConfigYaml,
 	"codefresh/docker/docker.md": codefreshDockerDockerMd,
+	"k8sagent/config.yaml":       k8sagentConfigYaml,
 }
 
 // AssetDir returns the file names below a certain
@@ -270,6 +292,9 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"docker": &bintree{nil, map[string]*bintree{
 			"docker.md": &bintree{codefreshDockerDockerMd, map[string]*bintree{}},
 		}},
+	}},
+	"k8sagent": &bintree{nil, map[string]*bintree{
+		"config.yaml": &bintree{k8sagentConfigYaml, map[string]*bintree{}},
 	}},
 }}
 

@@ -9,6 +9,7 @@
 // ../charts/codefresh-operator/templates/service_account.yaml
 // ../charts/codefresh-operator/values.yaml
 // ../charts/codefresh.tgz
+// ../charts/k8sagent/Charts.yaml
 package charts
 
 import (
@@ -265,6 +266,26 @@ func codefreshTgz() (*asset, error) {
 	return a, nil
 }
 
+var _k8sagentChartsYaml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xca\x4b\xcc\x4d\xb5\x52\xc8\xb6\x28\x4e\x4c\x4f\xcd\x2b\xe1\x2a\x4b\x2d\x2a\xce\xcc\xcf\xb3\x52\x30\x34\x34\xe4\x02\x04\x00\x00\xff\xff\x6e\x6e\x1e\x90\x1c\x00\x00\x00")
+
+func k8sagentChartsYamlBytes() ([]byte, error) {
+	return bindataRead(
+		_k8sagentChartsYaml,
+		"k8sagent/Charts.yaml",
+	)
+}
+
+func k8sagentChartsYaml() (*asset, error) {
+	bytes, err := k8sagentChartsYamlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "k8sagent/Charts.yaml", size: 28, mode: os.FileMode(420), modTime: time.Unix(1588605681, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -326,6 +347,7 @@ var _bindata = map[string]func() (*asset, error){
 	"codefresh-operator/templates/service_account.yaml": codefreshOperatorTemplatesService_accountYaml,
 	"codefresh-operator/values.yaml":                    codefreshOperatorValuesYaml,
 	"codefresh.tgz":                                     codefreshTgz,
+	"k8sagent/Charts.yaml":                              k8sagentChartsYaml,
 }
 
 // AssetDir returns the file names below a certain
@@ -382,6 +404,9 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"values.yaml": &bintree{codefreshOperatorValuesYaml, map[string]*bintree{}},
 	}},
 	"codefresh.tgz": &bintree{codefreshTgz, map[string]*bintree{}},
+	"k8sagent": &bintree{nil, map[string]*bintree{
+		"Charts.yaml": &bintree{k8sagentChartsYaml, map[string]*bintree{}},
+	}},
 }}
 
 // RestoreAsset restores an asset under the given directory
