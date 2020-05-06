@@ -6,4 +6,9 @@ DIR=$(dirname $0)
 
 which go-bindata >/dev/null || go get -u github.com/go-bindata/go-bindata/...
 go generate ${DIR}/generate.go
-GO111MODULE=on go build -o "${DIR}"/../kcfi github.com/codefresh-io/kcfi/cmd/kcfi
+
+if [[ -z $CI ]]; then
+    GO111MODULE=on go build -o "${DIR}"/../kcfi github.com/codefresh-io/onprem-operator/cmd/kcfi
+else
+    echo "Build is running within a CF pipeline, skipping code compilation for goreleaser"
+fi
