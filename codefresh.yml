@@ -1,0 +1,49 @@
+version: '1.0'
+stages:
+  - clone
+  - prepare
+  - release
+steps:
+  main_clone:
+    title: 'Cloning main repository...'
+    stage: clone
+    type: git-clone
+    repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
+    revision: "${{CF_REVISION}}"
+    git: "${{GIT_CONTEXT}}"
+
+  validate_version:
+    image: codefreshio/ci-helpers
+    stage: prepare
+    commands:
+      - hack/version_check.sh
+      
+  prepare_env_vars:
+    title: 'Preparing environment variables...'
+    stage: prepare
+    image: codefreshio/ci-helpers
+    commands:
+      - source /get-token/get-gh-token.sh
+      - cf_export GITHUB_TOKEN
+      - cf_export INSTALLER_VERSION=$(cat version)
+      
+  create_git_tag:
+    image: codefreshio/ci-helpers
+    stage: release
+    commands:
+      - git tag ${INSTALLER_VERSION}
+    when:
+      branch:
+        only: [master]
+          
+  release_binaries:
+    title: Create release in Github with the installer CLI
+    image: codefresh/goreleaser:${{GOLANG_VERSION}}
+    stage: release
+    commands:
+      - hack/build.sh
+      - cd cmd/kcfi
+      - goreleaser release -f ../../.goreleaser.yml --rm-dist --skip-validate
+    when:
+      branch:
+        only: [master]
