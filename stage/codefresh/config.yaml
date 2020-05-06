@@ -15,31 +15,11 @@ metadata:
       #repo
       #version:
 
-docker:
-  codefreshRegistrySa: sa.json
-  # usePrivateRegistry: false
-  # privateRegistry:
-  #   address:
-  #   username:
-  #   password:
-  #   configFile:
-  
-
-tls:
-  selfSigned: false
-  cert: certs/ssl.crt
-  key: certs/private.key
-
-kubernetes:
-  namespace: codefresh
-  #kubeContext: 
-  #kubeConfig:
-
-### Helm values
+  ### Helm values
 global:
-  appProtocol: https
-### Codefresh App domain name
+  ### Codefresh App domain name
   appUrl: 
+  appProtocol: https
 
 # Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
@@ -71,6 +51,25 @@ global:
   #mongoSkipUserCreation: true
   #mongoDeploy: false   # disables deployment of internal mongo service
 
+kubernetes:
+  namespace: codefresh
+  #kubeContext: 
+  #kubeConfig:
+    
+tls:
+  selfSigned: true
+  cert: certs/ssl.crt
+  key: certs/private.key
+
+docker:
+  codefreshRegistrySa: sa.json
+  # usePrivateRegistry: false
+  # privateRegistry:
+  #   address:
+  #   username:
+  #   password:
+  #   configFile:
+  
 ### Firebase secret
 firebaseSecret: 
 

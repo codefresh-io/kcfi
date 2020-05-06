@@ -63,6 +63,10 @@ const (
 
 	keyNamespace = "kubernetes.namespace"
 
+	keyBaseDir = "BaseDir"
+	keyTlsSelfSigned = "tls.selfSigned"
+	keyTlsCert = "tls.cert"
+	keyTlsKey = "tls.key"
 )
 
 // CfInit is an action to create Codefresh config stage directory
@@ -104,7 +108,7 @@ func (o *CfInit) Run() error {
 		restoreDir = o.StageDir
 	}
 	
-	fmt.Printf("Creating stage directory in %s\n", restoreDir )
+	fmt.Printf("Creating stage directory %s\n", restoreDir )
 	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
 		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
 	}

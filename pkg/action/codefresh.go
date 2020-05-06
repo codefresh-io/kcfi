@@ -84,16 +84,59 @@ func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
 	return registryValues, nil
 }
 
+// func (o *CfApply) GetWebTlsValues() (map[string]interface{}, error) {
+// 	valsX := objx.New(o.vals)
+	
+// 	tlsCertPathV = valsX.Get(keyTlsCert).String()
+// 	tlsKeyPathV = valsX.Get(keyTlsKey).String()
+// 	if tlsCertPathV == "" || tlsKeyPathV == "" {
+// 		err = fmt.Errorf("missing tls cert data: ")
+// 		if len(tlsCertPathV) == 0 {
+// 			err = errors.Wrapf(err, "missing %s", keyTlsCert)
+// 		}
+// 		if len(tlsKeyPathV) == 0 {
+// 			err = errors.Wrapf(err, "missing %s", keyTlsKey)
+// 		}
+// 		return nil, err		
+// 	}
+
+// 	var tlsCertPath, tlsKeyPath string
+// 	baseDir := filepath.Dir(o.ConfigFile)
+// 	if filepath.IsAbs(tlsCertPathV) {
+// 		tlsCertPath = tlsCertPathV
+// 	} else {
+// 		tlsCertPath = path.Join(baseDir, tlsCertPathV)
+// 	}
+	
+
+
+// 	 := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
+// 	registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
+// 	}	
+// }
+
 func (o *CfApply) ApplyCodefresh() error {
 
+	baseDir := filepath.Dir(o.ConfigFile)
+	valsX := objx.New(o.vals)
+
+	o.vals[keyBaseDir] = baseDir
 	registryValues, err := o.GetDockerRegistryVars()
-	//_, err := o.AddDockerRegistryVars(vals)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to parse docker registry values")
 	}
 	o.vals = MergeMaps(o.vals, registryValues)
-	valsX := objx.New(o.vals)
 	
+	if ! valsX.Get(keyTlsSelfSigned).Bool(true) {
+		webTlsValues, err := ExecuteTemplateToValues(WebTlsValuesTpl, o.vals)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to generate values.yaml")
+		}
+		o.vals = MergeMaps(o.vals, webTlsValues)		
+	}
+				
 	namespace := valsX.Get(keyNamespace).String()
 	o.Helm.Namespace = namespace
 
@@ -259,4 +302,26 @@ cfanalytic:
     auths:
       {{.RegistryAddress | toString }}:
         auth: {{ $auth }}
+`
+
+// WebTlsValuesTpl template
+var WebTlsValuesTpl = `
+ingress:
+  webTlsSecretName: "star.codefresh.io"
+nomios:
+  ingress:
+    webTlsSecretName: "star.codefresh.io"
+webTLS:
+  secretName: star.codefresh.io
+  key: |
+{{ getFileWithBaseDir .tls.key .BaseDir | indent 4}}
+  cert: |
+{{ getFileWithBaseDir .tls.cert .BaseDir | indent 4}}
+
+cfui:
+  webTLS:
+    key: |
+{{ getFileWithBaseDir .tls.key .BaseDir | indent 6}}
+    cert: |
+{{ getFileWithBaseDir .tls.cert .BaseDir | indent 6}}
 `

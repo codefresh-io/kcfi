@@ -21,10 +21,14 @@ import (
 	"encoding/json"
 	"strings"
 	"text/template"
+	"path"
+	"path/filepath"
+	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
 	"sigs.k8s.io/yaml"
+
 )
 
 // FuncMap returns a mapping of all of the functions that Engine has.
@@ -43,8 +47,8 @@ import (
 //
 func FuncMap() template.FuncMap {
 	f := sprig.TxtFuncMap()
-	delete(f, "env")
-	delete(f, "expandenv")
+	// delete(f, "env")
+	// delete(f, "expandenv")
 
 	// Add some extra functionality
 	extra := template.FuncMap{
@@ -55,6 +59,8 @@ func FuncMap() template.FuncMap {
 		"toJson":        toJSON,
 		"fromJson":      fromJSON,
 		"fromJsonArray": fromJSONArray,
+
+		"getFileWithBaseDir": getFileWithBaseDir,
 
 		// This is a placeholder for the "include" function, which is
 		// late-bound to a template. By declaring it here, we preserve the
@@ -174,4 +180,20 @@ func fromJSONArray(str string) []interface{} {
 		a = []interface{}{err.Error()}
 	}
 	return a
+}
+
+func getFileWithBaseDir(filename, basedir string) string {
+	var filePath string
+	if filepath.IsAbs(filename) {
+	  filePath = filename
+	} else {
+	  filePath = path.Join(basedir, filename)
+	}
+
+	fileB, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+	return string(fileB)
+
 }
