@@ -45,9 +45,9 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	var createNamespace bool
 
 	cmd := &cobra.Command{
-		Use:   "apply",
-		Short: "install/upgrade Codefresh - apply configuration",
-		Aliases: []string{"deploy", "install", "upgrade"},
+		Use:   "deploy",
+		Short: "install/upgrade/reconfigure Codefresh",
+		Aliases: []string{"apply", "install", "upgrade"},
 		Long:  cfApplyDesc,
 		Args:  require.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {

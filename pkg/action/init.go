@@ -67,6 +67,8 @@ const (
 	keyTlsSelfSigned = "tls.selfSigned"
 	keyTlsCert = "tls.cert"
 	keyTlsKey = "tls.key"
+
+	keyAppUrl = "global.appUrl"
 )
 
 // CfInit is an action to create Codefresh config stage directory

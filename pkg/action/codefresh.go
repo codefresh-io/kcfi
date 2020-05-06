@@ -28,7 +28,6 @@ import (
     "github.com/stretchr/objx"
     
 	helm "helm.sh/helm/v3/pkg/action"
-//	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/storage/driver"
 
 	"k8s.io/cli-runtime/pkg/resource"
@@ -84,51 +83,36 @@ func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
 	return registryValues, nil
 }
 
-// func (o *CfApply) GetWebTlsValues() (map[string]interface{}, error) {
-// 	valsX := objx.New(o.vals)
-	
-// 	tlsCertPathV = valsX.Get(keyTlsCert).String()
-// 	tlsKeyPathV = valsX.Get(keyTlsKey).String()
-// 	if tlsCertPathV == "" || tlsKeyPathV == "" {
-// 		err = fmt.Errorf("missing tls cert data: ")
-// 		if len(tlsCertPathV) == 0 {
-// 			err = errors.Wrapf(err, "missing %s", keyTlsCert)
-// 		}
-// 		if len(tlsKeyPathV) == 0 {
-// 			err = errors.Wrapf(err, "missing %s", keyTlsKey)
-// 		}
-// 		return nil, err		
-// 	}
+// ValidateCodefresh validates Codefresh config values
+func (o *CfApply) ValidateCodefresh() error {
+	valsX := objx.New(o.vals)
 
-// 	var tlsCertPath, tlsKeyPath string
-// 	baseDir := filepath.Dir(o.ConfigFile)
-// 	if filepath.IsAbs(tlsCertPathV) {
-// 		tlsCertPath = tlsCertPathV
-// 	} else {
-// 		tlsCertPath = path.Join(baseDir, tlsCertPathV)
-// 	}
-	
-
-
-// 	 := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
-// 	registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
-// 	}	
-// }
+	// 1. Validate appUrl
+	appUrl := valsX.Get(keyAppUrl).String()
+	if appUrl == "" {
+		return fmt.Errorf("Missing %s", keyAppUrl)
+	}
+	return nil
+}
 
 func (o *CfApply) ApplyCodefresh() error {
 
+	// Calculating addional configurations
 	baseDir := filepath.Dir(o.ConfigFile)
-	valsX := objx.New(o.vals)
-
 	o.vals[keyBaseDir] = baseDir
+
+	valsX := objx.New(o.vals)
+	namespace := valsX.Get(keyNamespace).String()
+	o.Helm.Namespace = namespace
+
+	//--- Docker Registry secret
 	registryValues, err := o.GetDockerRegistryVars()
 	if err != nil {
 		return errors.Wrapf(err, "Failed to parse docker registry values")
 	}
 	o.vals = MergeMaps(o.vals, registryValues)
 	
+	//--- WebTls Values
 	if ! valsX.Get(keyTlsSelfSigned).Bool(true) {
 		webTlsValues, err := ExecuteTemplateToValues(WebTlsValuesTpl, o.vals)
 		if err != nil {
@@ -137,10 +121,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		o.vals = MergeMaps(o.vals, webTlsValues)		
 	}
 				
-	namespace := valsX.Get(keyNamespace).String()
-	o.Helm.Namespace = namespace
-
-	// If a release does not exist add seeded jobs
+	//--- If a release does not exist add seeded jobs
 	histClient := helm.NewHistory(o.cfg)
 	histClient.Max = 1
 	if _, err := histClient.Run(codefreshHelmReleaseName); err == driver.ErrReleaseNotFound {
@@ -153,6 +134,12 @@ func (o *CfApply) ApplyCodefresh() error {
 		o.vals = MergeMaps(o.vals, seedJobsValues)
 	}
 
+	// Validating Configurations
+	if err = o.ValidateCodefresh(); err != nil {
+		return errors.Wrapf(err, "Configuration is not valid")
+	}
+
+	// Rendering values.yaml and codefresh-resource.yaml
 	valuesTplResult, err := ExecuteTemplate(ValuesTpl, o.vals)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to generate values.yaml")
@@ -176,6 +163,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 	fmt.Printf("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
 
+	//--- Deploying
     installerType := valsX.Get(keyInstallerType).String()
     if installerType == installerTypeOperator {
 		
