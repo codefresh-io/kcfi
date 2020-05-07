@@ -2,8 +2,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  creationTimestamp: null
   name: cf-onprem-operator
+  labels:
+    app: cf-onprem-operator
 rules:
 - apiGroups:
   - '*'
@@ -12,98 +13,3 @@ rules:
   verbs:
   - '*'
 {{- end }}
-
-# - apiGroups:
-#   - ""
-#   resources:
-#   - pods
-#   - services
-#   - services/finalizers
-#   - endpoints
-#   - persistentvolumeclaims
-#   - events
-#   - configmaps
-#   - secrets
-#   verbs:
-#   - create
-#   - delete
-#   - get
-#   - list
-#   - patch
-#   - update
-#   - watch
-# - apiGroups:
-#   - apps
-#   resources:
-#   - deployments
-#   - daemonsets
-#   - replicasets
-#   - statefulsets
-#   verbs:
-#   - create
-#   - delete
-#   - get
-#   - list
-#   - patch
-#   - update
-#   - watch
-# - apiGroups:
-#   - ""
-#   resources:
-#   - namespaces
-#   verbs:
-#   - get
-# - apiGroups:
-#   - ""
-#   resources:
-#   - configmaps
-#   - secrets
-#   verbs:
-#   - '*'
-# - apiGroups:
-#   - ""
-#   resources:
-#   - events
-#   verbs:
-#   - create
-# - apiGroups:
-#   - monitoring.coreos.com
-#   resources:
-#   - servicemonitors
-#   verbs:
-#   - get
-#   - create
-# - apiGroups:
-#   - apps
-#   resourceNames:
-#   - cf-onprem-operator
-#   resources:
-#   - deployments/finalizers
-#   verbs:
-#   - update
-# - apiGroups:
-#   - ""
-#   resources:
-#   - pods
-#   verbs:
-#   - get
-# - apiGroups:
-#   - apps
-#   resources:
-#   - replicasets
-#   - deployments
-#   verbs:
-#   - get
-# - apiGroups:
-#   - codefresh.io
-#   - charts.helm.k8s.io
-#   resources:
-#   - '*'
-#   verbs:
-#   - create
-#   - delete
-#   - get
-#   - list
-#   - patch
-#   - update
-#   - watch

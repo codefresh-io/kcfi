@@ -3,6 +3,8 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: cf-onprem-operator
+  labels:
+    app: cf-onprem-operator  
 subjects:
 - kind: ServiceAccount
   name: cf-onprem-operator

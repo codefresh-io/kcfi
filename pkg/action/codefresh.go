@@ -169,6 +169,11 @@ func (o *CfApply) ApplyCodefresh() error {
 		
 		// Deploy Codefresh Operator with wait first
 		operatorChartValues := valsX.Get(keyOperatorChartValues).MSI(map[string]interface{}{})
+		operatorChartValues = MergeMaps(operatorChartValues, registryValues)
+		operatorChartValsX := objx.New(operatorChartValues)
+		if operatorChartValsX.Get(keyOperatorSkipCRD).Bool(false) {
+			o.Helm.SkipCRDs = true
+		}
 		helmWaitBak := o.Helm.Wait
 		o.Helm.Wait = true
 		_, err = DeployHelmRelease(
