@@ -19,6 +19,7 @@ package action
 import (
 	"fmt"
 
+	flag "github.com/spf13/pflag"
 	"github.com/stretchr/objx"
 	helm "helm.sh/helm/v3/pkg/action"
 )
@@ -97,7 +98,7 @@ func NewCfApply(cfg *helm.Configuration) *CfApply {
 }
 
 // Run the action
-func (o *CfApply) Run(vals map[string]interface{}) error {
+func (o *CfApply) Run(vals map[string]interface{}, cmdFlags *flag.FlagSet) error {
 	fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	// fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	o.vals = vals
@@ -106,7 +107,8 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()
-		
+	case kindK8sAgent:
+		return o.ApplyK8sAgent(cmdFlags)
 	default:
 		return fmt.Errorf("Wrong installer kind %s", kind)
 

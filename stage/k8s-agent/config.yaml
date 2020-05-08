@@ -1,2 +1,4 @@
 metadata:
   kind: k8s-agent
+  installer:
+    type: helm

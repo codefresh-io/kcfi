@@ -26,6 +26,16 @@ steps:
       - source /get-token/get-gh-token.sh
       - cf_export GITHUB_TOKEN
       - cf_export INSTALLER_VERSION=$(cat version)
+
+  submodules_init:
+    title: "Initializing cf-helm submodule"
+    stage: prepare
+    image: codefreshio/ci-helpers
+    commands:
+      - mkdir -p ~/.ssh
+      - echo $SSH_KEY | base64 -d > ~/.ssh/id_rsa && ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/id_rsa
+      - git submodule update --init
       
   create_git_tag:
     image: codefreshio/ci-helpers

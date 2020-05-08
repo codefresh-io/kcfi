@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	// DefaultConfigFileName - 
+	// DefaultConfigFileName -
 	DefaultConfigFileName = "config.yaml"
 
 	// AssetsDir - folder name where we save kubernetes and helm assets
@@ -40,8 +40,9 @@ const (
 
 	keyKind       = "metadata.kind"
 	kindCodefresh = "codefresh"
+	kindK8sAgent  = "k8s-agent"
 	kindVenona    = "venona"
-	
+
 	keyDockerCodefreshRegistrySa     = "docker.codefreshRegistrySa"
 	keyDockerUsePrivateRegistry      = "docker.usePrivateRegistry"
 	keyDockerprivateRegistryAddress  = "docker.privateRegistry.address"
@@ -58,9 +59,12 @@ const (
 
 	operatorHelmReleaseName = "cf-onprem-operator"
 	operatorHelmChartName   = "codefresh-operator"
-	
-	keyCodefreshHelmChart = "metadata.installer.helm.chart"
+
+	keyCodefreshHelmChart    = "metadata.installer.helm.chart"
 	codefreshHelmReleaseName = "cf"
+
+	k8sAgentHelmReleaseName = "cf-k8s-agent"
+	keyK8sAgentHelmChart    = "metadata.installer.helm.chart"
 
 	keyNamespace = "kubernetes.namespace"
 
@@ -96,7 +100,7 @@ func (o *CfInit) Run() error {
 		}
 	}
 	if !isValidProduct {
-	   return fmt.Errorf("Unknown product %s", o.ProductName)
+		return fmt.Errorf("Unknown product %s", o.ProductName)
 	}
 
 	var err error
@@ -110,7 +114,7 @@ func (o *CfInit) Run() error {
 	} else {
 		restoreDir = o.StageDir
 	}
-	
+
 	fmt.Printf("Creating stage directory %s\n", restoreDir)
 	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
 		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
@@ -169,7 +173,7 @@ func _filePath(dir, name string) string {
 }
 
 // StageDirsList - returns list of registered staging dir
-func StageDirsList() []string {	
+func StageDirsList() []string {
 	var stageDirsList []string
 	var stageName string
 	stageDirsMap := make(map[string]int)

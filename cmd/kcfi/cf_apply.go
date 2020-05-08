@@ -65,7 +65,7 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 				return err
 			}
 
-			return client.Run(vals)
+			return client.Run(vals, cmd.Flags())
 		},
 	}
 
