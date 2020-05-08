@@ -17,13 +17,14 @@ limitations under the License.
 package action
 
 import (
-	"os"
 	"fmt"
-	"strings"
-	"regexp"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
 )
 
@@ -35,39 +36,38 @@ const (
 	AssetsDir = "assets"
 
 	CodefreshReleaseName = "cf"
-	OperatorReleaseName = "cf-onprem-operator"
+	OperatorReleaseName  = "cf-onprem-operator"
 
-	keyKind = "metadata.kind"
+	keyKind       = "metadata.kind"
 	kindCodefresh = "codefresh"
-	kindK8sAgent = "k8sAgent"
-	kindVenona = "venona"
+	kindVenona    = "venona"
 	
-	keyDockerCodefreshRegistrySa = "docker.codefreshRegistrySa"
-	keyDockerUsePrivateRegistry = "docker.usePrivateRegistry"
-	keyDockerprivateRegistryAddress = "docker.privateRegistry.address"
+	keyDockerCodefreshRegistrySa     = "docker.codefreshRegistrySa"
+	keyDockerUsePrivateRegistry      = "docker.usePrivateRegistry"
+	keyDockerprivateRegistryAddress  = "docker.privateRegistry.address"
 	keyDockerprivateRegistryUsername = "docker.privateRegistry.username"
 	keyDockerprivateRegistryPassword = "docker.privateRegistry.password"
 
-	keyRelease = "metadata.installer.release"	
-	keyInstallerType = "metadata.installer.type"
+	keyRelease            = "metadata.installer.release"
+	keyInstallerType      = "metadata.installer.type"
 	installerTypeOperator = "operator"
-	installerTypeHelm = "helm"
+	installerTypeHelm     = "helm"
 
 	keyOperatorChartValues = "metadata.installer.operator"
-	keyOperatorSkipCRD = "metadata.installer.operator.skipCRD"
+	keyOperatorSkipCRD     = "metadata.installer.operator.skipCRD"
 
 	operatorHelmReleaseName = "cf-onprem-operator"
-	operatorHelmChartName = "codefresh-operator"
+	operatorHelmChartName   = "codefresh-operator"
 	
 	keyCodefreshHelmChart = "metadata.installer.helm.chart"
 	codefreshHelmReleaseName = "cf"
 
 	keyNamespace = "kubernetes.namespace"
 
-	keyBaseDir = "BaseDir"
+	keyBaseDir       = "BaseDir"
 	keyTlsSelfSigned = "tls.selfSigned"
-	keyTlsCert = "tls.cert"
-	keyTlsKey = "tls.key"
+	keyTlsCert       = "tls.cert"
+	keyTlsKey        = "tls.key"
 
 	keyAppUrl = "global.appUrl"
 )
@@ -75,14 +75,14 @@ const (
 // CfInit is an action to create Codefresh config stage directory
 type CfInit struct {
 	ProductName string
-	StageDir string
+	StageDir    string
 }
 
 // NewCfInit creates object
 func NewCfInit(productName, stageDir string) *CfInit {
 	return &CfInit{
 		ProductName: productName,
-		StageDir: stageDir,
+		StageDir:    stageDir,
 	}
 }
 
@@ -111,7 +111,7 @@ func (o *CfInit) Run() error {
 		restoreDir = o.StageDir
 	}
 	
-	fmt.Printf("Creating stage directory %s\n", restoreDir )
+	fmt.Printf("Creating stage directory %s\n", restoreDir)
 	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
 		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
 	}

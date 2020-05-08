@@ -18,23 +18,22 @@ package action
 
 import (
     "fmt"
+	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
-	"os"
-	"io/ioutil"
 
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"github.com/pkg/errors"
     "github.com/stretchr/objx"
-    
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"k8s.io/cli-runtime/pkg/resource"
 )
 
 // GetDockerRegistryVars - calculater docker registry vals
-func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
+func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 	
 	var registryAddress, registryUsername, registryPassword string
 	var err error
@@ -71,7 +70,7 @@ func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
 	}
 	// Creating 
 	registryTplData := map[string]interface{}{
-		"RegistryAddress": registryAddress,
+		"RegistryAddress":  registryAddress,
 		"RegistryUsername": registryUsername,
 		"RegistryPassword": registryPassword,
 	} 
@@ -113,7 +112,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	o.vals = MergeMaps(o.vals, registryValues)
 	
 	//--- WebTls Values
-	if ! valsX.Get(keyTlsSelfSigned).Bool(true) {
+	if !valsX.Get(keyTlsSelfSigned).Bool(true) {
 		webTlsValues, err := ExecuteTemplateToValues(WebTlsValuesTpl, o.vals)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to generate values.yaml")
@@ -127,7 +126,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	if _, err := histClient.Run(codefreshHelmReleaseName); err == driver.ErrReleaseNotFound {
 		seedJobsValues := map[string]interface{}{
 			"global": map[string]interface{}{
-				"seedJobs": true,
+				"seedJobs":  true,
 				"certsJobs": true,
 			},
 		}

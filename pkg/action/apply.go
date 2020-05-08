@@ -18,19 +18,17 @@ package action
 
 import (
 	"fmt"
+
 	"github.com/stretchr/objx"
 	helm "helm.sh/helm/v3/pkg/action"
-
 )
-
-
 
 // CfApply is an action to create or update Codefresh
 type CfApply struct {
 	ConfigFile string
-	vals map[string]interface{}
-	cfg *helm.Configuration
-	Helm *helm.Upgrade
+	vals       map[string]interface{}
+	cfg        *helm.Configuration
+	Helm       *helm.Upgrade
 	// cfg *helm.Configuration
 
 	// // Helm Install/Upgrader optional parameters
@@ -90,17 +88,13 @@ type CfApply struct {
 	// DisableOpenAPIValidation bool
 }
 
-
-
 // NewCfApply creates object
 func NewCfApply(cfg *helm.Configuration) *CfApply {
 	return &CfApply{
-		cfg: cfg,
+		cfg:  cfg,
 		Helm: helm.NewUpgrade(cfg),
 	}
 }
-
-
 
 // Run the action
 func (o *CfApply) Run(vals map[string]interface{}) error {
@@ -108,7 +102,7 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	// fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	o.vals = vals
 	valX := objx.New(vals)
-	kind := valX.Get(keyKind).String(); 
+	kind := valX.Get(keyKind).String()
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()
@@ -118,5 +112,3 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 
 	}
 }
-
-
