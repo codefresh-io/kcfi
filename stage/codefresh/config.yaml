@@ -1,13 +1,12 @@
 metadata:
   kind: codefresh
   installer:
-    release: 1.0.98
     # type: 
     #   "operator" - apply codefresh crd definition
     #   "helm" - install/upgrade helm chart from client
     type: operator
     operator:
-      #image: codefresh/cf-onprem-operator:latest
+      #image: gcr.io/codefresh-enterprise/codefresh/cf-onprem-operator:latest
       #serviceAccountName:
       #skipCRD:
     helm:

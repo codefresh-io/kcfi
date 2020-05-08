@@ -54,6 +54,7 @@ const (
 	installerTypeHelm = "helm"
 
 	keyOperatorChartValues = "metadata.installer.operator"
+	keyOperatorSkipCRD = "metadata.installer.operator.skipCRD"
 
 	operatorHelmReleaseName = "cf-onprem-operator"
 	operatorHelmChartName = "codefresh-operator"

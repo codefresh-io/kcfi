@@ -1,2 +1,2 @@
 skipCRD: false
-image: "codefresh/cf-onprem-operator:latest"
+image: gcr.io/codefresh-enterprise/codefresh/cf-onprem-operator:latest
