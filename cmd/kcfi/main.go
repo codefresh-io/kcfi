@@ -37,6 +37,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/gates"
+	"helm.sh/helm/v3/pkg/kube"
 	kubefake "helm.sh/helm/v3/pkg/kube/fake"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
@@ -57,9 +58,9 @@ var configuredNamespace string
 func init() {
 	log.SetFlags(log.Lshortfile)
 	//Set Codefresh default namespace
-	if _, ok := os.LookupEnv("HELM_NAMESPACE"); !ok {
-		os.Setenv("HELM_NAMESPACE", defaultNamespace) 
-	}
+	// if _, ok := os.LookupEnv("HELM_NAMESPACE"); !ok {
+	// 	os.Setenv("HELM_NAMESPACE", defaultNamespace) 
+	// }
 	settings = cli.New()
 }
 
@@ -125,8 +126,16 @@ func main() {
 		}
 	}
 
+	clientConfig := kube.GetConfig(settings.KubeConfig, settings.KubeContext, configuredNamespace)
+	if settings.KubeToken != "" {
+		clientConfig.BearerToken = &settings.KubeToken
+	}
+	if settings.KubeAPIServer != "" {
+		clientConfig.APIServer = &settings.KubeAPIServer
+	}
+
 	helmDriver := os.Getenv("HELM_DRIVER")
-	if err := actionConfig.Init(settings.RESTClientGetter(), configuredNamespace, helmDriver, debug); err != nil {
+	if err := actionConfig.Init(clientConfig, configuredNamespace, helmDriver, debug); err != nil {
 		log.Fatal(err)
 	}
 	if helmDriver == "memory" {
