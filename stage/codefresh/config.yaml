@@ -52,8 +52,8 @@ global:
 
 kubernetes:
   namespace: codefresh
-  #kubeContext: 
-  #kubeConfig:
+  #context: 
+  #kubeconfig:
     
 tls:
   selfSigned: true

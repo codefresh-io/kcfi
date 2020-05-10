@@ -26,6 +26,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+
 	"k8s.io/klog"
 	"sigs.k8s.io/yaml"
 
@@ -46,11 +48,15 @@ const FeatureGateOCI = gates.Gate("HELM_EXPERIMENTAL_OCI")
 var (
 	settings *cli.EnvSettings
 	defaultNamespace = "codefresh"
+
+	flagConfig = "config"
 )
+
+var configuredNamespace string
 
 func init() {
 	log.SetFlags(log.Lshortfile)
-	// Set Codefresh default namespace
+	//Set Codefresh default namespace
 	if _, ok := os.LookupEnv("HELM_NAMESPACE"); !ok {
 		os.Setenv("HELM_NAMESPACE", defaultNamespace) 
 	}
@@ -78,8 +84,49 @@ func main() {
 	actionConfig := new(action.Configuration)
 	cmd := newRootCmd(actionConfig, os.Stdout, os.Args[1:])
 
+	configuredNamespace = settings.Namespace()
+	// setting kubernetes client namespace, kube-context, kubeconfig
+	// priorities:
+	//   1. use flags --namespace, --kube-context, --kubeconfig. they are already set in o.Helm.*
+	//   2. use values specified in config.yaml: {kubernetes: {namespace: "", kube-context: "", kubectonfig}}
+	//   3. default context and namespace defined in ~/.kube/config
+	// finding the command being executing and parse its config file to set kube client
+	// we should do it here in main() because helm sets kube client here
+	childCmd, childArgs, _ := cmd.Find(os.Args[1:])
+	childFlags := childCmd.Flags()
+	configFlag := childFlags.Lookup(flagConfig)
+	if configFlag != nil {
+		//merging config file kubernetes parameters into settings
+		err := childFlags.Parse(childArgs)
+		if err != nil {
+			log.Fatal(err)
+		}
+		configFileName := configFlag.Value.String()
+		if configFileName != "" {
+			viper.SetConfigFile(configFileName)
+			if err := viper.ReadInConfig(); err != nil {
+				log.Fatal(err)
+			}
+			debug("Using config file: %s", viper.ConfigFileUsed())
+
+			viper.BindPFlag("kubernetes.namespace", childFlags.Lookup("namespace"))
+			viper.BindPFlag("kubernetes.context", childFlags.Lookup("kube-context"))
+			viper.BindPFlag("kubernetes.kubeconfig", childFlags.Lookup("kubeconfig"))
+
+			if ns := viper.GetString("kubernetes.namespace"); ns != "" {
+				configuredNamespace = ns
+			}			
+			if kubeContext := viper.GetString("kubernetes.context"); kubeContext != "" {
+				settings.KubeContext = kubeContext
+			}
+			if kubeconfig := viper.GetString("kubernetes.kubeconfig"); kubeconfig != "" {
+				settings.KubeConfig = kubeconfig
+			}
+		}
+	}
+
 	helmDriver := os.Getenv("HELM_DRIVER")
-	if err := actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), helmDriver, debug); err != nil {
+	if err := actionConfig.Init(settings.RESTClientGetter(), configuredNamespace, helmDriver, debug); err != nil {
 		log.Fatal(err)
 	}
 	if helmDriver == "memory" {

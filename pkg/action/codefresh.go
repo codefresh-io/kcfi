@@ -102,8 +102,6 @@ func (o *CfApply) ApplyCodefresh() error {
 	o.vals[keyBaseDir] = baseDir
 
 	valsX := objx.New(o.vals)
-	namespace := valsX.Get(keyNamespace).String()
-	o.Helm.Namespace = namespace
 
 	//--- Docker Registry secret
 	registryValues, err := o.GetDockerRegistryVars()

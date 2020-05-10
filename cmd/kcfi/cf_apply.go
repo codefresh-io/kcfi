@@ -51,26 +51,20 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 		Long:  cfApplyDesc,
 		Args:  require.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if client.ConfigFile == "" {
-				stageDir, err := os.Getwd()
-				if err != nil {
-					return err
-				}
-				client.ConfigFile = path.Join(stageDir, action.DefaultConfigFileName)
-			}
 			// merging configFile with valueOpts
 			valueOpts.ValueFiles = append([]string{client.ConfigFile}, valueOpts.ValueFiles...)
 			vals, err := valueOpts.MergeValues(getter.All(settings))
 			if err != nil {
 				return err
 			}
+			client.Helm.Namespace = configuredNamespace
 
 			return client.Run(vals)
 		},
 	}
 
 	f := cmd.Flags()
-	f.StringVarP(&client.ConfigFile, "config", "c", "", "Codefresh config file")
+	f.StringVarP(&client.ConfigFile, flagConfig, "c", defaultConfigFileName(), "Codefresh config file")
 	f.BoolVar(&createNamespace, "create-namespace", false, "if --install is set, create the release namespace if not present")
 	//f.BoolVarP(&client.Install, "install", "i", true, "if a release by this name doesn't already exist, run an install")
 	//f.BoolVar(&client.Devel, "devel", false, "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored")
@@ -94,5 +88,15 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	addValueOptionsFlags(f, valueOpts)
 	bindOutputFlag(cmd, &outfmt)
 	bindPostRenderFlag(cmd, &client.Helm.PostRenderer)
+
 	return cmd
+}
+
+func defaultConfigFileName() string{
+	defaultConfigFileName := "config.yaml"
+	stageDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	return path.Join(stageDir, defaultConfigFileName)
 }
