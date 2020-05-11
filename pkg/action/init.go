@@ -37,7 +37,6 @@ const (
 
 	keyKind       = "metadata.kind"
 	kindCodefresh = "codefresh"
-	kindK8sAgent  = "k8s-agent"
 	kindVenona    = "venona"
 
 	keyDockerCodefreshRegistrySa     = "docker.codefreshRegistrySa"
@@ -59,9 +58,6 @@ const (
 
 	keyCodefreshHelmChart    = "metadata.installer.helm.chart"
 	codefreshHelmReleaseName = "cf"
-
-	k8sAgentHelmReleaseName = "cf-k8s-agent"
-	keyK8sAgentHelmChart    = "metadata.installer.helm.chart"
 
 	keyNamespace = "kubernetes.namespace"
 

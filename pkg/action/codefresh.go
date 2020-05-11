@@ -24,7 +24,6 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	flag "github.com/spf13/pflag"
 	"github.com/stretchr/objx"
 
 	helm "helm.sh/helm/v3/pkg/action"
@@ -242,35 +241,6 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 
 	fmt.Printf("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
-	return nil
-}
-
-func (o *CfApply) ApplyK8sAgent(cmdFlags *flag.FlagSet) error {
-	baseDir := filepath.Dir(o.ConfigFile)
-	o.vals[keyBaseDir] = baseDir
-	valsX := objx.New(o.vals)
-
-	installerType := valsX.Get(keyInstallerType).String()
-	var k8sAgentHelmChartName string
-
-	if installerType == installerTypeHelm {
-		o.Helm.Namespace = cmdFlags.Lookup("namespace").Value.String()
-		k8sAgentHelmChartName = valsX.Get(keyK8sAgentHelmChart).Str("k8s-agent")
-		_, err := DeployHelmRelease(
-			k8sAgentHelmReleaseName,
-			k8sAgentHelmChartName,
-			o.vals,
-			o.cfg,
-			o.Helm,
-		)
-		if err != nil {
-			return errors.Wrapf(err, "Failed to deploy %s chart", k8sAgentHelmChartName)
-		}
-	} else {
-		return fmt.Errorf("Error: unknown installer type %s", installerType)
-	}
-
-	fmt.Printf("\n%s has been deployed to namespace %s\n", k8sAgentHelmChartName, o.Helm.Namespace)
 	return nil
 }
 
