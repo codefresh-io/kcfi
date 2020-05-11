@@ -51,6 +51,9 @@ var (
 	defaultNamespace = "codefresh"
 
 	flagConfig = "config"
+	keyKubernetesNamespace = "kubernetes.namespace"
+	keyKubernetesContext = "kubernetes.context"
+	keyKubernetesKubeconfig = "kubernetes.kubeconfig"
 )
 
 var configuredNamespace string
@@ -114,28 +117,29 @@ func main() {
 			viper.BindPFlag("kubernetes.context", childFlags.Lookup("kube-context"))
 			viper.BindPFlag("kubernetes.kubeconfig", childFlags.Lookup("kubeconfig"))
 
-			if ns := viper.GetString("kubernetes.namespace"); ns != "" {
+			if ns := viper.GetString(keyKubernetesNamespace); ns != "" {
 				configuredNamespace = ns
 			}			
-			if kubeContext := viper.GetString("kubernetes.context"); kubeContext != "" {
+			if kubeContext := viper.GetString(keyKubernetesContext); kubeContext != "" {
 				settings.KubeContext = kubeContext
 			}
-			if kubeconfig := viper.GetString("kubernetes.kubeconfig"); kubeconfig != "" {
+			if kubeconfig := viper.GetString(keyKubernetesKubeconfig); kubeconfig != "" {
 				settings.KubeConfig = kubeconfig
 			}
 		}
 	}
 
-	clientConfig := kube.GetConfig(settings.KubeConfig, settings.KubeContext, configuredNamespace)
+	kubeClientConfig := kube.GetConfig(settings.KubeConfig, settings.KubeContext, configuredNamespace)
 	if settings.KubeToken != "" {
-		clientConfig.BearerToken = &settings.KubeToken
+		kubeClientConfig.BearerToken = &settings.KubeToken
 	}
 	if settings.KubeAPIServer != "" {
-		clientConfig.APIServer = &settings.KubeAPIServer
+		kubeClientConfig.APIServer = &settings.KubeAPIServer
 	}
 
 	helmDriver := os.Getenv("HELM_DRIVER")
-	if err := actionConfig.Init(clientConfig, configuredNamespace, helmDriver, debug); err != nil {
+	debug("Initializing Kubernetes client: namespace=%s kube-context=%s kubeconfig =%s", configuredNamespace, settings.KubeContext, settings.KubeConfig)
+	if err := actionConfig.Init(kubeClientConfig, configuredNamespace, helmDriver, debug); err != nil {
 		log.Fatal(err)
 	}
 	if helmDriver == "memory" {

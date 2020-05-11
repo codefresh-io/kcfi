@@ -25,8 +25,8 @@ import (
 
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"github.com/pkg/errors"
-    "github.com/stretchr/objx"
-    
+	"github.com/stretchr/objx"
+
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/storage/driver"
 
@@ -195,7 +195,11 @@ func (o *CfApply) ApplyCodefresh() error {
         if err != nil {
             return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
         }
-        fmt.Printf("applying %s\n %v", cfResourceYamlPath, cfResources)
+		fmt.Printf("applying %s\n %v", cfResourceYamlPath, cfResources)
+		if o.Helm.DryRun {
+			fmt.Printf("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
+			return nil
+		}
         err = cfResources.Visit(func(info *resource.Info, err error) error {
             if err != nil {
                 return err
@@ -205,9 +209,9 @@ func (o *CfApply) ApplyCodefresh() error {
 				if !kerrors.IsNotFound(err) {
 					return errors.Wrapf(err, fmt.Sprintf("retrieving current configuration of:\n%s\nfrom server for:", info.String()))
 				}
-				_, err = helper.Create(info.Namespace, true, info.Object)				
+				_, err = helper.Create(info.Namespace, true, info.Object)
 			} else {
-				_, err = helper.Replace(info.Namespace, info.Name, true, info.Object)				
+				_, err = helper.Replace(info.Namespace, info.Name, true, info.Object)
 			}	
             return err
 		})
