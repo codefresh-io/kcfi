@@ -26,6 +26,7 @@ import (
 	"github.com/pkg/errors"
 	flag "github.com/spf13/pflag"
 	"github.com/stretchr/objx"
+
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -102,8 +103,6 @@ func (o *CfApply) ApplyCodefresh() error {
 	o.vals[keyBaseDir] = baseDir
 
 	valsX := objx.New(o.vals)
-	namespace := valsX.Get(keyNamespace).String()
-	o.Helm.Namespace = namespace
 
 	//--- Docker Registry secret
 	registryValues, err := o.GetDockerRegistryVars()
@@ -198,6 +197,10 @@ func (o *CfApply) ApplyCodefresh() error {
 			return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
 		}
 		fmt.Printf("applying %s\n %v", cfResourceYamlPath, cfResources)
+		if o.Helm.DryRun {
+			fmt.Printf("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
+			return nil
+		}
 		err = cfResources.Visit(func(info *resource.Info, err error) error {
 			if err != nil {
 				return err

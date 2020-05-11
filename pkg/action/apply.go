@@ -102,8 +102,9 @@ func (o *CfApply) Run(vals map[string]interface{}, cmdFlags *flag.FlagSet) error
 	fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	// fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	o.vals = vals
-	valX := objx.New(vals)
-	kind := valX.Get(keyKind).String()
+	valsX := objx.New(vals)
+	kind := valsX.Get(keyKind).String()
+
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()

@@ -29,9 +29,6 @@ import (
 )
 
 const (
-	// DefaultConfigFileName -
-	DefaultConfigFileName = "config.yaml"
-
 	// AssetsDir - folder name where we save kubernetes and helm assets
 	AssetsDir = "assets"
 
