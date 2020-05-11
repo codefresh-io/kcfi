@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 
@@ -39,7 +41,7 @@ actions:
 - kcfi init [ /path/to/codefresh-config-dir ] - < pprepare configuration directory
 - kcfi deploy [ -c <config-file> ] - install/upgrade/reconfigure codefresh
 - kcfi operator deploy|status|delete - manage codefresh operator
-- kcfi private-registry push-release|push-image 
+- kcfi images push-release|push [ -c <config-file> ] [options] - pushes images to private registry
 
 `
 var globalUsage = `The Kubernetes package manager
@@ -151,6 +153,7 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 		newOperatorCmd(actionConfig, out),
 		cfInitCmd(out),
 		cfApplyCmd(actionConfig, out),
+		cfImagesCmd(out),
 	)
 
 	helmCmd := &cobra.Command{
@@ -219,4 +222,13 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	loadPlugins(helmCmd, out)
 
 	return cmd
+}
+
+func defaultConfigFileName() string{
+	defaultConfigFileName := "config.yaml"
+	stageDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	return path.Join(stageDir, defaultConfigFileName)
 }

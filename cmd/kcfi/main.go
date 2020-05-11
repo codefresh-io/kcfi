@@ -101,30 +101,26 @@ func main() {
 	configFlag := childFlags.Lookup(flagConfig)
 	if configFlag != nil {
 		//merging config file kubernetes parameters into settings
-		err := childFlags.Parse(childArgs)
-		if err != nil {
-			log.Fatal(err)
-		}
+		childFlags.Parse(childArgs)
 		configFileName := configFlag.Value.String()
 		if configFileName != "" {
 			viper.SetConfigFile(configFileName)
-			if err := viper.ReadInConfig(); err != nil {
-				log.Fatal(err)
-			}
-			debug("Using config file: %s", viper.ConfigFileUsed())
+			if err := viper.ReadInConfig(); err == nil {
+				debug("Using config file: %s", viper.ConfigFileUsed())
 
-			viper.BindPFlag("kubernetes.namespace", childFlags.Lookup("namespace"))
-			viper.BindPFlag("kubernetes.context", childFlags.Lookup("kube-context"))
-			viper.BindPFlag("kubernetes.kubeconfig", childFlags.Lookup("kubeconfig"))
+				viper.BindPFlag("kubernetes.namespace", childFlags.Lookup("namespace"))
+				viper.BindPFlag("kubernetes.context", childFlags.Lookup("kube-context"))
+				viper.BindPFlag("kubernetes.kubeconfig", childFlags.Lookup("kubeconfig"))
 
-			if ns := viper.GetString(keyKubernetesNamespace); ns != "" {
-				configuredNamespace = ns
-			}			
-			if kubeContext := viper.GetString(keyKubernetesContext); kubeContext != "" {
-				settings.KubeContext = kubeContext
-			}
-			if kubeconfig := viper.GetString(keyKubernetesKubeconfig); kubeconfig != "" {
-				settings.KubeConfig = kubeconfig
+				if ns := viper.GetString(keyKubernetesNamespace); ns != "" {
+					configuredNamespace = ns
+				}			
+				if kubeContext := viper.GetString(keyKubernetesContext); kubeContext != "" {
+					settings.KubeContext = kubeContext
+				}
+				if kubeconfig := viper.GetString(keyKubernetesKubeconfig); kubeconfig != "" {
+					settings.KubeConfig = kubeconfig
+				}
 			}
 		}
 	}

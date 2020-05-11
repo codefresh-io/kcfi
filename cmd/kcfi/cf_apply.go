@@ -19,9 +19,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"os"
 	"time"
-	"path"
 	"github.com/spf13/cobra"
 
 	"helm.sh/helm/v3/cmd/helm/require"
@@ -33,8 +31,8 @@ import (
 )
 
 const cfApplyDesc = `
-This command installs or upgrades Codefresh with parameters definded in codefresh/config.yaml
-   kcfi apply [-f|--config /path/to/codefresh/config.yaml ]
+This command deploys Codefresh product with parameters defined in configuration file
+   kcfi deploy [-c|--config /path/to/codefresh/config.yaml ]
 by default it looks for config.yaml in current directory,
 `
 
@@ -91,13 +89,4 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	bindPostRenderFlag(cmd, &client.Helm.PostRenderer)
 
 	return cmd
-}
-
-func defaultConfigFileName() string{
-	defaultConfigFileName := "config.yaml"
-	stageDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	return path.Join(stageDir, defaultConfigFileName)
 }

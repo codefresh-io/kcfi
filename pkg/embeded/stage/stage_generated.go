@@ -136,7 +136,7 @@ func codefreshConfigYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "codefresh/config.yaml", size: 6311, mode: os.FileMode(420), modTime: time.Unix(1589135130, 0)}
+	info := bindataFileInfo{name: "codefresh/config.yaml", size: 6311, mode: os.FileMode(420), modTime: time.Unix(1589202124, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
