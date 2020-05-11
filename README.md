@@ -28,3 +28,7 @@ Deploy Codefresh
 kcfi deploy -c codefresh/config.yaml [ --kube-context <kube-context-name> ] [ --atomic ] [ --debug ] [ helm upgrade parameters ]
 ```
 
+### Example - cf-k8s-agent installation
+1. Run `kcfi init k8s-agent`. A staging directory will be created named `k8s-agent` with config.yaml and other files.
+2. Edit `k8s-agent/config.yaml`.
+3. Run `/kcfi deploy -c k8s-agent/config.yaml -n your_namespace` standing on proper kube context.

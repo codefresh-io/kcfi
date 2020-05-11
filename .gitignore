@@ -1,3 +1,6 @@
 /kcfi
 debug
 /codefresh
+/k8s-agent
+charts/k8s-agent
+.vscode

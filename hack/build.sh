@@ -4,6 +4,11 @@
 set -e
 DIR=$(dirname $0)
 
+git submodule update --init
+cp -r cf-k8s-agent/k8s-agent charts/
+git checkout stage/k8s-agent/config.yaml
+cat charts/k8s-agent/values.yaml >> stage/k8s-agent/config.yaml 
+
 which go-bindata >/dev/null || go get -u github.com/go-bindata/go-bindata/...
 go generate ${DIR}/generate.go
 
