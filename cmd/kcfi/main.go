@@ -41,6 +41,8 @@ import (
 	kubefake "helm.sh/helm/v3/pkg/kube/fake"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
+
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 // FeatureGateOCI is the feature gate for checking if `helm chart` and `helm registry` commands should work
@@ -51,9 +53,6 @@ var (
 	defaultNamespace = "codefresh"
 
 	flagConfig = "config"
-	keyKubernetesNamespace = "kubernetes.namespace"
-	keyKubernetesContext = "kubernetes.context"
-	keyKubernetesKubeconfig = "kubernetes.kubeconfig"
 )
 
 var configuredNamespace string
@@ -108,17 +107,17 @@ func main() {
 			if err := viper.ReadInConfig(); err == nil {
 				debug("Using config file: %s", viper.ConfigFileUsed())
 
-				viper.BindPFlag("kubernetes.namespace", childFlags.Lookup("namespace"))
-				viper.BindPFlag("kubernetes.context", childFlags.Lookup("kube-context"))
-				viper.BindPFlag("kubernetes.kubeconfig", childFlags.Lookup("kubeconfig"))
+				viper.BindPFlag(c.KeyKubeNamespace, childFlags.Lookup("namespace"))
+				viper.BindPFlag(c.KeyKubeContext, childFlags.Lookup("kube-context"))
+				viper.BindPFlag(c.KeyKubeKubeconfig, childFlags.Lookup("kubeconfig"))
 
-				if ns := viper.GetString(keyKubernetesNamespace); ns != "" {
+				if ns := viper.GetString(c.KeyKubeNamespace); ns != "" {
 					configuredNamespace = ns
 				}			
-				if kubeContext := viper.GetString(keyKubernetesContext); kubeContext != "" {
+				if kubeContext := viper.GetString(c.KeyKubeContext); kubeContext != "" {
 					settings.KubeContext = kubeContext
 				}
-				if kubeconfig := viper.GetString(keyKubernetesKubeconfig); kubeconfig != "" {
+				if kubeconfig := viper.GetString(c.KeyKubeKubeconfig); kubeconfig != "" {
 					settings.KubeConfig = kubeconfig
 				}
 			}

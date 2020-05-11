@@ -60,7 +60,7 @@ tls:
   cert: certs/ssl.crt
   key: certs/private.key
 
-docker:
+images:
   codefreshRegistrySa: sa.json
   # usePrivateRegistry: false
   # privateRegistry:
@@ -68,6 +68,8 @@ docker:
   #   username:
   #   password:
   #   configFile:
+  lists:
+  - images/images-list
   
 ### Firebase secret
 firebaseSecret: 

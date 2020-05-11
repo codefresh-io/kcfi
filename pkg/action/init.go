@@ -31,42 +31,18 @@ const (
 	// AssetsDir - folder name where we save kubernetes and helm assets
 	AssetsDir = "assets"
 
-	CodefreshReleaseName = "cf"
-	OperatorReleaseName = "cf-onprem-operator"
-
-	keyKind = "metadata.kind"
 	kindCodefresh = "codefresh"
 	kindK8sAgent = "k8sAgent"
 	kindVenona = "venona"
-	
-	keyDockerCodefreshRegistrySa = "docker.codefreshRegistrySa"
-	keyDockerUsePrivateRegistry = "docker.usePrivateRegistry"
-	keyDockerprivateRegistryAddress = "docker.privateRegistry.address"
-	keyDockerprivateRegistryUsername = "docker.privateRegistry.username"
-	keyDockerprivateRegistryPassword = "docker.privateRegistry.password"
 
-	keyRelease = "metadata.installer.release"	
-	keyInstallerType = "metadata.installer.type"
 	installerTypeOperator = "operator"
 	installerTypeHelm = "helm"
-
-	keyOperatorChartValues = "metadata.installer.operator"
-	keyOperatorSkipCRD = "metadata.installer.operator.skipCRD"
 
 	operatorHelmReleaseName = "cf-onprem-operator"
 	operatorHelmChartName = "codefresh-operator"
 	
-	keyCodefreshHelmChart = "metadata.installer.helm.chart"
 	codefreshHelmReleaseName = "cf"
 
-	keyNamespace = "kubernetes.namespace"
-
-	keyBaseDir = "BaseDir"
-	keyTlsSelfSigned = "tls.selfSigned"
-	keyTlsCert = "tls.cert"
-	keyTlsKey = "tls.key"
-
-	keyAppUrl = "global.appUrl"
 )
 
 // CfInit is an action to create Codefresh config stage directory

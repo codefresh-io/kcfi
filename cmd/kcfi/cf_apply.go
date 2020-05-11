@@ -28,6 +28,8 @@ import (
 	"helm.sh/helm/v3/pkg/getter"
 	helm "helm.sh/helm/v3/pkg/action"
 	"github.com/codefresh-io/kcfi/pkg/action"
+
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 const cfApplyDesc = `
@@ -51,7 +53,7 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// merging configFile with valueOpts
 			valueOpts.ValueFiles = append([]string{client.ConfigFile}, valueOpts.ValueFiles...)
-			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", keyKubernetesNamespace, configuredNamespace))
+			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyKubeNamespace, configuredNamespace))
 			vals, err := valueOpts.MergeValues(getter.All(settings))
 			if err != nil {
 				return err
