@@ -37,7 +37,7 @@ import (
 var kcfiUsage = `Codefresh installer
 actions:
 - kcfi init [ /path/to/codefresh-config-dir ] - < pprepare configuration directory
-- kcfi appy [ -f <config-file> ] - install codefresh
+- kcfi deploy [ -c <config-file> ] - install/upgrade/reconfigure codefresh
 - kcfi operator deploy|status|delete - manage codefresh operator
 - kcfi private-registry push-release|push-image 
 

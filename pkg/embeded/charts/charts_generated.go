@@ -142,7 +142,7 @@ func codefreshOperatorCrdsCrdYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "codefresh-operator/crds/crd.yaml", size: 514, mode: os.FileMode(420), modTime: time.Unix(1588861368, 0)}
+	info := bindataFileInfo{name: "codefresh-operator/crds/crd.yaml", size: 514, mode: os.FileMode(420), modTime: time.Unix(1589103647, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
