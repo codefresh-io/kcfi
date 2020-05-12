@@ -165,8 +165,8 @@ func GetAssetsDir(configFile string) string {
 
 // TODO - use logger framework
 func log(format string, v ...interface{}) {
-	fmt.Printf(format, v...)
+	fmt.Printf(format + "\n", v...)
 }
 func debug(format string, v ...interface{}) {
-	fmt.Printf(format, v...)
+	fmt.Printf(format + "\n", v...)
 }

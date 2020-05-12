@@ -17,11 +17,13 @@ limitations under the License.
 package main
 
 import (
-	"log"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"path/filepath"
-	"github.com/spf13/viper"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/yaml"
 
 	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/kcfi/pkg/action"
@@ -48,20 +50,24 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 		Args:  require.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			viper.SetConfigFile(configFileName)
-			if err := viper.ReadInConfig(); err != nil {
-				log.Fatal(err)
+			// read config file
+			debug("Using config file: %s", configFileName)
+			configFileB, err := ioutil.ReadFile(configFileName)
+			if err != nil {
+				return errors.Wrap(err, fmt.Sprintf("cannot read %s", configFileName))
 			}
-			debug("Using config file: %s", viper.ConfigFileUsed())
-
-			config := viper.AllSettings()
+			config := map[string]interface{}{}
+			err = yaml.Unmarshal(configFileB, &config)
+			if err != nil {
+				return err
+			}
 			
 			baseDir := filepath.Dir(configFileName)
 			config[c.KeyBaseDir] = baseDir
 
 			imagesPusher, err := action.NewImagesPusherFromConfig(config)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 
 			var imagesList []string

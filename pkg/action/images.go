@@ -19,7 +19,6 @@ package action
 import (
 	"fmt"
 	"path"
-	"path/filepath"
 	"io/ioutil"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
@@ -75,7 +74,7 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 
 	// get AuthConfig Codefresh Enterprise registry
 	cfRegistrySaVal := cfgX.Get(c.KeyImagesCodefreshRegistrySa).Str("sa.json")
-	cfRegistrySaPath := path.Join(filepath.Dir(baseDir), cfRegistrySaVal)
+	cfRegistrySaPath := path.Join(baseDir, cfRegistrySaVal)
 	cfRegistryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
@@ -127,15 +126,16 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 }
 
 func(o *ImagesPusher) Run(images []string) error {
-	fmt.Printf("Running images pusher")
+	log("Running images pusher")
 	for _, imgName := range images {
+		debug("Processing image %s", imgName)
 		imgRef, err := name.ParseReference(imgName)
 		if err != nil {
 			log("Warning: cannot parse %s - %v", imgName, err)
 			continue
 		}
 
-		img, err := remote.Image(imgRef, remote.WithAuthFromKeychain(o.Keychain))
+		imgDesc, err := remote.Get(imgRef, remote.WithAuthFromKeychain(o.Keychain))
 		if err != nil {
 			log("Warning: image %s - %v", imgName, err)
 			continue
