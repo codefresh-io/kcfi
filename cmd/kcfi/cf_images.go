@@ -40,8 +40,8 @@ Push single image
 `
 
 func cfImagesCmd(out io.Writer) *cobra.Command {
-	pushCmd := "push"
-	pushListCmd := "push-list"
+	cmdPush := "push"
+	cmdPushList := "push-list"
 	var configFileName string
 	
 	cmd := &cobra.Command{
@@ -51,7 +51,7 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 		Aliases: []string{"image", "private-registry", "docker"},
 		Args:  require.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 || ! (args[0] == pushCmd || args[0] == pushListCmd) {
+			if len(args) == 0 || ! (args[0] == cmdPush || args[0] == cmdPushList) {
 				return cmd.Usage()
 			}
 			// read config file
@@ -75,9 +75,9 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 			}
 
 			var imagesList []string
-			if args[0] == "push" {
+			if args[0] == cmdPush {
 				imagesList = args[1:]
-			} else if args[0] == "push-release" {
+			} else if args[0] == cmdPushList {
 				imagesList = imagesPusher.ImagesList
 			}
 			return imagesPusher.Run(imagesList)

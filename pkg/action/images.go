@@ -138,15 +138,29 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 	}
 
 	// Get Images List
-	var imagesList []string
-	imagesListsFiles := cfgX.Get(c.KeyImagesLists).StringSlice()
+	var imagesListsFiles, imagesList []string
+	// cfgX.Get(c.KeyImagesLists).StrSlice() - not working, returns empty
+	imagesListsFilesI := cfgX.Get(c.KeyImagesLists).Data()
+	if fileNamesI, ok := imagesListsFilesI.([]interface{}); ok {
+		for _, f := range fileNamesI {
+			if str, isStr := f.(string); isStr {
+				imagesListsFiles = append(imagesListsFiles, str)
+			} else {
+				info("Warning: %s - %v is not a string", c.KeyImagesLists, f)
+			}
+		}
+		debug("%v - %v", imagesListsFilesI, imagesListsFiles)
+	} else {
+		info("Warning: %s - %v is not a list", c.KeyImagesLists, imagesListsFilesI)
+	}
+
 	for _, imagesListFile := range(imagesListsFiles) {
-		imagesList, err := ReadListFile(imagesListFile)
+		imagesListF, err := ReadListFile(path.Join(baseDir, imagesListFile))
 		if err != nil {
 			info("Error: failed to read %s - %v", imagesListFile, err)
 			continue
 		}
-		for _, image := range imagesList {
+		for _, image := range imagesListF {
 			imagesList = append(imagesList, image)
 		}
 	}
@@ -161,6 +175,10 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 func(o *ImagesPusher) Run(images []string) error {
 	info("Running images pusher")
 	if len(images) == 0 {
+		if len(o.ImagesList) == 0 {
+			info("No images to push")
+			return nil
+		}
 		images = o.ImagesList
 	}
 	imagesWarnings := make(map[string]string)
