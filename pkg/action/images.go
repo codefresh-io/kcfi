@@ -19,6 +19,7 @@ package action
 import (
 	"fmt"
 	"path"
+	"strings"
 	"io/ioutil"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
@@ -135,13 +136,41 @@ func(o *ImagesPusher) Run(images []string) error {
 			continue
 		}
 
-		imgDesc, err := remote.Get(imgRef, remote.WithAuthFromKeychain(o.Keychain))
+		// Calculating destination image
+		/* there are 3 types of image names:
+		# 1. non-codefresh like "bitnami/mongo:123" - convert to "private-registry-addr/bitnami/mongo:123"
+		# 2. codefresh public images like "codefresh/engine:123" - convert to "private-registry-addr/codefresh/mongo:123"
+		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:cf-onprem-v1.0.86 - will be convert to "private-registry-addr/codefresh/mongo:123
+		DELIMITER='codefresh/'
+		*/
+		var dstImageName string
+		imgNameSplit := strings.Split(imgName, "codefresh/")
+		if len(imgNameSplit) == 1 {
+			dstImageName = fmt.Sprintf("%s/%s", o.DstRegistry.RegistryStr(), imgName)
+		} else if len(imgNameSplit) == 2 {
+			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[1])
+		} else {
+			log("Warning: cannot convert image name %s to destination image", imgName, err)
+			continue
+		}
+		dstRef, err := name.ParseReference(dstImageName)
 		if err != nil {
-			log("Warning: image %s - %v", imgName, err)
+			log("Warning: cannot parse %s - %v", dstImageName, err)
 			continue
 		}
 
-		log("Image = %v", img)
+		img, err := remote.Image(imgRef, remote.WithAuthFromKeychain(o.Keychain))
+		if err != nil {
+			log("Warning: source image %s - %v", imgName, err)
+			continue
+		}
+
+		log("\nWriting Image %s to %s", imgName, dstImageName)
+		err = remote.Write(dstRef, img, remote.WithAuthFromKeychain(o.Keychain))
+		if err != nil {
+			log("Warning: failed  %s to %s - %v", imgName, dstImageName, err)
+			continue
+		}		
 	}
 	return nil
 } 
