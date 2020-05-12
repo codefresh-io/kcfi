@@ -20,9 +20,12 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"regexp"
 	"io/ioutil"
 	"log"
 	"os"
+	"io"
+	"bufio"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
@@ -100,6 +103,7 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 		Password: string(cfRegistryPasswordB),
 	}
 	
+	// get AuthConfig for destination provate registry
 	dstRegistryAddress := cfgX.Get(c.KeyImagesPrivateRegistryAddress).String()
 	dstRegistry, err := name.NewRegistry(dstRegistryAddress)
 	if err != nil {
@@ -133,9 +137,24 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 		dstRegistryAuthConfig: dstRegistryAuthConfig,
 	}
 
+	// Get Images List
+	var imagesList []string
+	imagesListsFiles := cfgX.Get(c.KeyImagesLists).StringSlice()
+	for _, imagesListFile := range(imagesListsFiles) {
+		imagesList, err := ReadListFile(imagesListFile)
+		if err != nil {
+			info("Error: failed to read %s - %v", imagesListFile, err)
+			continue
+		}
+		for _, image := range imagesList {
+			imagesList = append(imagesList, image)
+		}
+	}
+
 	return &ImagesPusher{
 		DstRegistry: dstRegistry,
 		Keychain: keychain,
+		ImagesList: imagesList,
 	}, nil
 }
 
@@ -195,17 +214,55 @@ func(o *ImagesPusher) Run(images []string) error {
 			continue
 		}
 	}
-
-	cntSucess := len(images) - len(imagesWarnings)
+	
+	cntProcessed := len(images)
 	cnfFail := len(imagesWarnings)
+	cntSucess := cntProcessed - cnfFail
 	if len(imagesWarnings) > 0 {
 		info("\n----- %d images were failed:", cnfFail)
 		for img, errMsg := range imagesWarnings {
 			info("%s - %s", img, errMsg)
 		}
 	}
-
-	info("\n----- Completed! -----\n%d of %d images were successfully pushed", cntSucess, len(images))
+	info("\n----- Completed! -----\n%d of %d images were successfully pushed", cntSucess, cntProcessed)
 
 	return nil
 } 
+
+// ReadListFile - reads file and returns list of strings with strimmed lines without #-comments, empty lines
+func ReadListFile(fileName string) ([]string, error) {
+	debug("Reading List File %s", fileName)
+	lines := []string{}
+	file, err := os.Open(fileName)
+	defer file.Close()
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to open file %s", fileName)
+	}
+	reader := bufio.NewReader(file)
+
+	commentLineRe, _ := regexp.Compile(`^ *#+.*$`)
+	nonEmptyLineRe, _ := regexp.Compile(`[a-zA-Z0-9]`)
+	for {
+		lineB, prefix, err :=  reader.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, errors.Wrapf(err, "failed to read file %s", fileName)
+			}
+		}
+		if prefix {
+			info("Warning: too long lines in %s", fileName)
+			continue
+		}
+		line := string(lineB)
+		if commentLineRe.MatchString(line) || ! nonEmptyLineRe.MatchString(line) {
+			continue
+		}
+		lines = append(lines, line)
+	}
+	if len(lines) == 0 {
+		info("Warning: no valid lines in file %s", fileName)
+	}
+	return lines, nil
+}

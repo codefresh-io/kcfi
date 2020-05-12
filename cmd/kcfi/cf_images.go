@@ -33,7 +33,7 @@ import (
 const cfImagesDesc = `
 Commmand to push images to private registry
 Push whole release with images list defined in config file:
-   kcfi images push-release [-c|--config /path/to/config.yaml] [options]
+   kcfi images push-list [--images-list <images-list-file>] [-c|--config /path/to/config.yaml] [options]
 
 Push single image
   kcfi images push [-c|--config /path/to/config.yaml] [options] repo/image:tag [repo/image:tag] ... 
@@ -73,6 +73,8 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 			var imagesList []string
 			if args[0] == "push" {
 				imagesList = args[1:]
+			} else if args[0] == "push-release" {
+				imagesList = imagesPusher.ImagesList
 			}
 			return imagesPusher.Run(imagesList)
 		},
