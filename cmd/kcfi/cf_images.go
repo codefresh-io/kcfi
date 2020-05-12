@@ -63,7 +63,12 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				log.Fatal(err)
 			}
-			return imagesPusher.Run()
+
+			var imagesList []string
+			if args[0] == "push" {
+				imagesList = args[1:]
+			}
+			return imagesPusher.Run(imagesList)
 		},
 	}
 

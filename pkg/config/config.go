@@ -23,6 +23,9 @@ const (
 	CodefreshReleaseName = "cf"
 	OperatorReleaseName = "cf-onprem-operator"
 
+	CfRegistryAddress = "gcr.io"
+	CfRegistryUsername = "_json_key"
+
 	KeyKind = "metadata.kind"
 	KindCodefresh = "codefresh"
 	KindK8sAgent = "k8sAgent"
@@ -60,6 +63,4 @@ const (
 
 	KeyAppUrl = "global.appUrl"
 
-	CfRegistryAddr = "gcr.io"
-	CfRegistryUsername = "_json_key"
 )

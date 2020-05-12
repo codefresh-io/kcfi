@@ -163,6 +163,10 @@ func GetAssetsDir(configFile string) string {
 	return path.Join(filepath.Dir(configFile), AssetsDir)
 }
 
+// TODO - use logger framework
+func log(format string, v ...interface{}) {
+	fmt.Printf(format, v...)
+}
 func debug(format string, v ...interface{}) {
 	fmt.Printf(format, v...)
 }

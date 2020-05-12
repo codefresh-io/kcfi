@@ -43,8 +43,8 @@ func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
 	usePrivateRegistry := valsX.Get(c.KeyImagesUsePrivateRegistry).Bool(false)
 	if !usePrivateRegistry {
 		// using Codefresh Enterprise registry
-		registryAddress = "gcr.io"
-		registryUsername = "_json_key"
+		registryAddress = c.CfRegistryAddress
+		registryUsername = c.CfRegistryUsername
 		cfRegistrySaVal := valsX.Get(c.KeyImagesCodefreshRegistrySa).Str("sa.json")
 		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
 		registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)

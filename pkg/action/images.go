@@ -26,6 +26,7 @@ import (
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
 
 	c "github.com/codefresh-io/kcfi/pkg/config"
 )
@@ -79,7 +80,7 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
 	}
-	cfRegistry, _ := name.NewRegistry(c.CfRegistryAddr)
+	cfRegistry, _ := name.NewRegistry(c.CfRegistryAddress)
 	cfRegistryAuthConfig := &authn.AuthConfig{
 		Username: c.CfRegistryUsername,
 		Password: string(cfRegistryPasswordB),
@@ -125,7 +126,22 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 	}, nil
 }
 
-func(o *ImagesPusher) Run() error {
+func(o *ImagesPusher) Run(images []string) error {
 	fmt.Printf("Running images pusher")
+	for _, imgName := range images {
+		imgRef, err := name.ParseReference(imgName)
+		if err != nil {
+			log("Warning: cannot parse %s - %v", imgName, err)
+			continue
+		}
+
+		img, err := remote.Image(imgRef, remote.WithAuthFromKeychain(o.Keychain))
+		if err != nil {
+			log("Warning: image %s - %v", imgName, err)
+			continue
+		}
+
+		log("Image = %v", img)
+	}
 	return nil
 } 
