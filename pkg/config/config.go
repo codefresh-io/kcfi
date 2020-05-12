@@ -59,4 +59,7 @@ const (
 	KeyTlsKey = "tls.key"
 
 	KeyAppUrl = "global.appUrl"
+
+	CfRegistryAddr = "gcr.io"
+	CfRegistryUsername = "_json_key"
 )

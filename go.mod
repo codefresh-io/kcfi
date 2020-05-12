@@ -12,6 +12,7 @@ require (
 	github.com/docker/docker v1.4.2-0.20200203170920-46ec8731fbce
 	github.com/docker/go-units v0.4.0
 	github.com/gofrs/flock v0.7.1
+	github.com/google/go-containerregistry v0.0.0-20200430153450-5cbd060f5c92
 	github.com/gosuri/uitable v0.0.4
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/opencontainers/go-digest v1.0.0-rc1

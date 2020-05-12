@@ -19,11 +19,13 @@ package main
 import (
 	"log"
 	"io"
+	"path/filepath"
 	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
 
 	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/kcfi/pkg/action"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 const cfImagesDesc = `
@@ -53,6 +55,10 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 			debug("Using config file: %s", viper.ConfigFileUsed())
 
 			config := viper.AllSettings()
+			
+			baseDir := filepath.Dir(configFileName)
+			config[c.KeyBaseDir] = baseDir
+
 			imagesPusher, err := action.NewImagesPusherFromConfig(config)
 			if err != nil {
 				log.Fatal(err)
