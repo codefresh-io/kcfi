@@ -16,6 +16,11 @@ limitations under the License.
 
 package config
 
+import (
+	"os"
+	"strconv"
+)
+
 const (
 	// AssetsDir - folder name where we save kubernetes and helm assets
 	AssetsDir = "assets"
@@ -63,4 +68,7 @@ const (
 
 	KeyAppUrl = "global.appUrl"
 
+	EnvPusherDebug = "PUSHER_DEBUG"
 )
+
+var Debug, _ = strconv.ParseBool(os.Getenv("HELM_DEBUG"))

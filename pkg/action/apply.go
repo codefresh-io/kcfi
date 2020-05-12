@@ -47,8 +47,8 @@ func NewCfApply(cfg *helm.Configuration) *CfApply {
 
 // Run the action
 func (o *CfApply) Run(vals map[string]interface{}) error {
-	fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
-	// fmt.Printf("Applying Codefresh configuration from %s\n", o.ConfigFile)
+	info("Applying Codefresh configuration from %s\n", o.ConfigFile)
+	// info("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	o.vals = vals
 	valsX := objx.New(vals)
 	kind := valsX.Get(c.KeyKind).String(); 

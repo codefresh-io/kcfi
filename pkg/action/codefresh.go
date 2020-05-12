@@ -149,7 +149,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write %s ", valuesYamlPath)
 	}
-	fmt.Printf("values.yaml has been generated in %s\n", valuesYamlPath)
+	info("values.yaml has been generated in %s\n", valuesYamlPath)
 
 	cfResourceTplResult, err := ExecuteTemplate(CfResourceTpl, o.vals)
 	if err != nil {
@@ -160,7 +160,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
 	}
-	fmt.Printf("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
+	info("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
 
 	//--- Deploying
     installerType := valsX.Get(c.KeyInstallerType).String()
@@ -196,9 +196,9 @@ func (o *CfApply) ApplyCodefresh() error {
         if err != nil {
             return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
         }
-		fmt.Printf("applying %s\n %v", cfResourceYamlPath, cfResources)
+		info("applying %s\n %v", cfResourceYamlPath, cfResources)
 		if o.Helm.DryRun {
-			fmt.Printf("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
+			info("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
 			return nil
 		}
         err = cfResources.Visit(func(info *resource.Info, err error) error {
@@ -241,7 +241,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		return fmt.Errorf("Error: unknown instraller type %s", installerType)
 	}
 
-	fmt.Printf("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
+	info("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
     return nil
 }
 

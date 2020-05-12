@@ -29,10 +29,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	//"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
 	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
-	//"github.com/codefresh-io/kcfi/pkg/helm-internal/experimental/registry"
-	//"github.com/codefresh-io/kcfi/pkg/helm-internal/experimental/registry"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 	"helm.sh/helm/v3/pkg/action"
 )
 
@@ -149,6 +147,7 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	flags.Parse(args)
 
 	//Add Codefresh subcommands
+	c.Debug = settings.Debug
 	cmd.AddCommand(
 		newOperatorCmd(actionConfig, out),
 		cfInitCmd(out),

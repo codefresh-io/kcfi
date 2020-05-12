@@ -19,12 +19,15 @@ package action
 import (
 	"os"
 	"fmt"
+	"log"
 	"strings"
 	"regexp"
 	"io/ioutil"
 	"path"
 	"path/filepath"
 	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
+
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 const (
@@ -84,7 +87,7 @@ func (o *CfInit) Run() error {
 		restoreDir = o.StageDir
 	}
 	
-	fmt.Printf("Creating stage directory %s\n", restoreDir )
+	info("Creating stage directory %s\n", restoreDir )
 	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
 		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
 	}
@@ -164,9 +167,12 @@ func GetAssetsDir(configFile string) string {
 }
 
 // TODO - use logger framework
-func log(format string, v ...interface{}) {
+func info(format string, v ...interface{}) {
 	fmt.Printf(format + "\n", v...)
 }
 func debug(format string, v ...interface{}) {
-	fmt.Printf(format + "\n", v...)
+	if c.Debug {
+		format = fmt.Sprintf("[debug] %s\n", format)
+		log.Output(2, fmt.Sprintf(format, v...))
+	}
 }

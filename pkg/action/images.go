@@ -21,9 +21,12 @@ import (
 	"path"
 	"strings"
 	"io/ioutil"
+	"log"
+	"os"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
+	clogs "github.com/google/go-containerregistry/pkg/logs"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
@@ -47,6 +50,17 @@ type pusherKeychain struct{
 	cfRegistryAuthConfig *authn.AuthConfig
 	dstRegistry name.Registry
 	dstRegistryAuthConfig *authn.AuthConfig
+}
+
+
+func init() {
+	//initialize go-conteinerregistry logger
+	clogs.Warn = log.New(os.Stderr, "", log.LstdFlags)
+	clogs.Progress = log.New(os.Stdout, "", log.LstdFlags)
+
+	if os.Getenv(c.EnvPusherDebug) != "" {
+		clogs.Debug = log.New(os.Stderr, "", log.LstdFlags)
+	}
 }
 
 func(k *pusherKeychain) Resolve(target authn.Resource) (authn.Authenticator, error) {
@@ -127,12 +141,12 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 }
 
 func(o *ImagesPusher) Run(images []string) error {
-	log("Running images pusher")
+	info("Running images pusher")
 	for _, imgName := range images {
-		debug("Processing image %s", imgName)
+		info("\n------------------\nSource Image: %s", imgName)
 		imgRef, err := name.ParseReference(imgName)
 		if err != nil {
-			log("Warning: cannot parse %s - %v", imgName, err)
+			info("Warning: cannot parse %s - %v", imgName, err)
 			continue
 		}
 
@@ -150,27 +164,27 @@ func(o *ImagesPusher) Run(images []string) error {
 		} else if len(imgNameSplit) == 2 {
 			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[1])
 		} else {
-			log("Warning: cannot convert image name %s to destination image", imgName, err)
+			info("Warning: cannot convert image name %s to destination image", imgName)
 			continue
 		}
 		dstRef, err := name.ParseReference(dstImageName)
 		if err != nil {
-			log("Warning: cannot parse %s - %v", dstImageName, err)
+			info("Warning: cannot parse %s - %v", dstImageName, err)
 			continue
 		}
 
 		img, err := remote.Image(imgRef, remote.WithAuthFromKeychain(o.Keychain))
 		if err != nil {
-			log("Warning: source image %s - %v", imgName, err)
+			info("Warning: source image %s - %v", imgName, err)
 			continue
 		}
 
-		log("\nWriting Image %s to %s", imgName, dstImageName)
+		info("Dest.  Image: %s", dstImageName)
 		err = remote.Write(dstRef, img, remote.WithAuthFromKeychain(o.Keychain))
 		if err != nil {
-			log("Warning: failed  %s to %s - %v", imgName, dstImageName, err)
+			info("Warning: failed  %s to %s - %v", imgName, dstImageName, err)
 			continue
-		}		
+		}
 	}
 	return nil
 } 

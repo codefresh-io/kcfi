@@ -11,14 +11,14 @@ import (
 
 func DeployHelmRelease(releaseName string, chart string, vals map[string]interface{}, cfg *helm.Configuration, client *helm.Upgrade) (*release.Release, error) {
 	var release *release.Release
-	fmt.Printf("Deploying release %s of chart %s ...", releaseName, chart)
+	info("Deploying release %s of chart %s ...", releaseName, chart)
 	// Checking if chart already installed and decide to use install or upgrade helm client
 	histClient := helm.NewHistory(cfg)
 	histClient.Max = 1
 	if _, err := histClient.Run(releaseName); err == driver.ErrReleaseNotFound {
 		// Only print this to stdout for table output
 	
-		fmt.Printf("Release %q does not exist. Installing it now.\n", releaseName)
+		info("Release %q does not exist. Installing it now.\n", releaseName)
 		
 		instClient := helm.NewInstall(cfg)
 		instClient.CreateNamespace = false //TODO
@@ -67,7 +67,7 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	if err != nil {
 		return nil, errors.Wrapf(err, "UPGRADE of %s FAILED", releaseName)
 	}
-	fmt.Printf("Release %q has been upgraded\n", releaseName)
+	info("Release %q has been upgraded\n", releaseName)
 
 	return release, nil 	
 }
