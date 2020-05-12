@@ -100,12 +100,11 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 		Password: string(cfRegistryPasswordB),
 	}
 	
-
 	dstRegistryAddress := cfgX.Get(c.KeyImagesPrivateRegistryAddress).String()
 	dstRegistry, err := name.NewRegistry(dstRegistryAddress)
 	if err != nil {
 		return nil, errors.Wrapf(err, "invalid registry address %s", dstRegistryAddress)
-	}	
+	}
 	dstRegistryUsername := cfgX.Get(c.KeyImagesPrivateRegistryUsername).String()
 	dstRegistryPassword := cfgX.Get(c.KeyImagesPrivateRegistryPassword).String()
 	if len(dstRegistryAddress) == 0 || len(dstRegistryUsername) == 0 || len(dstRegistryPassword) == 0 {
@@ -142,11 +141,17 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 
 func(o *ImagesPusher) Run(images []string) error {
 	info("Running images pusher")
+	if len(images) == 0 {
+		images = o.ImagesList
+	}
+	imagesWarnings := make(map[string]string)
+
 	for _, imgName := range images {
 		info("\n------------------\nSource Image: %s", imgName)
 		imgRef, err := name.ParseReference(imgName)
 		if err != nil {
-			info("Warning: cannot parse %s - %v", imgName, err)
+			imagesWarnings[imgName] = fmt.Sprintf("cannot parse %s - %v", imgName, err)
+			info("Warning: %s", imagesWarnings[imgName])
 			continue
 		}
 
@@ -164,27 +169,43 @@ func(o *ImagesPusher) Run(images []string) error {
 		} else if len(imgNameSplit) == 2 {
 			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[1])
 		} else {
-			info("Warning: cannot convert image name %s to destination image", imgName)
+			imagesWarnings[imgName] = fmt.Sprintf("cannot convert image name %s to destination image", imgName)
+			info("Error: %s", imagesWarnings[imgName])
 			continue
 		}
 		dstRef, err := name.ParseReference(dstImageName)
 		if err != nil {
-			info("Warning: cannot parse %s - %v", dstImageName, err)
+			imagesWarnings[imgName] = fmt.Sprintf("cannot parse %s - %v", dstImageName, err)
+			info("Error: %s", imagesWarnings[imgName])
 			continue
 		}
 
 		img, err := remote.Image(imgRef, remote.WithAuthFromKeychain(o.Keychain))
 		if err != nil {
-			info("Warning: source image %s - %v", imgName, err)
+			imagesWarnings[imgName] = fmt.Sprintf("cannot get source image %s - %v", imgName, err)
+			info("Error: %s", imagesWarnings[imgName])
 			continue
 		}
 
 		info("Dest.  Image: %s", dstImageName)
 		err = remote.Write(dstRef, img, remote.WithAuthFromKeychain(o.Keychain))
 		if err != nil {
-			info("Warning: failed  %s to %s - %v", imgName, dstImageName, err)
+			imagesWarnings[imgName] = fmt.Sprintf("failed  %s to %s - %v", imgName, dstImageName, err)
+			info("Error: %s", imagesWarnings[imgName])
 			continue
 		}
 	}
+
+	cntSucess := len(images) - len(imagesWarnings)
+	cnfFail := len(imagesWarnings)
+	if len(imagesWarnings) > 0 {
+		info("\n----- %d images were failed:", cnfFail)
+		for img, errMsg := range imagesWarnings {
+			info("%s - %s", img, errMsg)
+		}
+	}
+
+	info("\n----- Completed! -----\n%d of %d images were successfully pushed", cntSucess, len(images))
+
 	return nil
 } 
