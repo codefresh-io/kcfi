@@ -17,14 +17,15 @@ limitations under the License.
 package action
 
 import (
-	"os"
 	"fmt"
 	"log"
-	"strings"
-	"regexp"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
 
 	c "github.com/codefresh-io/kcfi/pkg/config"
@@ -39,7 +40,7 @@ const (
 	kindVenona = "venona"
 
 	installerTypeOperator = "operator"
-	installerTypeHelm = "helm"
+	installerTypeHelm     = "helm"
 
 	operatorHelmReleaseName = "cf-onprem-operator"
 	operatorHelmChartName = "codefresh-operator"
@@ -51,14 +52,14 @@ const (
 // CfInit is an action to create Codefresh config stage directory
 type CfInit struct {
 	ProductName string
-	StageDir string
+	StageDir    string
 }
 
 // NewCfInit creates object
 func NewCfInit(productName, stageDir string) *CfInit {
 	return &CfInit{
 		ProductName: productName,
-		StageDir: stageDir,
+		StageDir:    stageDir,
 	}
 }
 
@@ -72,7 +73,7 @@ func (o *CfInit) Run() error {
 		}
 	}
 	if !isValidProduct {
-	   return fmt.Errorf("Unknown product %s", o.ProductName)
+		return fmt.Errorf("Unknown product %s", o.ProductName)
 	}
 
 	var err error
@@ -145,7 +146,7 @@ func _filePath(dir, name string) string {
 }
 
 // StageDirsList - returns list of registered staging dir
-func StageDirsList() []string {	
+func StageDirsList() []string {
 	var stageDirsList []string
 	var stageName string
 	stageDirsMap := make(map[string]int)

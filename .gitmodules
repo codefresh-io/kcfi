@@ -1,0 +1,4 @@
+[submodule "cf-k8s-agent"]
+	path = cf-k8s-agent
+	url = git@github.com:codefresh-io/cf-k8s-agent.git
+	branch = master

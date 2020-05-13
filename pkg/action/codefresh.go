@@ -17,26 +17,26 @@ limitations under the License.
 package action
 
 import (
-    "fmt"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
-	"os"
-	"io/ioutil"
 
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"k8s.io/cli-runtime/pkg/resource"
 	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 // GetDockerRegistryVars - calculater docker registry vals
-func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
-	
+func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
+
 	var registryAddress, registryUsername, registryPassword string
 	var err error
 	valsX := objx.New(o.vals)
@@ -70,16 +70,16 @@ func (o *CfApply) GetDockerRegistryVars () (map[string]interface{}, error) {
 			return nil, err
 		}
 	}
-	// Creating 
+	// Creating
 	registryTplData := map[string]interface{}{
-		"RegistryAddress": registryAddress,
+		"RegistryAddress":  registryAddress,
 		"RegistryUsername": registryUsername,
 		"RegistryPassword": registryPassword,
-	} 
+	}
 	registryValues, err := ExecuteTemplateToValues(RegistryValuesTpl, registryTplData)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Error to parse docker registry values"))
-  }
+	}
 
 	return registryValues, nil
 }
@@ -110,23 +110,23 @@ func (o *CfApply) ApplyCodefresh() error {
 		return errors.Wrapf(err, "Failed to parse docker registry values")
 	}
 	o.vals = MergeMaps(o.vals, registryValues)
-	
+
 	//--- WebTls Values
 	if ! valsX.Get(c.KeyTlsSelfSigned).Bool(true) {
 		webTlsValues, err := ExecuteTemplateToValues(WebTlsValuesTpl, o.vals)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to generate values.yaml")
 		}
-		o.vals = MergeMaps(o.vals, webTlsValues)		
+		o.vals = MergeMaps(o.vals, webTlsValues)
 	}
-				
+
 	//--- If a release does not exist add seeded jobs
 	histClient := helm.NewHistory(o.cfg)
 	histClient.Max = 1
 	if _, err := histClient.Run(codefreshHelmReleaseName); err == driver.ErrReleaseNotFound {
 		seedJobsValues := map[string]interface{}{
 			"global": map[string]interface{}{
-				"seedJobs": true,
+				"seedJobs":  true,
 				"certsJobs": true,
 			},
 		}
@@ -176,14 +176,14 @@ func (o *CfApply) ApplyCodefresh() error {
 		helmWaitBak := o.Helm.Wait
 		o.Helm.Wait = true
 		_, err = DeployHelmRelease(
-					operatorHelmReleaseName, 
-					operatorHelmChartName, 
-					operatorChartValues, 
-					o.cfg, 
-					o.Helm,
-				)
+			operatorHelmReleaseName,
+			operatorHelmChartName,
+			operatorChartValues,
+			o.cfg,
+			o.Helm,
+		)
 		if err != nil {
-			return errors.Wrapf(err, "Failed to deploy operator chart")	
+			return errors.Wrapf(err, "Failed to deploy operator chart")
 		}
 		o.Helm.Wait = helmWaitBak
 
@@ -201,10 +201,10 @@ func (o *CfApply) ApplyCodefresh() error {
 			info("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
 			return nil
 		}
-        err = cfResources.Visit(func(info *resource.Info, err error) error {
-            if err != nil {
-                return err
-            }			
+		err = cfResources.Visit(func(info *resource.Info, err error) error {
+			if err != nil {
+				return err
+			}
 			helper := resource.NewHelper(info.Client, info.Mapping)
 			if _, err = helper.Get(info.Namespace, info.Name, info.Export); err != nil {
 				if !kerrors.IsNotFound(err) {
@@ -213,36 +213,36 @@ func (o *CfApply) ApplyCodefresh() error {
 				_, err = helper.Create(info.Namespace, true, info.Object)
 			} else {
 				_, err = helper.Replace(info.Namespace, info.Name, true, info.Object)
-			}	
-            return err
+			}
+			return err
 		})
 		if err != nil {
 			return errors.Wrapf(err, "Failed to apply %s\n", cfResourceYamlPath)
-		}   
-    } else if installerType == installerTypeHelm {
+		}
+	} else if installerType == installerTypeHelm {
 		// first we will error if operator chart is installed:
 		histClient := helm.NewHistory(o.cfg)
 		histClient.Max = 1
 		if operatorRelease, _ := histClient.Run(operatorHelmReleaseName); operatorRelease != nil {
 			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
 		}
-		codefreshHelChartName := valsX.Get(c.KeyCodefreshHelmChart).Str("codefresh.tgz")
+		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh.tgz")
 		_, err = DeployHelmRelease(
-			codefreshHelmReleaseName, 
-			codefreshHelChartName, 
-			o.vals, 
-			o.cfg, 
+			codefreshHelmReleaseName,
+			codefreshHelChartName,
+			o.vals,
+			o.cfg,
 			o.Helm,
 		)
 		if err != nil {
-			return errors.Wrapf(err, "Failed to deploy operator chart")	
-		}		
-	} else { 
+			return errors.Wrapf(err, "Failed to deploy operator chart")
+		}
+	} else {
 		return fmt.Errorf("Error: unknown instraller type %s", installerType)
 	}
 
 	info("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
-    return nil
+	return nil
 }
 
 // ValuesTpl is a template to format final helm values

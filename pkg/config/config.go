@@ -54,7 +54,7 @@ const (
 	OperatorHelmReleaseName = "cf-onprem-operator"
 	OperatorHelmChartName = "codefresh-operator"
 	
-	KeyCodefreshHelmChart = "metadata.installer.helm.chart"
+	KeyHelmChart = "metadata.installer.helm.chart"
 	CodefreshHelmReleaseName = "cf"
 
 	KeyKubeNamespace = "kubernetes.namespace"

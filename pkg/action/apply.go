@@ -18,12 +18,12 @@ package action
 
 import (
 	"fmt"
+
+	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 	helm "helm.sh/helm/v3/pkg/action"
 	c "github.com/codefresh-io/kcfi/pkg/config"
 )
-
-
 
 // CfApply is an action to create or update Codefresh
 type CfApply struct {
@@ -33,17 +33,13 @@ type CfApply struct {
 	Helm *helm.Upgrade
 }
 
-
-
 // NewCfApply creates object
 func NewCfApply(cfg *helm.Configuration) *CfApply {
 	return &CfApply{
-		cfg: cfg,
+		cfg:  cfg,
 		Helm: helm.NewUpgrade(cfg),
 	}
 }
-
-
 
 // Run the action
 func (o *CfApply) Run(vals map[string]interface{}) error {
@@ -56,11 +52,26 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()
-		
+	case "":
+		return fmt.Errorf("Please specifiy the installer kind")
 	default:
+		installerType := valsX.Get(c.KeyInstallerType).String()
+		if installerType == installerTypeHelm {
+			helmChartName := valsX.Get(c.KeyHelmChart).String()
+			helmReleaseName := kind
+			_, err := DeployHelmRelease(
+				helmReleaseName,
+				helmChartName,
+				o.vals,
+				o.cfg,
+				o.Helm,
+			)
+			if err != nil {
+				return errors.Wrapf(err, "Failed to deploy %s chart", helmChartName)
+			}
+			fmt.Printf("\n%s has been deployed to namespace %s\n", helmReleaseName, o.Helm.Namespace)
+			return nil
+		}
 		return fmt.Errorf("Wrong installer kind %s", kind)
-
 	}
 }
-
-

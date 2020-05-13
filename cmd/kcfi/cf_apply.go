@@ -20,14 +20,15 @@ import (
 	"fmt"
 	"io"
 	"time"
+
 	"github.com/spf13/cobra"
 
+	"github.com/codefresh-io/kcfi/pkg/action"
 	"helm.sh/helm/v3/cmd/helm/require"
+	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/getter"
-	helm "helm.sh/helm/v3/pkg/action"
-	"github.com/codefresh-io/kcfi/pkg/action"
 
 	c "github.com/codefresh-io/kcfi/pkg/config"
 )
@@ -45,11 +46,11 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	//var createNamespace bool
 
 	cmd := &cobra.Command{
-		Use:   "deploy",
-		Short: "install/upgrade/reconfigure Codefresh",
+		Use:     "deploy",
+		Short:   "install/upgrade/reconfigure Codefresh",
 		Aliases: []string{"apply", "install", "upgrade"},
-		Long:  cfApplyDesc,
-		Args:  require.NoArgs,
+		Long:    cfApplyDesc,
+		Args:    require.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// merging configFile with valueOpts
 			valueOpts.ValueFiles = append([]string{client.ConfigFile}, valueOpts.ValueFiles...)
@@ -59,7 +60,7 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 				return err
 			}
 			client.Helm.Namespace = configuredNamespace
-			
+
 			return client.Run(vals)
 		},
 	}
