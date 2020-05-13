@@ -1,5 +1,3 @@
-### Docker Images list and cache
+### Docker Images list
 
 Contact Codefresh to obtain sa.json with credentials for Codefresh enterprise registry
-
-- sa.json
