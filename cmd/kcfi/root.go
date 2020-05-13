@@ -21,16 +21,16 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	//"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
 	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
-	//"github.com/codefresh-io/kcfi/pkg/helm-internal/experimental/registry"
-	//"github.com/codefresh-io/kcfi/pkg/helm-internal/experimental/registry"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 	"helm.sh/helm/v3/pkg/action"
 )
 
@@ -38,8 +38,10 @@ var kcfiUsage = `Codefresh installer
 actions:
 - kcfi init [ /path/to/codefresh-config-dir ] - < pprepare configuration directory
 - kcfi deploy [ -c <config-file> ] - install/upgrade/reconfigure codefresh
-- kcfi operator deploy|status|delete - manage codefresh operator
-- kcfi private-registry push-release|push-image 
+- kcfi images push [ -c <config-file> ] [options] [images...] - pushes images to private registry
+- kcfi operator deploy - manage codefresh operator
+
+- kcfi helm <helm args and parameters> executes helm v3
 
 `
 var globalUsage = `The Kubernetes package manager
@@ -147,10 +149,12 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	flags.Parse(args)
 
 	//Add Codefresh subcommands
+	c.Debug = settings.Debug
 	cmd.AddCommand(
 		newOperatorCmd(actionConfig, out),
 		cfInitCmd(out),
 		cfApplyCmd(actionConfig, out),
+		cfImagesCmd(out),
 	)
 
 	helmCmd := &cobra.Command{
@@ -219,4 +223,13 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	loadPlugins(helmCmd, out)
 
 	return cmd
+}
+
+func defaultConfigFileName() string{
+	defaultConfigFileName := "config.yaml"
+	stageDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	return path.Join(stageDir, defaultConfigFileName)
 }

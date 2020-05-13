@@ -19,8 +19,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"os"
-	"path"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,11 +29,13 @@ import (
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/getter"
+
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 const cfApplyDesc = `
-This command installs or upgrades Codefresh with parameters definded in codefresh/config.yaml
-   kcfi apply [-f|--config /path/to/codefresh/config.yaml ]
+This command deploys Codefresh product with parameters defined in configuration file
+   kcfi deploy [-c|--config /path/to/codefresh/config.yaml ]
 by default it looks for config.yaml in current directory,
 `
 
@@ -54,7 +54,7 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// merging configFile with valueOpts
 			valueOpts.ValueFiles = append([]string{client.ConfigFile}, valueOpts.ValueFiles...)
-			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", keyKubernetesNamespace, configuredNamespace))
+			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyKubeNamespace, configuredNamespace))
 			vals, err := valueOpts.MergeValues(getter.All(settings))
 			if err != nil {
 				return err
@@ -92,13 +92,4 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	bindPostRenderFlag(cmd, &client.Helm.PostRenderer)
 
 	return cmd
-}
-
-func defaultConfigFileName() string {
-	defaultConfigFileName := "config.yaml"
-	stageDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	return path.Join(stageDir, defaultConfigFileName)
 }

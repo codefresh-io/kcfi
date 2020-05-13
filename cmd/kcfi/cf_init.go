@@ -63,6 +63,6 @@ func cfInitCmd(out io.Writer) *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	f.StringVarP(&stageDir, "stage-dir", "d", "", "Codefresh config file")	
+	f.StringVarP(&stageDir, "stage-dir", "d", "", "Codefresh product config directory")
 	return cmd
 }

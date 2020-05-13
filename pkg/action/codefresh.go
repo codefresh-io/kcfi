@@ -31,6 +31,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"k8s.io/cli-runtime/pkg/resource"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 // GetDockerRegistryVars - calculater docker registry vals
@@ -39,12 +40,12 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 	var registryAddress, registryUsername, registryPassword string
 	var err error
 	valsX := objx.New(o.vals)
-	usePrivateRegistry := valsX.Get(keyDockerUsePrivateRegistry).Bool(false)
+	usePrivateRegistry := valsX.Get(c.KeyImagesUsePrivateRegistry).Bool(false)
 	if !usePrivateRegistry {
 		// using Codefresh Enterprise registry
-		registryAddress = "gcr.io"
-		registryUsername = "_json_key"
-		cfRegistrySaVal := valsX.Get(keyDockerCodefreshRegistrySa).Str("sa.json")
+		registryAddress = c.CfRegistryAddress
+		registryUsername = c.CfRegistryUsername
+		cfRegistrySaVal := valsX.Get(c.KeyImagesCodefreshRegistrySa).Str("sa.json")
 		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
 		registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
 		if err != nil {
@@ -52,19 +53,19 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 		}
 		registryPassword = string(registryPasswordB)
 	} else {
-		registryAddress = valsX.Get(keyDockerprivateRegistryAddress).String()
-		registryUsername = valsX.Get(keyDockerprivateRegistryUsername).String()
-		registryPassword = valsX.Get(keyDockerprivateRegistryPassword).String()
+		registryAddress = valsX.Get(c.KeyImagesPrivateRegistryAddress).String()
+		registryUsername = valsX.Get(c.KeyImagesPrivateRegistryUsername).String()
+		registryPassword = valsX.Get(c.KeyImagesPrivateRegistryPassword).String()
 		if len(registryAddress) == 0 || len(registryUsername) == 0 || len(registryPassword) == 0 {
 			err = fmt.Errorf("missing private registry data: ")
 			if len(registryAddress) == 0 {
-				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryAddress)
+				err = errors.Wrapf(err, "missing %s", c.KeyImagesPrivateRegistryAddress)
 			}
 			if len(registryUsername) == 0 {
-				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryUsername)
+				err = errors.Wrapf(err, "missing %s", c.KeyImagesPrivateRegistryUsername)
 			}
 			if len(registryPassword) == 0 {
-				err = errors.Wrapf(err, "missing %s", keyDockerprivateRegistryPassword)
+				err = errors.Wrapf(err, "missing %s", c.KeyImagesPrivateRegistryPassword)
 			}
 			return nil, err
 		}
@@ -88,9 +89,9 @@ func (o *CfApply) ValidateCodefresh() error {
 	valsX := objx.New(o.vals)
 
 	// 1. Validate appUrl
-	appUrl := valsX.Get(keyAppUrl).String()
+	appUrl := valsX.Get(c.KeyAppUrl).String()
 	if appUrl == "" {
-		return fmt.Errorf("Missing %s", keyAppUrl)
+		return fmt.Errorf("Missing %s", c.KeyAppUrl)
 	}
 	return nil
 }
@@ -99,7 +100,7 @@ func (o *CfApply) ApplyCodefresh() error {
 
 	// Calculating addional configurations
 	baseDir := filepath.Dir(o.ConfigFile)
-	o.vals[keyBaseDir] = baseDir
+	o.vals[c.KeyBaseDir] = baseDir
 
 	valsX := objx.New(o.vals)
 
@@ -111,7 +112,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	o.vals = MergeMaps(o.vals, registryValues)
 
 	//--- WebTls Values
-	if !valsX.Get(keyTlsSelfSigned).Bool(true) {
+	if ! valsX.Get(c.KeyTlsSelfSigned).Bool(true) {
 		webTlsValues, err := ExecuteTemplateToValues(WebTlsValuesTpl, o.vals)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to generate values.yaml")
@@ -148,7 +149,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write %s ", valuesYamlPath)
 	}
-	fmt.Printf("values.yaml has been generated in %s\n", valuesYamlPath)
+	info("values.yaml has been generated in %s\n", valuesYamlPath)
 
 	cfResourceTplResult, err := ExecuteTemplate(CfResourceTpl, o.vals)
 	if err != nil {
@@ -159,17 +160,17 @@ func (o *CfApply) ApplyCodefresh() error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
 	}
-	fmt.Printf("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
+	info("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
 
 	//--- Deploying
-	installerType := valsX.Get(keyInstallerType).String()
-	if installerType == installerTypeOperator {
-
+    installerType := valsX.Get(c.KeyInstallerType).String()
+    if installerType == installerTypeOperator {
+		
 		// Deploy Codefresh Operator with wait first
-		operatorChartValues := valsX.Get(keyOperatorChartValues).MSI(map[string]interface{}{})
+		operatorChartValues := valsX.Get(c.KeyOperatorChartValues).MSI(map[string]interface{}{})
 		operatorChartValues = MergeMaps(operatorChartValues, registryValues)
 		operatorChartValsX := objx.New(operatorChartValues)
-		if operatorChartValsX.Get(keyOperatorSkipCRD).Bool(false) {
+		if operatorChartValsX.Get(c.KeyOperatorSkipCRD).Bool(false) {
 			o.Helm.SkipCRDs = true
 		}
 		helmWaitBak := o.Helm.Wait
@@ -186,18 +187,18 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 		o.Helm.Wait = helmWaitBak
 
-		// Update Codefresh resourtc
-		cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
-		if err != nil {
-			return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
-		}
-		cfResources, err := o.cfg.KubeClient.Build(cfResourceYamlReader, true)
-		if err != nil {
-			return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
-		}
-		fmt.Printf("applying %s\n %v", cfResourceYamlPath, cfResources)
+		// Update Codefresh resourtc 
+        cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
+        if err != nil {
+            return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
+        }
+        cfResources, err := o.cfg.KubeClient.Build(cfResourceYamlReader, true)
+        if err != nil {
+            return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
+        }
+		info("applying %s\n %v", cfResourceYamlPath, cfResources)
 		if o.Helm.DryRun {
-			fmt.Printf("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
+			info("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)
 			return nil
 		}
 		err = cfResources.Visit(func(info *resource.Info, err error) error {
@@ -225,7 +226,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		if operatorRelease, _ := histClient.Run(operatorHelmReleaseName); operatorRelease != nil {
 			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
 		}
-		codefreshHelChartName := valsX.Get(keyCodefreshHelmChart).Str("codefresh.tgz")
+		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh.tgz")
 		_, err = DeployHelmRelease(
 			codefreshHelmReleaseName,
 			codefreshHelChartName,
@@ -240,7 +241,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		return fmt.Errorf("Error: unknown instraller type %s", installerType)
 	}
 
-	fmt.Printf("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
+	info("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
 	return nil
 }
 

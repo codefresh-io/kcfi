@@ -18,6 +18,7 @@ package action
 
 import (
 	"fmt"
+	"log"
 	"io/ioutil"
 	"os"
 	"path"
@@ -26,47 +27,26 @@ import (
 	"strings"
 
 	"github.com/codefresh-io/kcfi/pkg/embeded/stage"
+
+	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 const (
 	// AssetsDir - folder name where we save kubernetes and helm assets
 	AssetsDir = "assets"
 
-	CodefreshReleaseName = "cf"
-	OperatorReleaseName  = "cf-onprem-operator"
-
-	keyKind       = "metadata.kind"
 	kindCodefresh = "codefresh"
-	kindVenona    = "venona"
+	kindK8sAgent = "k8sAgent"
+	kindVenona = "venona"
 
-	keyDockerCodefreshRegistrySa     = "docker.codefreshRegistrySa"
-	keyDockerUsePrivateRegistry      = "docker.usePrivateRegistry"
-	keyDockerprivateRegistryAddress  = "docker.privateRegistry.address"
-	keyDockerprivateRegistryUsername = "docker.privateRegistry.username"
-	keyDockerprivateRegistryPassword = "docker.privateRegistry.password"
-
-	keyRelease            = "metadata.installer.release"
-	keyInstallerType      = "metadata.installer.type"
 	installerTypeOperator = "operator"
 	installerTypeHelm     = "helm"
 
-	keyOperatorChartValues = "metadata.installer.operator"
-	keyOperatorSkipCRD     = "metadata.installer.operator.skipCRD"
-
 	operatorHelmReleaseName = "cf-onprem-operator"
-	operatorHelmChartName   = "codefresh-operator"
-
-	keyCodefreshHelmChart    = "metadata.installer.helm.chart"
+	operatorHelmChartName = "codefresh-operator"
+	
 	codefreshHelmReleaseName = "cf"
 
-	keyNamespace = "kubernetes.namespace"
-
-	keyBaseDir       = "BaseDir"
-	keyTlsSelfSigned = "tls.selfSigned"
-	keyTlsCert       = "tls.cert"
-	keyTlsKey        = "tls.key"
-
-	keyAppUrl = "global.appUrl"
 )
 
 // CfInit is an action to create Codefresh config stage directory
@@ -107,8 +87,8 @@ func (o *CfInit) Run() error {
 	} else {
 		restoreDir = o.StageDir
 	}
-
-	fmt.Printf("Creating stage directory %s\n", restoreDir)
+	
+	info("Creating stage directory %s\n", restoreDir )
 	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
 		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
 	}
@@ -187,6 +167,13 @@ func GetAssetsDir(configFile string) string {
 	return path.Join(filepath.Dir(configFile), AssetsDir)
 }
 
+// TODO - use logger framework
+func info(format string, v ...interface{}) {
+	fmt.Printf(format + "\n", v...)
+}
 func debug(format string, v ...interface{}) {
-	fmt.Printf(format, v...)
+	if c.Debug {
+		format = fmt.Sprintf("[debug] %s\n", format)
+		log.Output(2, fmt.Sprintf(format, v...))
+	}
 }
