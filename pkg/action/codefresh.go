@@ -109,6 +109,17 @@ func (o *CfApply) ApplyCodefresh() error {
 	if err != nil {
 		return errors.Wrapf(err, "Failed to parse docker registry values")
 	}
+	usePrivateRegistry := valsX.Get(c.KeyImagesUsePrivateRegistry).Bool(false)
+	if usePrivateRegistry {
+		privateRegistryAddress := valsX.Get(c.KeyImagesPrivateRegistryAddress).String()
+		privateRegistryGlobalValues := map[string]interface{}{
+			"global": map[string]interface{}{
+				"privateRegistry":  true,
+				"dockerRegistry": privateRegistryAddress,
+			},
+		}
+		o.vals = MergeMaps(o.vals, privateRegistryGlobalValues)
+	}
 	o.vals = MergeMaps(o.vals, registryValues)
 
 	//--- WebTls Values
@@ -169,13 +180,17 @@ func (o *CfApply) ApplyCodefresh() error {
 		// Deploy Codefresh Operator with wait first
 		operatorChartValues := valsX.Get(c.KeyOperatorChartValues).MSI(map[string]interface{}{})
 		operatorChartValues = MergeMaps(operatorChartValues, registryValues)
-		operatorChartValsX := objx.New(operatorChartValues)
-		if operatorChartValsX.Get(c.KeyOperatorSkipCRD).Bool(false) {
+		if usePrivateRegistry {
+			operatorChartValues = MergeMaps(operatorChartValues, map[string]interface{}{
+				c.KeyDockerRegistry: valsX.Get(c.KeyImagesPrivateRegistryAddress).String(),
+			})
+		}
+		if valsX.Get(c.KeyOperatorSkipCRD).Bool(false) {
 			o.Helm.SkipCRDs = true
 		}
-		helmWaitBak := o.Helm.Wait
+		o.Helm.Atomic = true
 		o.Helm.Wait = true
-		_, err = DeployHelmRelease(
+		operatorRelease, err := DeployHelmRelease(
 			operatorHelmReleaseName,
 			operatorHelmChartName,
 			operatorChartValues,
@@ -185,7 +200,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		if err != nil {
 			return errors.Wrapf(err, "Failed to deploy operator chart")
 		}
-		o.Helm.Wait = helmWaitBak
+		PrintHelmReleaseInfo(operatorRelease, c.Debug)
 
 		// Update Codefresh resourtc 
         cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
@@ -227,7 +242,7 @@ func (o *CfApply) ApplyCodefresh() error {
 			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
 		}
 		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh.tgz")
-		_, err = DeployHelmRelease(
+		codefreshRelease, err := DeployHelmRelease(
 			codefreshHelmReleaseName,
 			codefreshHelChartName,
 			o.vals,
@@ -237,6 +252,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		if err != nil {
 			return errors.Wrapf(err, "Failed to deploy operator chart")
 		}
+		PrintHelmReleaseInfo(codefreshRelease, c.Debug)
 	} else {
 		return fmt.Errorf("Error: unknown instraller type %s", installerType)
 	}

@@ -1,2 +1,6 @@
 skipCRD: false
-image: gcr.io/codefresh-enterprise/codefresh/cf-onprem-operator:latest
+dockerRegistry: gcr.io/codefresh-enterprise
+image: codefresh/cf-onprem-operator
+imageTag: 0.1.0-1.0.100
+
+# serviceAccountName: 

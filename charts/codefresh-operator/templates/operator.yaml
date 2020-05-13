@@ -22,8 +22,7 @@ spec:
       {{- end }}
       containers:
         - name: cf-onprem-operator
-          # Replace this with the built image name
-          image: {{ .Values.image }}
+          image: "{{ .Values.dockerRegistry | default "docker.io"}}/{{ .Values.image }}:{{ .Values.imageTag }}"
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

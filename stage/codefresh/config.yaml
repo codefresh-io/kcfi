@@ -6,13 +6,35 @@ metadata:
     #   "helm" - install/upgrade helm chart from client
     type: operator
     operator:
-      #image: gcr.io/codefresh-enterprise/codefresh/cf-onprem-operator:latest
+      #dockerRegistry: gcr.io/codefresh-enterprise
+      #image: codefresh/cf-onprem-operator
+      #imageTag: 
       #serviceAccountName:
       #skipCRD:
     helm:
       chart: codefresh.tgz 
       #repo
       #version:
+
+kubernetes:
+  namespace: codefresh
+  #context: 
+  #kubeconfig:
+    
+tls:
+  selfSigned: true
+  cert: certs/ssl.crt
+  key: certs/private.key
+
+images:
+  codefreshRegistrySa: sa.json
+  # usePrivateRegistry: false
+  # privateRegistry:
+  #   address:
+  #   username:
+  #   password:
+  lists:
+  - images/images-list
 
   ### Helm values
 global:
@@ -50,27 +72,6 @@ global:
   #mongoSkipUserCreation: true
   #mongoDeploy: false   # disables deployment of internal mongo service
 
-kubernetes:
-  namespace: codefresh
-  #context: 
-  #kubeconfig:
-    
-tls:
-  selfSigned: true
-  cert: certs/ssl.crt
-  key: certs/private.key
-
-images:
-  codefreshRegistrySa: sa.json
-  # usePrivateRegistry: false
-  # privateRegistry:
-  #   address:
-  #   username:
-  #   password:
-  #   configFile:
-  lists:
-  - images/images-list
-  
 ### Firebase secret
 firebaseSecret: 
 
