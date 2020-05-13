@@ -115,7 +115,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		privateRegistryGlobalValues := map[string]interface{}{
 			"global": map[string]interface{}{
 				"privateRegistry":  true,
-				"dockerRegistry": privateRegistryAddress,
+				"dockerRegistry": privateRegistryAddress + "/",
 			},
 		}
 		o.vals = MergeMaps(o.vals, privateRegistryGlobalValues)
