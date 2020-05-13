@@ -38,8 +38,10 @@ var kcfiUsage = `Codefresh installer
 actions:
 - kcfi init [ /path/to/codefresh-config-dir ] - < pprepare configuration directory
 - kcfi deploy [ -c <config-file> ] - install/upgrade/reconfigure codefresh
-- kcfi operator deploy|status|delete - manage codefresh operator
-- kcfi images push-release|push [ -c <config-file> ] [options] - pushes images to private registry
+- kcfi images push [ -c <config-file> ] [options] [images...] - pushes images to private registry
+- kcfi operator deploy - manage codefresh operator
+
+- kcfi helm <helm args and parameters> executes helm v3
 
 `
 var globalUsage = `The Kubernetes package manager
