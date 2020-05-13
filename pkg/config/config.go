@@ -43,7 +43,7 @@ const (
 	KeyImagesPrivateRegistryPassword = "images.privateRegistry.password"
 	KeyImagesLists = "images.lists"
 
-	KeyRelease = "metadata.installer.release"	
+	KeyRelease = "metadata.installer.release"
 	KeyInstallerType = "metadata.installer.type"
 	InstallerTypeOperator = "operator"
 	InstallerTypeHelm = "helm"

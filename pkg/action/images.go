@@ -82,7 +82,6 @@ func(k *pusherKeychain) Resolve(target authn.Resource) (authn.Authenticator, err
   }
 
   return authenticator, nil
-
 }
 
 func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, error) {
@@ -91,16 +90,22 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 	baseDir := cfgX.Get(c.KeyBaseDir).String()
 
 	// get AuthConfig Codefresh Enterprise registry
-	cfRegistrySaVal := cfgX.Get(c.KeyImagesCodefreshRegistrySa).Str("sa.json")
-	cfRegistrySaPath := path.Join(baseDir, cfRegistrySaVal)
-	cfRegistryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
-	}
 	cfRegistry, _ := name.NewRegistry(c.CfRegistryAddress)
-	cfRegistryAuthConfig := &authn.AuthConfig{
-		Username: c.CfRegistryUsername,
-		Password: string(cfRegistryPasswordB),
+	var cfRegistryAuthConfig *authn.AuthConfig
+	cfRegistrySaVal := cfgX.Get(c.KeyImagesCodefreshRegistrySa).Str("")
+	if cfRegistrySaVal != "" {
+		cfRegistrySaPath := path.Join(baseDir, cfRegistrySaVal)
+		cfRegistryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
+		}
+		cfRegistryAuthConfig = &authn.AuthConfig{
+			Username: c.CfRegistryUsername,
+			Password: string(cfRegistryPasswordB),
+		}
+	} else {
+		info("Warning: Codefresh registry credentials are not set")
+		cfRegistryAuthConfig = &authn.AuthConfig{}
 	}
 	
 	// get AuthConfig for destination provate registry
@@ -150,7 +155,7 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 			}
 		}
 		debug("%v - %v", imagesListsFilesI, imagesListsFiles)
-	} else {
+	} else if imagesListsFilesI != nil {
 		info("Warning: %s - %v is not a list", c.KeyImagesLists, imagesListsFilesI)
 	}
 
@@ -175,11 +180,13 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 func(o *ImagesPusher) Run(images []string) error {
 	info("Running images pusher")
 	if len(images) == 0 {
-		if len(o.ImagesList) == 0 {
-			info("No images to push")
-			return nil
-		}
-		images = o.ImagesList
+		info("No images to push")
+		return nil
+		// if len(o.ImagesList) == 0 {
+		// 	info("No images to push")
+		// 	return nil
+		// }
+		// images = o.ImagesList
 	}
 	imagesWarnings := make(map[string]string)
 
@@ -277,7 +284,7 @@ func ReadListFile(fileName string) ([]string, error) {
 		if commentLineRe.MatchString(line) || ! nonEmptyLineRe.MatchString(line) {
 			continue
 		}
-		lines = append(lines, line)
+		lines = append(lines, strings.Trim(line, " "))
 	}
 	if len(lines) == 0 {
 		info("Warning: no valid lines in file %s", fileName)
