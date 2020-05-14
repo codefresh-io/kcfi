@@ -2,11 +2,16 @@ package action
 
 import (
 	"fmt"
+	"os"
+	"time"
+	"strings"
 	"github.com/pkg/errors"
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 	"github.com/codefresh-io/kcfi/pkg/charts"
+	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	"helm.sh/helm/v3/pkg/cli/output"
 )
 
 func DeployHelmRelease(releaseName string, chart string, vals map[string]interface{}, cfg *helm.Configuration, client *helm.Upgrade) (*release.Release, error) {
@@ -69,5 +74,58 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	}
 	info("Release %q has been upgraded\n", releaseName)
 
-	return release, nil 	
+	return release, nil
+}
+
+
+// PrintHelmReleaseInfo - prints helm release
+func PrintHelmReleaseInfo(release *release.Release, debug bool) error {
+	if release == nil {
+		return nil
+	}
+	info( "NAME: %s\n", release.Name)
+	if !release.Info.LastDeployed.IsZero() {
+		info( "LAST DEPLOYED: %s\n", release.Info.LastDeployed.Format(time.ANSIC))
+	}
+	info( "NAMESPACE: %s\n", release.Namespace)
+	info( "STATUS: %s\n", release.Info.Status.String())
+	info( "REVISION: %d\n", release.Version)
+
+
+	out := os.Stdout
+	if debug {
+		info("USER-SUPPLIED VALUES:")
+		err := output.EncodeYAML(out, release.Config)
+		if err != nil {
+			return err
+		}
+		// Print an extra newline
+		fmt.Fprintln(out)
+
+		cfg, err := chartutil.CoalesceValues(release.Chart, release.Config)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(out, "COMPUTED VALUES:")
+		err = output.EncodeYAML(out, cfg.AsMap())
+		if err != nil {
+			return err
+		}
+		// Print an extra newline
+		fmt.Fprintln(out)
+	}
+
+	if strings.EqualFold(release.Info.Description, "Dry run complete") || debug {
+		fmt.Fprintln(out, "HOOKS:")
+		for _, h := range release.Hooks {
+			fmt.Fprintf(out, "---\n# Source: %s\n%s\n", h.Path, h.Manifest)
+		}
+		fmt.Fprintf(out, "MANIFEST:\n%s\n", release.Manifest)
+	}
+
+	if len(release.Info.Notes) > 0 {
+		fmt.Fprintf(out, "NOTES:\n%s\n", strings.TrimSpace(release.Info.Notes))
+	}
+	return nil
 }

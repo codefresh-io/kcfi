@@ -50,6 +50,7 @@ const (
 
 	KeyOperatorChartValues = "metadata.installer.operator"
 	KeyOperatorSkipCRD = "metadata.installer.operator.skipCRD"
+	KeyDockerRegistry = "dockerRegistry"
 
 	OperatorHelmReleaseName = "cf-onprem-operator"
 	OperatorHelmChartName = "codefresh-operator"

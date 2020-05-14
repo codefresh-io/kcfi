@@ -59,7 +59,7 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 		if installerType == installerTypeHelm {
 			helmChartName := valsX.Get(c.KeyHelmChart).String()
 			helmReleaseName := kind
-			_, err := DeployHelmRelease(
+			rel, err := DeployHelmRelease(
 				helmReleaseName,
 				helmChartName,
 				o.vals,
@@ -69,7 +69,8 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 			if err != nil {
 				return errors.Wrapf(err, "Failed to deploy %s chart", helmChartName)
 			}
-			fmt.Printf("\n%s has been deployed to namespace %s\n", helmReleaseName, o.Helm.Namespace)
+			PrintHelmReleaseInfo(rel, c.Debug)
+			info("\n%s has been deployed to namespace %s\n", helmReleaseName, o.Helm.Namespace)
 			return nil
 		}
 		return fmt.Errorf("Wrong installer kind %s", kind)
