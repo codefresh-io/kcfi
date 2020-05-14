@@ -246,7 +246,7 @@ func(o *ImagesPusher) Run(images []string) error {
 	if len(imagesWarnings) > 0 {
 		info("\n----- %d images were failed:", cnfFail)
 		for img, errMsg := range imagesWarnings {
-			info("%s - %s", img, errMsg)
+			info("%s - %s\n", img, errMsg)
 		}
 	}
 	info("\n----- Completed! -----\n%d of %d images were successfully pushed", cntSucess, cntProcessed)
