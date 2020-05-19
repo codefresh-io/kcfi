@@ -56,6 +56,7 @@ const (
 	OperatorHelmChartName = "codefresh-operator"
 	
 	KeyHelmChart = "metadata.installer.helm.chart"
+	KeyHelmRelease = "metadata.installer.helm.release"
 	KeyHelmRepoUrl = "metadata.installer.helm.repoUrl"
 	KeyHelmVersion = "metadata.installer.helm.version"
 	KeyHelmCaFile = "metadata.installer.helm.caFile"

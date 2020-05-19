@@ -58,7 +58,7 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 		installerType := valsX.Get(c.KeyInstallerType).String()
 		if installerType == installerTypeHelm {
 			helmChartName := valsX.Get(c.KeyHelmChart).String()
-			helmReleaseName := kind
+			helmReleaseName := valsX.Get(c.KeyHelmRelease).Str(kind)
 			rel, err := DeployHelmRelease(
 				helmReleaseName,
 				helmChartName,
