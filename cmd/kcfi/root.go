@@ -233,3 +233,33 @@ func defaultConfigFileName() string{
 	}
 	return path.Join(stageDir, defaultConfigFileName)
 }
+
+func hideKubeFlags(cmd *cobra.Command) {
+	cmd.Flags().MarkHidden("kube-apiserver")
+	cmd.Flags().MarkHidden("kube-context")
+	cmd.Flags().MarkHidden("kube-token")
+	cmd.Flags().MarkHidden("kubeconfig")
+	cmd.Flags().MarkHidden("namespace")
+
+
+}
+
+func hideHelmCommonFlags(cmd *cobra.Command) {
+	cmd.Flags().MarkHidden("add-dir-header")
+	cmd.Flags().MarkHidden("skip-headers")
+	cmd.Flags().MarkHidden("skip-log-headers")
+	cmd.Flags().MarkHidden("stderrthreshold")
+	cmd.Flags().MarkHidden("vmodule")
+
+	cmd.Flags().MarkHidden("alsologtostderr")
+	cmd.Flags().MarkHidden("log-backtrace-at")
+	cmd.Flags().MarkHidden("log-dir")
+	cmd.Flags().MarkHidden("log-file")
+	cmd.Flags().MarkHidden("log-file-max-size")
+	cmd.Flags().MarkHidden("logtostderr")
+	cmd.Flags().MarkHidden("v")
+
+	cmd.Flags().MarkHidden("registry-config")
+	cmd.Flags().MarkHidden("repository-cache")
+	cmd.Flags().MarkHidden("repository-config")
+}

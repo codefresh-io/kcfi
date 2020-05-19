@@ -91,5 +91,10 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	bindOutputFlag(cmd, &outfmt)
 	bindPostRenderFlag(cmd, &client.Helm.PostRenderer)
 
+	origHelpFunc := cmd.HelpFunc()
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		hideHelmCommonFlags(cmd)
+		origHelpFunc(cmd, args)
+	})	
 	return cmd
 }
