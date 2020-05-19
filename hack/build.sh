@@ -22,7 +22,6 @@ cat <<EOF >${VERSION_FILE_GO}
 package version
 
 var Version string = \`$(cat $VERSION_FILE)\`
-
 var GitRevision string = "$(git rev-parse --short HEAD)"
 EOF
 

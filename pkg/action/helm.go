@@ -6,17 +6,88 @@ import (
 	"time"
 	"strings"
 	"github.com/pkg/errors"
+	"github.com/stretchr/objx"
+	"github.com/codefresh-io/kcfi/pkg/charts"
+	c "github.com/codefresh-io/kcfi/pkg/config"
+
 	helm "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
-	"github.com/codefresh-io/kcfi/pkg/charts"
+	"helm.sh/helm/v3/pkg/chart"
+	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/cli/output"
+
 )
 
+type HelmChartOptions struct {
+	ChartName string
+	baseDir string
+	*helm.ChartPathOptions
+}
+
+func NewHelmChartOptionsFromConfig(chartName string, config map[string]interface{}) (*HelmChartOptions, error) {
+	cfgX := objx.New(config)
+	baseDir := cfgX.Get(c.KeyBaseDir).String()
+
+	if chartName == "" {
+		return nil, fmt.Errorf("Missing chart name in config")
+	}
+	helmChartOptions := &helm.ChartPathOptions{
+		RepoURL: cfgX.Get(c.KeyHelmRepoUrl).String(),
+		Version: cfgX.Get(c.KeyHelmVersion).String(),
+
+		Password: cfgX.Get(c.KeyHelmPassword).String(),
+		Username: cfgX.Get(c.KeyHelmUsername).String(),
+		Verify: cfgX.Get(c.KeyHelmVerify).Bool(false),
+		CaFile: cfgX.Get(c.KeyHelmCaFile).String(),
+		CertFile: cfgX.Get(c.KeyHelmCertFile).String(),
+		KeyFile: cfgX.Get(c.KeyHelmKeyFile).String(),
+		Keyring: cfgX.Get(c.KeyHelmKeyring).String(),
+	}
+
+	return &HelmChartOptions{
+		ChartName: chartName,
+		baseDir: baseDir,
+		ChartPathOptions: helmChartOptions,
+	}, nil
+}
+
+func(h *HelmChartOptions) LoadChart() (*chart.Chart, error){
+
+	settings := cli.New()
+	settings.Debug = c.Debug
+	os.Chdir(h.baseDir)
+
+	var ch *chart.Chart
+	var err error
+	if chartPath, err := h.ChartPathOptions.LocateChart(h.ChartName, settings); err == nil {
+		debug("Using chart path %s", chartPath)
+		ch, err = loader.Load(chartPath)
+	} else {
+		debug("Using embeded chart %s", h.ChartName)
+		ch, err = charts.Load(h.ChartName)
+	}
+	return ch, err
+}
+
+
+// DeployHelmRelease - deploy helm release using chart from config
 func DeployHelmRelease(releaseName string, chart string, vals map[string]interface{}, cfg *helm.Configuration, client *helm.Upgrade) (*release.Release, error) {
-	var release *release.Release
+	
 	info("Deploying release %s of chart %s ...", releaseName, chart)
+	helmChartOptions, err := NewHelmChartOptionsFromConfig(chart, vals)
+	if err != nil {
+		return nil, err
+	}
+	chartRequested, err := helmChartOptions.LoadChart()
+	if err != nil {
+		return nil, err
+	}
+
+	var release *release.Release
+
 	// Checking if chart already installed and decide to use install or upgrade helm client
 	histClient := helm.NewHistory(cfg)
 	histClient.Max = 1
@@ -39,12 +110,7 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 		instClient.PostRenderer = client.PostRenderer
 		instClient.DisableOpenAPIValidation = client.DisableOpenAPIValidation
 		instClient.SubNotes = client.SubNotes
-	
-		// Check chart dependencies to make sure all are present in /charts
-		chartRequested, err := charts.Load(chart)
-		if err != nil {
-			return nil, err
-		}
+
 		instClient.ReleaseName = releaseName
 	
 		if chartRequested.Metadata.Deprecated {
@@ -56,19 +122,13 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 		return nil, err
 	}
 
-	// Check chart dependencies to make sure all are present in /charts
-	ch, err := charts.Load(chart)
-	if err != nil {
-		return nil, err
-	}
-
-	if req := ch.Metadata.Dependencies; req != nil {
-		if err := helm.CheckDependencies(ch, req); err != nil {
+	if req := chartRequested.Metadata.Dependencies; req != nil {
+		if err := helm.CheckDependencies(chartRequested, req); err != nil {
 			return nil, err
 		}
 	}
 
-	release, err = client.Run(releaseName, ch, vals)
+	release, err = client.Run(releaseName, chartRequested, vals)
 	if err != nil {
 		return nil, errors.Wrapf(err, "UPGRADE of %s FAILED", releaseName)
 	}

@@ -73,6 +73,6 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 			info("\n%s has been deployed to namespace %s\n", helmReleaseName, o.Helm.Namespace)
 			return nil
 		}
-		return fmt.Errorf("Wrong installer kind %s", kind)
+		return fmt.Errorf("Wrong installer type %s", installerType)
 	}
 }

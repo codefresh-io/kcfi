@@ -56,6 +56,16 @@ const (
 	OperatorHelmChartName = "codefresh-operator"
 	
 	KeyHelmChart = "metadata.installer.helm.chart"
+	KeyHelmRepoUrl = "metadata.installer.helm.repoUrl"
+	KeyHelmVersion = "metadata.installer.helm.version"
+	KeyHelmCaFile = "metadata.installer.helm.caFile"
+	KeyHelmCertFile = "metadata.installer.helm.certFile"
+	KeyHelmKeyFile = "metadata.installer.helm.keyFile"
+	KeyHelmKeyring = "metadata.installer.helm.keyring"
+	KeyHelmPassword = "metadata.installer.helm.password"
+	KeyHelmUsername = "metadata.installer.helm.username"
+	KeyHelmVerify = "metadata.installer.helm.verify"
+
 	CodefreshHelmReleaseName = "cf"
 
 	KeyKubeNamespace = "kubernetes.namespace"
