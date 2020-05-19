@@ -116,18 +116,12 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 	f.StringVar(&registry, "registry", "", "registry address")
 	f.StringVar(&registryUsername, "user", "", "registry username")
 	f.StringVar(&registryPassword, "password", "", "registry password")
+	
+	origHelpFunc := cmd.HelpFunc()
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		hideKubeFlags(cmd)
+		hideHelmCommonFlags(cmd)
+		origHelpFunc(cmd, args)
+	})	
 	return cmd
 }
-
-			// configFileB, err := ioutil.ReadFile(configFileName)
-			// if err != nil {
-			// 	return errors.Wrap(err, fmt.Sprintf("cannot read %s", configFileName))
-			// }
-			// config := map[string]interface{}{}
-			// err = yaml.Unmarshal(configFileB, &config)
-			// if err != nil {
-			// 	return err
-			// }
-			
-			
-			// config[c.KeyBaseDir] = baseDir
