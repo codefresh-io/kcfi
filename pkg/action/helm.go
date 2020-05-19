@@ -143,13 +143,13 @@ func PrintHelmReleaseInfo(release *release.Release, debug bool) error {
 	if release == nil {
 		return nil
 	}
-	info( "NAME: %s\n", release.Name)
+	info( "NAME: %s", release.Name)
 	if !release.Info.LastDeployed.IsZero() {
-		info( "LAST DEPLOYED: %s\n", release.Info.LastDeployed.Format(time.ANSIC))
+		info( "LAST DEPLOYED: %s", release.Info.LastDeployed.Format(time.ANSIC))
 	}
-	info( "NAMESPACE: %s\n", release.Namespace)
-	info( "STATUS: %s\n", release.Info.Status.String())
-	info( "REVISION: %d\n", release.Version)
+	info( "NAMESPACE: %s", release.Namespace)
+	info( "STATUS: %s", release.Info.Status.String())
+	info( "REVISION: %d", release.Version)
 
 
 	out := os.Stdout
