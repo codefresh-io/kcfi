@@ -252,7 +252,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		if err != nil {
 			return errors.Wrapf(err, "Failed to deploy operator chart")
 		}
-		PrintHelmReleaseInfo(codefreshRelease, c.Debug)
+		PrintHelmReleaseInfo(codefreshRelease, false)
 	} else {
 		return fmt.Errorf("Error: unknown instraller type %s", installerType)
 	}

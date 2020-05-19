@@ -230,5 +230,10 @@ func newEmbededChartUpgradeCmd(releaseName string, embededChart string, cfg *act
 	bindOutputFlag(cmd, &outfmt)
 	bindPostRenderFlag(cmd, &client.PostRenderer)
 
+	origHelpFunc := cmd.HelpFunc()
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		hideHelmCommonFlags(cmd)
+		origHelpFunc(cmd, args)
+	})	
 	return cmd
 }

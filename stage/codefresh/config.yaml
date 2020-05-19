@@ -12,8 +12,8 @@ metadata:
       #serviceAccountName:
       #skipCRD:
     helm:
-      chart: codefresh.tgz 
-      #repo
+      chart: codefresh 
+      repo: http://charts.coderesh.io/prod
       #version:
 
 kubernetes:

@@ -58,7 +58,7 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 		installerType := valsX.Get(c.KeyInstallerType).String()
 		if installerType == installerTypeHelm {
 			helmChartName := valsX.Get(c.KeyHelmChart).String()
-			helmReleaseName := kind
+			helmReleaseName := valsX.Get(c.KeyHelmRelease).Str(kind)
 			rel, err := DeployHelmRelease(
 				helmReleaseName,
 				helmChartName,
@@ -73,6 +73,6 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 			info("\n%s has been deployed to namespace %s\n", helmReleaseName, o.Helm.Namespace)
 			return nil
 		}
-		return fmt.Errorf("Wrong installer kind %s", kind)
+		return fmt.Errorf("Wrong installer type %s", installerType)
 	}
 }

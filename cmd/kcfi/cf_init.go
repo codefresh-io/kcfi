@@ -64,5 +64,12 @@ func cfInitCmd(out io.Writer) *cobra.Command {
 
 	f := cmd.Flags()
 	f.StringVarP(&stageDir, "stage-dir", "d", "", "Codefresh product config directory")
+
+	origHelpFunc := cmd.HelpFunc()
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		hideKubeFlags(cmd)
+		hideHelmCommonFlags(cmd)
+		origHelpFunc(cmd, args)
+	})
 	return cmd
 }
