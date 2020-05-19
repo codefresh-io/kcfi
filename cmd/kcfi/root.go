@@ -155,6 +155,7 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 		cfInitCmd(out),
 		cfApplyCmd(actionConfig, out),
 		cfImagesCmd(out),
+		cfVersionCmd(out),
 	)
 
 	helmCmd := &cobra.Command{
@@ -240,8 +241,6 @@ func hideKubeFlags(cmd *cobra.Command) {
 	cmd.Flags().MarkHidden("kube-token")
 	cmd.Flags().MarkHidden("kubeconfig")
 	cmd.Flags().MarkHidden("namespace")
-
-
 }
 
 func hideHelmCommonFlags(cmd *cobra.Command) {

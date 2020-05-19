@@ -292,7 +292,7 @@ func k8sAgentChartYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/Chart.yaml", size: 133, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/Chart.yaml", size: 133, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -312,7 +312,7 @@ func k8sAgentReadmeMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/README.md", size: 832, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/README.md", size: 832, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -332,7 +332,7 @@ func k8sAgentTemplatesNotesTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/NOTES.txt", size: 538, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/NOTES.txt", size: 538, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -352,7 +352,7 @@ func k8sAgentTemplates_helpersTpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/_helpers.tpl", size: 479, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/_helpers.tpl", size: 479, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -372,7 +372,7 @@ func k8sAgentTemplatesDeploymentYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/deployment.yaml", size: 4116, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/deployment.yaml", size: 4116, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -392,7 +392,7 @@ func k8sAgentTemplatesRoleYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/role.yaml", size: 910, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/role.yaml", size: 910, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -412,7 +412,7 @@ func k8sAgentTemplatesRolebindingYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/rolebinding.yaml", size: 844, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/rolebinding.yaml", size: 844, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -432,7 +432,7 @@ func k8sAgentTemplatesRollbackRoleBindingYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/rollback-role-binding.yaml", size: 744, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/rollback-role-binding.yaml", size: 744, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -452,7 +452,7 @@ func k8sAgentTemplatesRollbackServiceaccountYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/rollback-serviceaccount.yaml", size: 457, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/rollback-serviceaccount.yaml", size: 457, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -472,7 +472,7 @@ func k8sAgentTemplatesServiceYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/service.yaml", size: 512, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/service.yaml", size: 512, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -492,7 +492,7 @@ func k8sAgentTemplatesServiceaccountYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/templates/serviceaccount.yaml", size: 413, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/templates/serviceaccount.yaml", size: 413, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -512,7 +512,7 @@ func k8sAgentValuesYaml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "k8s-agent/values.yaml", size: 1470, mode: os.FileMode(420), modTime: time.Unix(1589869783, 0)}
+	info := bindataFileInfo{name: "k8s-agent/values.yaml", size: 1470, mode: os.FileMode(420), modTime: time.Unix(1589880931, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
