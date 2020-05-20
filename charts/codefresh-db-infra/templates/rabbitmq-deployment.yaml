@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  labels: {{ include "labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: codefresh-rabbitmq
+  template:
+    metadata:
+      labels:
+        component: codefresh-rabbitmq
+    spec:
+      containers:
+      - env:
+        {{- range $key, $value := .Values.rabbitmq.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        name: rabbitmq
+        image: "{{ .Values.rabbitmq.repository }}:{{ .Values.rabbitmq.tag }}"
+        ports:
+        - containerPort: 5672
+          protocol: TCP
+        - containerPort: 15672
+          protocol: TCP
+        resources:
+          requests:
+            cpu: {{ .Values.rabbitmq.resources.requests.cpu }}
+            memory: {{ .Values.rabbitmq.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.rabbitmq.resources.limits.cpu }}
+            memory: {{ .Values.rabbitmq.resources.limits.memory }}
+      restartPolicy: Always
+{{ include "nodeSelector" . | indent 8 }}

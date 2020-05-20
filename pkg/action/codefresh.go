@@ -84,6 +84,19 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 	return registryValues, nil
 }
 
+func (o *CfApply) applyDbInfra() error {
+	valsX := objx.New(o.vals)
+	if ! valsX.Get(c.KeyDbInfraEnabled).Bool(false) {
+		debug("%s is not enabled", c.KeyDbInfraEnabled)
+		return nil
+	}
+	info("%s is enabled", c.KeyDbInfraEnabled)
+	dbInfraConfig, err := ioutil.ReadFile(filePath)
+
+	return nil
+}
+
+
 // ValidateCodefresh validates Codefresh config values
 func (o *CfApply) ValidateCodefresh() error {
 	valsX := objx.New(o.vals)

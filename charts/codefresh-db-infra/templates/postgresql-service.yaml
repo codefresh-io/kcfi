@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cf-postgresql
+  labels: {{ include "labels" . | indent 4 }}
+  annotations:
+    service: {{ $.Values.postgresql.name }}
+
+spec:
+  ports:
+  - name: "5432"
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    component: codefresh-postgresql
+  type: ClusterIP

@@ -1,0 +1,16 @@
+{{- if $.Values.persistence }}
+{{ $storageClass := coalesce .Values.mongodb.storageClass .Values.storageClass }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb
+spec:
+  {{- if $storageClass }}
+  storageClassName: {{ $storageClass }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $.Values.mongodb.persistentVolumeClaimSize }}
+{{- end }}

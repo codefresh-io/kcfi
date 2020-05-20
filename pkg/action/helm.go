@@ -35,7 +35,7 @@ func NewHelmChartOptionsFromConfig(chartName string, config map[string]interface
 		return nil, fmt.Errorf("Missing chart name in config")
 	}
 	helmChartOptions := &helm.ChartPathOptions{
-		RepoURL: cfgX.Get(c.KeyHelmRepoUrl).String(),
+		RepoURL: cfgX.Get(c.KeyHelmRepoURL).String(),
 		Version: cfgX.Get(c.KeyHelmVersion).String(),
 
 		Password: cfgX.Get(c.KeyHelmPassword).String(),

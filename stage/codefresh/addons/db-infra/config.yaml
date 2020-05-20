@@ -1,0 +1,22 @@
+metadata:
+  kind: helmChart
+  installer:
+    type: helm
+    helm:
+      chart: codefresh-db-infra
+      release: codefresh-infra
+
+kubernetes:
+  namespace: codefresh
+  #context: 
+  #kubeconfig:
+
+persistance: true
+#storageClass: 
+
+mongodb: {}
+postgresql: {}
+rabbitmq: {}
+redis: {}
+
+

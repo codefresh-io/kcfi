@@ -1,0 +1,72 @@
+persistence: true
+rabbitmq:
+  repository: rabbitmq
+  tag: 3.7.16-management
+  name: rabbitmq
+  pullPolicy: IfNotPresent
+  env:
+    RABBITMQ_DEFAULT_USER: user
+    RABBITMQ_DEFAULT_PASS: cVz9ZdJKYm7u
+    RABBITMQ_DEFAULT_VHOST: '/'
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+postgresql:
+  repository: codefresh/postgresql-95-centos7
+  tag: 0.2
+  name: postgresql
+  pullPolicy: IfNotPresent
+  persistentVolumeClaimSize: 2Gi
+  env:
+    #POSTGRESQL_ADMIN_PASSWORD: eC9arYka4Zbh
+    POSTGRESQL_DATABASE: codefresh
+    POSTGRESQL_USER: codefresh
+    POSTGRESQL_PASSWORD: eC9arYka4ZbH
+# https://hub.docker.com/r/centos/postgresql-95-centos7/
+# https://github.com/sclorg/postgresql-container/tree/generated/9.6
+
+
+mongodb:
+  repository: bitnami/mongodb
+  tag: 4.0.10
+  name: mongodb
+  pullPolicy: IfNotPresent
+  persistentVolumeClaimSize: 2Gi
+  env:
+    MONGODB_ROOT_PASSWORD: XT9nmM8dZD
+    MONGODB_USERNAME: cfuser
+    MONGODB_PASSWORD: mTiXcU2wafr9
+
+# see for config: https://github.com/bitnami/bitnami-docker-mongodb/tree/4.0.10-ol-7-r64
+
+redis:
+  repository: bitnami/redis
+  tag: 4.0-centos-7
+  name: redis
+  pullPolicy: IfNotPresent
+  persistentVolumeClaimSize: 2Gi
+  env:
+    REDIS_PASSWORD: hoC9szf7NtrU
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    
+# node selector for all components, if any
+nodeSelector:
+  enabled: false
+  selector:
+    codefresh: true
+
+rp:
+  infoEndpoint: "/info"
+  healthEndpoint: "/health"
+

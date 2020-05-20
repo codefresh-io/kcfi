@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  labels: {{ include "labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: codefresh-postgresql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: codefresh-postgresql
+    spec:
+      restartPolicy: Always
+      containers:
+      - env:
+        {{- range $key, $value := .Values.postgresql.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        name: postgresql
+        command: ['sh', '-c', '/tmp/entry.sh']
+        #command: ['sleep', '2d']
+        image: "{{ .Values.postgresql.repository }}:{{ .Values.postgresql.tag }}"
+        imagePullPolicy: "{{ .Values.postgresql.pullPolicy }}"
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+      {{- if $.Values.persistence }}
+        volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgresql
+      {{- end }}
+{{ include "nodeSelector" . | indent 8 }}

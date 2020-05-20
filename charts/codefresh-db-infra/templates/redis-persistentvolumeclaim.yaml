@@ -1,0 +1,16 @@
+{{- if $.Values.persistence }}
+{{- $storageClass := coalesce .Values.redis.storageClass .Values.storageClass }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis
+spec:
+  {{- if $storageClass }}
+  storageClassName: {{ $storageClass }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $.Values.redis.persistentVolumeClaimSize }}
+{{- end }}
