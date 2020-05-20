@@ -137,6 +137,20 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	return release, nil
 }
 
+// IsHelmReleaseInstalled - returns true if helm release installed
+func IsHelmReleaseInstalled(releaseName string, cfg *helm.Configuration) bool {
+	histClient := helm.NewHistory(cfg)
+	histClient.Max = 1
+	
+	if release, err := histClient.Run(releaseName); release != nil {
+		debug("release %s is installed", releaseName)
+		return true
+	} else {
+		debug("query release %s returned error %v", releaseName, err)
+		return false
+	}
+}
+
 
 // PrintHelmReleaseInfo - prints helm release
 func PrintHelmReleaseInfo(release *release.Release, debug bool) error {

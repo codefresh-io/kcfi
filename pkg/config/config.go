@@ -83,6 +83,7 @@ const (
 	KeyDbInfra = "dbinfra"
 	KeyDbInfraEnabled = "dbinfra.enabled"
 	
+	DbInfraHelmChartName = "codefresh-db-infra"
 	DbInfraValuesFile = "values/db-infra.yaml"
 	DbInfraConfigFile = "addons/db-infra/config.yaml"
 

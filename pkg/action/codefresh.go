@@ -22,7 +22,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-
+	"sigs.k8s.io/yaml"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
@@ -91,7 +91,48 @@ func (o *CfApply) applyDbInfra() error {
 		return nil
 	}
 	info("%s is enabled", c.KeyDbInfraEnabled)
-	dbInfraConfig, err := ioutil.ReadFile(filePath)
+	dbInfraConfigB, err := ioutil.ReadFile(c.DbInfraConfigFile)
+	if err != nil {
+		return errors.Wrapf(err, "cannot read db-infra config in %s", c.DbInfraConfigFile)
+	}
+	var dbInfraConfig map[string]interface{}
+	if err := yaml.Unmarshal(dbInfraConfigB, &dbInfraConfig); err != nil {
+		return errors.Wrapf(err, "failed to parse db-infrea config file %s", c.DbInfraConfigFile)
+	}
+	
+	dbInfraConfig = MergeMaps(dbInfraConfig, valsX.Get(c.KeyDbInfra).MSI(map[string]interface{}{}))
+	dbInfraConfigX := objx.New(dbInfraConfig)
+	dbInfraReleaseName := dbInfraConfigX.Get(c.KeyHelmRelease).String()
+
+	// Checking if dbInfra is already installed
+	dbInfraInstalled := IsHelmReleaseInstalled(dbInfraReleaseName, o.cfg)
+	codefreshInstalled := IsHelmReleaseInstalled(c.CodefreshReleaseName, o.cfg)
+
+	if codefreshInstalled && !dbInfraInstalled {
+		return fmt.Errorf("db-infra release %s is not installed", dbInfraReleaseName)
+	}
+
+	if !codefreshInstalled && !dbInfraInstalled {
+		info("Installing db-infra release")
+		helmAtomicSave := o.Helm.Atomic 
+		helmWaitSave := o.Helm.Wait
+		o.Helm.Atomic = true
+		o.Helm.Wait = true
+		dbInfraRelease, err := DeployHelmRelease(
+			dbInfraReleaseName,
+			c.DbInfraHelmChartName,
+			dbInfraConfig,
+			o.cfg,
+			o.Helm,
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to deploy operator chart")
+		}
+		PrintHelmReleaseInfo(dbInfraRelease, c.Debug)
+		o.Helm.Atomic = helmAtomicSave
+		o.Helm.Wait = helmWaitSave
+	}
+
 
 	return nil
 }
@@ -249,9 +290,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 	} else if installerType == installerTypeHelm {
 		// first we will error if operator chart is installed:
-		histClient := helm.NewHistory(o.cfg)
-		histClient.Max = 1
-		if operatorRelease, _ := histClient.Run(operatorHelmReleaseName); operatorRelease != nil {
+		if operatorReleaseInstalled := IsHelmReleaseInstalled(operatorHelmReleaseName, o.cfg); operatorReleaseInstalled {
 			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
 		}
 		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh.tgz")
