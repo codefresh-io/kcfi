@@ -25,6 +25,9 @@ global:
   ### Codefresh App domain name. appUrl is manadatory parameter
   appUrl: 
   appProtocol: https
+  
+  # stepsCatalogOnPremise: true
+  # stepsCatalogOnPremiseRegistry: <your_registry_url>
 
 tls:
   selfSigned: true
