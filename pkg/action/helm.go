@@ -35,7 +35,7 @@ func NewHelmChartOptionsFromConfig(chartName string, config map[string]interface
 		return nil, fmt.Errorf("Missing chart name in config")
 	}
 	helmChartOptions := &helm.ChartPathOptions{
-		RepoURL: cfgX.Get(c.KeyHelmRepoUrl).String(),
+		RepoURL: cfgX.Get(c.KeyHelmRepoURL).String(),
 		Version: cfgX.Get(c.KeyHelmVersion).String(),
 
 		Password: cfgX.Get(c.KeyHelmPassword).String(),
@@ -58,7 +58,11 @@ func(h *HelmChartOptions) LoadChart() (*chart.Chart, error){
 
 	settings := cli.New()
 	settings.Debug = c.Debug
-	os.Chdir(h.baseDir)
+	if h.baseDir != "" {
+		workingDir, _ := os.Getwd()
+		os.Chdir(h.baseDir)
+		defer os.Chdir(workingDir)
+	}
 
 	var ch *chart.Chart
 	var err error
@@ -84,6 +88,9 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	chartRequested, err := helmChartOptions.LoadChart()
 	if err != nil {
 		return nil, err
+	}
+	if chartRequested == nil || chartRequested.Metadata == nil {
+		return nil, fmt.Errorf("Failed to load %s chart. Check helm chart options in config", chart)
 	}
 
 	var release *release.Release
@@ -135,6 +142,20 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	info("Release %q has been upgraded\n", releaseName)
 
 	return release, nil
+}
+
+// IsHelmReleaseInstalled - returns true if helm release installed
+func IsHelmReleaseInstalled(releaseName string, cfg *helm.Configuration) bool {
+	histClient := helm.NewHistory(cfg)
+	histClient.Max = 1
+	
+	if release, err := histClient.Run(releaseName); release != nil {
+		debug("release %s is installed", releaseName)
+		return true
+	} else {
+		debug("query release %s returned error %v", releaseName, err)
+		return false
+	}
 }
 
 

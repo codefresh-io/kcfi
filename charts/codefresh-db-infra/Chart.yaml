@@ -1,0 +1,12 @@
+apiVersion: v1
+description: Codefresh infrastructure
+name: codefresh-infrastructure
+version: 1.0
+sources:
+  - https://localhost
+keywords:
+  - codefresh-infrastructure
+maintainers:
+  - name: codefresh
+    email: codefresh@codefresh.io
+engine: gotpl

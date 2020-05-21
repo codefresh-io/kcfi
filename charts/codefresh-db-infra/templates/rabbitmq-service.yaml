@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cf-rabbitmq
+  labels: {{ include "labels" . | indent 4 }}
+  annotations:
+    service: {{ $.Values.rabbitmq.name }}
+
+spec:
+  ports:
+  - name: "5672"
+    port: 5672
+    protocol: TCP
+    targetPort: 5672
+  - name: "15672"
+    port: 15672
+    protocol: TCP
+    targetPort: 15672
+  selector:
+    component: codefresh-rabbitmq
+  type: ClusterIP

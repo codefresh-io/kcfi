@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels: {{ include "labels" . | indent 4 }}
+  annotations:
+    service: {{ $.Values.mongodb.name }}
+
+spec:
+  ports:
+  - name: "27017"
+    port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    component: codefresh-mongodb
+  type: ClusterIP

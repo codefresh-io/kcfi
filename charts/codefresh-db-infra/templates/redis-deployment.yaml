@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels: {{ include "labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: codefresh-redis
+  template:
+    metadata:
+      labels:
+        component: codefresh-redis
+    spec:
+      {{- $podSecurityContext := (kindIs "invalid" .Values.podSecurityContextOverride) | ternary .Values.redis.podSecurityContext .Values.podSecurityContextOverride }}
+      {{- if and (kindIs "invalid" $podSecurityContext) (not (.Capabilities.APIVersions.Has "apps.openshift.io/v1"))}}
+      securityContext:
+        fsGroup: 0
+      {{- else }}
+      {{- with $podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8}}
+      {{- end }}
+      {{- end }}
+      restartPolicy: Always
+      containers:
+      - env:
+        {{- range $key, $value := .Values.redis.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        name: redis
+        image: "{{ .Values.redis.repository }}:{{ .Values.redis.tag }}"
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+        resources:
+          requests:
+            cpu: {{ .Values.redis.resources.requests.cpu }}
+            memory: {{ .Values.redis.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.redis.resources.limits.cpu }}
+            memory: {{ .Values.redis.resources.limits.memory }}
+      {{- if $.Values.persistence }}
+        volumeMounts:
+            - mountPath: /bitnami/redis
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: redis
+      {{- end }}
+{{ include "nodeSelector" . | indent 8 }}

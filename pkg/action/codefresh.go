@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
@@ -46,7 +45,7 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 		registryAddress = c.CfRegistryAddress
 		registryUsername = c.CfRegistryUsername
 		cfRegistrySaVal := valsX.Get(c.KeyImagesCodefreshRegistrySa).Str("sa.json")
-		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
+		cfRegistrySaPath := o.filePath(cfRegistrySaVal)
 		registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
@@ -84,6 +83,66 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 	return registryValues, nil
 }
 
+func (o *CfApply) applyDbInfra() error {
+	valsX := objx.New(o.vals)
+	if ! valsX.Get(c.KeyDbInfraEnabled).Bool(false) {
+		debug("%s is not enabled", c.KeyDbInfraEnabled)
+		return nil
+	}
+	info("%s is enabled", c.KeyDbInfraEnabled)
+
+	dbInfraConfig, err := ReadYamlFile(o.filePath(c.DbInfraConfigFile))
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse db-infra config file %s", c.DbInfraConfigFile)
+	}
+	
+	dbInfraConfig = MergeMaps(dbInfraConfig, valsX.Get(c.KeyDbInfra).MSI(map[string]interface{}{}))
+	dbInfraConfigX := objx.New(dbInfraConfig)
+	dbInfraReleaseName := dbInfraConfigX.Get(c.KeyHelmRelease).String()
+
+	// Checking if dbInfra is already installed
+	dbInfraInstalled := IsHelmReleaseInstalled(dbInfraReleaseName, o.cfg)
+	codefreshInstalled := IsHelmReleaseInstalled(c.CodefreshReleaseName, o.cfg)
+
+	if codefreshInstalled && !dbInfraInstalled {
+		return fmt.Errorf("db-infra release %s is not installed", dbInfraReleaseName)
+	}
+
+	// Merging values/db-infra into main values
+	mainConfigChange, err := ReadYamlFile(o.filePath(c.DbInfraMainConfigChangeValuesFile))
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse db-infra values file %s", c.DbInfraMainConfigChangeValuesFile)
+	}
+	debug("merging db-infra config change file %s", c.DbInfraMainConfigChangeValuesFile)
+	o.vals =  MergeMaps(o.vals, mainConfigChange)
+
+	if !codefreshInstalled && !dbInfraInstalled {
+		info("Installing db-infra release")
+		helmAtomicSave := o.Helm.Atomic 
+		helmWaitSave := o.Helm.Wait
+		o.Helm.Atomic = true
+		o.Helm.Wait = true
+		defer func(){
+			o.Helm.Atomic = helmAtomicSave
+			o.Helm.Wait = helmWaitSave
+		}()
+		dbInfraRelease, err := DeployHelmRelease(
+			dbInfraReleaseName,
+			c.DbInfraHelmChartName,
+			dbInfraConfig,
+			o.cfg,
+			o.Helm,
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to deploy db-infra chart")
+		}
+		PrintHelmReleaseInfo(dbInfraRelease, c.Debug)
+
+	}
+
+	return nil
+}
+
 // ValidateCodefresh validates Codefresh config values
 func (o *CfApply) ValidateCodefresh() error {
 	valsX := objx.New(o.vals)
@@ -99,9 +158,6 @@ func (o *CfApply) ValidateCodefresh() error {
 func (o *CfApply) ApplyCodefresh() error {
 
 	// Calculating addional configurations
-	baseDir := filepath.Dir(o.ConfigFile)
-	o.vals[c.KeyBaseDir] = baseDir
-
 	valsX := objx.New(o.vals)
 
 	//--- Docker Registry secret
@@ -129,6 +185,12 @@ func (o *CfApply) ApplyCodefresh() error {
 			return errors.Wrapf(err, "Failed to generate values.yaml")
 		}
 		o.vals = MergeMaps(o.vals, webTlsValues)
+	}
+
+	// Db Infra
+	err = o.applyDbInfra()
+	if err != nil {
+		return errors.Wrapf(err, "Failed apply db-infra")
 	}
 
 	//--- If a release does not exist add seeded jobs
@@ -176,7 +238,6 @@ func (o *CfApply) ApplyCodefresh() error {
 	//--- Deploying
     installerType := valsX.Get(c.KeyInstallerType).String()
     if installerType == installerTypeOperator {
-		
 		// Deploy Codefresh Operator with wait first
 		operatorChartValues := valsX.Get(c.KeyOperatorChartValues).MSI(map[string]interface{}{})
 		operatorChartValues = MergeMaps(operatorChartValues, registryValues)
@@ -202,7 +263,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 		PrintHelmReleaseInfo(operatorRelease, c.Debug)
 
-		// Update Codefresh resourtc 
+		// Update Codefresh resource 
         cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
         if err != nil {
             return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
@@ -236,12 +297,10 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 	} else if installerType == installerTypeHelm {
 		// first we will error if operator chart is installed:
-		histClient := helm.NewHistory(o.cfg)
-		histClient.Max = 1
-		if operatorRelease, _ := histClient.Run(operatorHelmReleaseName); operatorRelease != nil {
+		if operatorReleaseInstalled := IsHelmReleaseInstalled(operatorHelmReleaseName, o.cfg); operatorReleaseInstalled {
 			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
 		}
-		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh.tgz")
+		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh")
 		codefreshRelease, err := DeployHelmRelease(
 			codefreshHelmReleaseName,
 			codefreshHelChartName,

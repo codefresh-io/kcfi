@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  labels: {{ include "labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: codefresh-rabbitmq
+  template:
+    metadata:
+      labels:
+        component: codefresh-rabbitmq
+    spec:
+      {{- $podSecurityContext := (kindIs "invalid" .Values.podSecurityContextOverride) | ternary .Values.rabbitmq.podSecurityContext .Values.podSecurityContextOverride }}
+      {{- if and (kindIs "invalid" $podSecurityContext) (not (.Capabilities.APIVersions.Has "apps.openshift.io/v1"))}}
+      securityContext:
+        fsGroup: 0
+      {{- else }}
+      {{- with $podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8}}
+      {{- end }}
+      {{- end }}
+      containers:
+      - env:
+        {{- range $key, $value := .Values.rabbitmq.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        name: rabbitmq
+        image: "{{ .Values.rabbitmq.repository }}:{{ .Values.rabbitmq.tag }}"
+        ports:
+        - containerPort: 5672
+          protocol: TCP
+        - containerPort: 15672
+          protocol: TCP
+        resources:
+          requests:
+            cpu: {{ .Values.rabbitmq.resources.requests.cpu }}
+            memory: {{ .Values.rabbitmq.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.rabbitmq.resources.limits.cpu }}
+            memory: {{ .Values.rabbitmq.resources.limits.memory }}
+      restartPolicy: Always
+{{ include "nodeSelector" . | indent 8 }}

@@ -57,7 +57,7 @@ const (
 	
 	KeyHelmChart = "metadata.installer.helm.chart"
 	KeyHelmRelease = "metadata.installer.helm.release"
-	KeyHelmRepoUrl = "metadata.installer.helm.repoUrl"
+	KeyHelmRepoURL = "metadata.installer.helm.repoUrl"
 	KeyHelmVersion = "metadata.installer.helm.version"
 	KeyHelmCaFile = "metadata.installer.helm.caFile"
 	KeyHelmCertFile = "metadata.installer.helm.certFile"
@@ -79,6 +79,15 @@ const (
 	KeyTlsKey = "tls.key"
 
 	KeyAppUrl = "global.appUrl"
+
+	KeyDbInfra = "dbinfra"
+	KeyDbInfraEnabled = "dbinfra.enabled"
+	
+	DbInfraHelmChartName = "codefresh-db-infra"
+	DbInfraMainConfigChangeValuesFile = "values/db-infra.yaml"
+	DbInfraConfigFile = "addons/db-infra/config.yaml"
+
+	KeyInclude = "include"
 
 	EnvPusherDebug = "PUSHER_DEBUG"
 )

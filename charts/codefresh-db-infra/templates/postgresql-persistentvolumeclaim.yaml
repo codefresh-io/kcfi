@@ -1,0 +1,16 @@
+{{- if $.Values.persistence }}
+{{ $storageClass := coalesce .Values.postgresql.storageClass .Values.storageClass }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql
+spec:
+  {{- if $storageClass }}
+  storageClassName: {{ $storageClass }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $.Values.postgresql.persistentVolumeClaimSize }}
+{{- end }}

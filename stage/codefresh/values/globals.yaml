@@ -1,0 +1,22 @@
+## Miscelaneous global settings
+#global:
+# Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
+#  storageClass: my-storage-class
+
+# Default nodeSelector for storage pods. Useful in case of local volumes
+#  storagePodNodeSelector:
+#    kubernetes.io/hostname: storage-host-01
+
+### MTU Value for dockerd in builder and runner
+#  mtu: 1400
+
+### expose codefresh internal registry from ingress
+  #registryPort: 443
+  #exposeRegistry: true
+
+### configuring external mongo database service
+  #mongodbRootUser: my-mongo-admin-user
+  #mongodbRootPassword: yeqTeVwqVa9qDqebq
+  #mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
+  #mongoSkipUserCreation: true
+  #mongoDeploy: false   # disables deployment of internal mongo service

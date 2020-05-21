@@ -7,3 +7,5 @@ charts/k8s-agent
 
 /charts/*.tgz
 /pkg/embeded
+
+/charts/**/values-*.yaml

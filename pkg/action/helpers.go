@@ -19,9 +19,30 @@ package action
 import (
 	"bytes"
 	"text/template"
+	"io/ioutil"
+	"path/filepath"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 	"github.com/codefresh-io/kcfi/pkg/engine"
 	"sigs.k8s.io/yaml"
 )
+
+
+// ReadYamlFile - reads yaml file
+func ReadYamlFile(fileName string) (map[string]interface{}, error){
+	fileB, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	var yamlResult map[string]interface{}
+	if err := yaml.Unmarshal(fileB, &yamlResult); err != nil {
+		return nil, err
+	}
+
+	if _, baseDirSet := yamlResult[c.KeyBaseDir]; !baseDirSet {
+		yamlResult[c.KeyBaseDir] = filepath.Dir(fileName)
+	}
+	return yamlResult, nil
+}
 
 // ExecuteTemplate - executes templates in tpl str with config as values
 func ExecuteTemplate(tplStr string, data interface{}) (string, error) {
