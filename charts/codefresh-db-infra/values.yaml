@@ -41,6 +41,13 @@ mongodb:
     MONGODB_ROOT_PASSWORD: XT9nmM8dZD
     MONGODB_USERNAME: cfuser
     MONGODB_PASSWORD: mTiXcU2wafr9
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 # see for config: https://github.com/bitnami/bitnami-docker-mongodb/tree/4.0.10-ol-7-r64
 
@@ -70,3 +77,4 @@ rp:
   infoEndpoint: "/info"
   healthEndpoint: "/health"
 
+#podSecurityContextOverride: {}

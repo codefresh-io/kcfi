@@ -5,7 +5,6 @@ metadata:
   labels: {{ include "labels" . | indent 4 }}
   annotations:
     service: {{ $.Values.redis.name }}
-
 spec:
   ports:
   - name: "6379"

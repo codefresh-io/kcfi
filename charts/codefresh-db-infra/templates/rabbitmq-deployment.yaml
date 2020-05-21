@@ -15,6 +15,16 @@ spec:
       labels:
         component: codefresh-rabbitmq
     spec:
+      {{- $podSecurityContext := (kindIs "invalid" .Values.podSecurityContextOverride) | ternary .Values.rabbitmq.podSecurityContext .Values.podSecurityContextOverride }}
+      {{- if and (kindIs "invalid" $podSecurityContext) (not (.Capabilities.APIVersions.Has "apps.openshift.io/v1"))}}
+      securityContext:
+        fsGroup: 0
+      {{- else }}
+      {{- with $podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8}}
+      {{- end }}
+      {{- end }}
       containers:
       - env:
         {{- range $key, $value := .Values.rabbitmq.env }}

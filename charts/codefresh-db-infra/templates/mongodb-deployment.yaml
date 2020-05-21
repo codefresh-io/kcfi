@@ -15,6 +15,16 @@ spec:
       labels:
         component: codefresh-mongodb
     spec:
+      {{- $podSecurityContext := (kindIs "invalid" .Values.podSecurityContextOverride) | ternary .Values.mongodb.podSecurityContext .Values.podSecurityContextOverride }}
+      {{- if and (kindIs "invalid" $podSecurityContext) (not (.Capabilities.APIVersions.Has "apps.openshift.io/v1"))}}
+      securityContext:
+        fsGroup: 0
+      {{- else }}
+      {{- with $podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8}}
+      {{- end }}
+      {{- end }}
       restartPolicy: Always
       containers:
       - env:
