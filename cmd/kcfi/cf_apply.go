@@ -21,7 +21,7 @@ import (
 	"io"
 	"time"
 	"os"
-	"filepath"
+	"path/filepath"
 	"github.com/spf13/cobra"
 
 	"github.com/codefresh-io/kcfi/pkg/action"
@@ -63,6 +63,7 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 				return fmt.Errorf("%s is not a valid file", client.ConfigFile)
 			}
 			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyBaseDir, baseDir))
+			os.Chdir(baseDir)
 			
 			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyKubeNamespace, configuredNamespace))
 			vals, err := valueOpts.MergeValues(getter.All(settings))

@@ -22,7 +22,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sigs.k8s.io/yaml"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
@@ -91,13 +91,10 @@ func (o *CfApply) applyDbInfra() error {
 		return nil
 	}
 	info("%s is enabled", c.KeyDbInfraEnabled)
-	dbInfraConfigB, err := ioutil.ReadFile(c.DbInfraConfigFile)
+
+	dbInfraConfig, err := ReadYamlFile(c.DbInfraConfigFile)
 	if err != nil {
-		return errors.Wrapf(err, "cannot read db-infra config in %s", c.DbInfraConfigFile)
-	}
-	var dbInfraConfig map[string]interface{}
-	if err := yaml.Unmarshal(dbInfraConfigB, &dbInfraConfig); err != nil {
-		return errors.Wrapf(err, "failed to parse db-infrea config file %s", c.DbInfraConfigFile)
+		return errors.Wrapf(err, "failed to parse db-infra config file %s", c.DbInfraConfigFile)
 	}
 	
 	dbInfraConfig = MergeMaps(dbInfraConfig, valsX.Get(c.KeyDbInfra).MSI(map[string]interface{}{}))
@@ -111,6 +108,14 @@ func (o *CfApply) applyDbInfra() error {
 	if codefreshInstalled && !dbInfraInstalled {
 		return fmt.Errorf("db-infra release %s is not installed", dbInfraReleaseName)
 	}
+
+	// Merging values/db-infra into main values
+	mainConfigChange, err := ReadYamlFile(c.DbInfraMainConfigChangeValuesFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse db-infra values file %s", c.DbInfraMainConfigChangeValuesFile)
+	}
+	debug("merging db-infra config change file %s", c.DbInfraMainConfigChangeValuesFile)
+	o.vals =  MergeMaps(o.vals, mainConfigChange)
 
 	if !codefreshInstalled && !dbInfraInstalled {
 		info("Installing db-infra release")
@@ -126,17 +131,15 @@ func (o *CfApply) applyDbInfra() error {
 			o.Helm,
 		)
 		if err != nil {
-			return errors.Wrapf(err, "Failed to deploy operator chart")
+			return errors.Wrapf(err, "Failed to deploy db-infra chart")
 		}
 		PrintHelmReleaseInfo(dbInfraRelease, c.Debug)
 		o.Helm.Atomic = helmAtomicSave
 		o.Helm.Wait = helmWaitSave
 	}
 
-
 	return nil
 }
-
 
 // ValidateCodefresh validates Codefresh config values
 func (o *CfApply) ValidateCodefresh() error {
@@ -230,7 +233,6 @@ func (o *CfApply) ApplyCodefresh() error {
 	//--- Deploying
     installerType := valsX.Get(c.KeyInstallerType).String()
     if installerType == installerTypeOperator {
-		
 		// Deploy Codefresh Operator with wait first
 		operatorChartValues := valsX.Get(c.KeyOperatorChartValues).MSI(map[string]interface{}{})
 		operatorChartValues = MergeMaps(operatorChartValues, registryValues)
@@ -256,7 +258,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 		PrintHelmReleaseInfo(operatorRelease, c.Debug)
 
-		// Update Codefresh resourtc 
+		// Update Codefresh resource 
         cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
         if err != nil {
             return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
@@ -293,7 +295,7 @@ func (o *CfApply) ApplyCodefresh() error {
 		if operatorReleaseInstalled := IsHelmReleaseInstalled(operatorHelmReleaseName, o.cfg); operatorReleaseInstalled {
 			return fmt.Errorf("Error: Codefresh operator release is running. It is incomplatible with helm install type")
 		}
-		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh.tgz")
+		codefreshHelChartName := valsX.Get(c.KeyHelmChart).Str("codefresh")
 		codefreshRelease, err := DeployHelmRelease(
 			codefreshHelmReleaseName,
 			codefreshHelChartName,
