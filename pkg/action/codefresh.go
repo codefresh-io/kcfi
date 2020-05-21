@@ -188,7 +188,10 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 
 	// Db Infra
-	o.applyDbInfra()
+	err = o.applyDbInfra()
+	if err != nil {
+		return errors.Wrapf(err, "Failed apply db-infra")
+	}
 
 	//--- If a release does not exist add seeded jobs
 	histClient := helm.NewHistory(o.cfg)
