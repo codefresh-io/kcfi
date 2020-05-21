@@ -13,7 +13,7 @@ metadata:
       #skipCRD:
     helm:
       chart: codefresh 
-      repoURL: http://charts.coderesh.io/prod
+      repoUrl: http://charts.codefresh.io/prod
       #version:
 
 kubernetes:

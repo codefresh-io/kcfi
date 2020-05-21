@@ -57,7 +57,7 @@ const (
 	
 	KeyHelmChart = "metadata.installer.helm.chart"
 	KeyHelmRelease = "metadata.installer.helm.release"
-	KeyHelmRepoURL = "metadata.installer.helm.repoURL"
+	KeyHelmRepoURL = "metadata.installer.helm.repoUrl"
 	KeyHelmVersion = "metadata.installer.helm.version"
 	KeyHelmCaFile = "metadata.installer.helm.caFile"
 	KeyHelmCertFile = "metadata.installer.helm.certFile"

@@ -58,7 +58,11 @@ func(h *HelmChartOptions) LoadChart() (*chart.Chart, error){
 
 	settings := cli.New()
 	settings.Debug = c.Debug
-	os.Chdir(h.baseDir)
+	if h.baseDir != "" {
+		workingDir, _ := os.Getwd()
+		os.Chdir(h.baseDir)
+		defer os.Chdir(workingDir)
+	}
 
 	var ch *chart.Chart
 	var err error
@@ -84,6 +88,9 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	chartRequested, err := helmChartOptions.LoadChart()
 	if err != nil {
 		return nil, err
+	}
+	if chartRequested == nil || chartRequested.Metadata == nil {
+		return nil, fmt.Errorf("Failed to load %s chart. Check helm chart options in config", chart)
 	}
 
 	var release *release.Release

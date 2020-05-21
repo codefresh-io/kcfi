@@ -18,7 +18,8 @@ package action
 
 import (
 	"fmt"
-
+	"path"
+	"path/filepath"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 	helm "helm.sh/helm/v3/pkg/action"
@@ -48,7 +49,10 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	o.vals = vals
 	valsX := objx.New(vals)
 	kind := valsX.Get(c.KeyKind).String(); 
-
+	
+	baseDir := filepath.Dir(o.ConfigFile)
+	o.vals[c.KeyBaseDir] = baseDir
+	
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()
@@ -75,4 +79,8 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 		}
 		return fmt.Errorf("Wrong installer type %s", installerType)
 	}
+}
+
+func (o *CfApply) filePath(fileName string) string {
+	return path.Join(filepath.Dir(o.ConfigFile), fileName)
 }

@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
@@ -46,7 +45,7 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 		registryAddress = c.CfRegistryAddress
 		registryUsername = c.CfRegistryUsername
 		cfRegistrySaVal := valsX.Get(c.KeyImagesCodefreshRegistrySa).Str("sa.json")
-		cfRegistrySaPath := path.Join(filepath.Dir(o.ConfigFile), cfRegistrySaVal)
+		cfRegistrySaPath := o.filePath(cfRegistrySaVal)
 		registryPasswordB, err := ioutil.ReadFile(cfRegistrySaPath)
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("cannot read %s", cfRegistrySaPath))
@@ -92,7 +91,7 @@ func (o *CfApply) applyDbInfra() error {
 	}
 	info("%s is enabled", c.KeyDbInfraEnabled)
 
-	dbInfraConfig, err := ReadYamlFile(c.DbInfraConfigFile)
+	dbInfraConfig, err := ReadYamlFile(o.filePath(c.DbInfraConfigFile))
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse db-infra config file %s", c.DbInfraConfigFile)
 	}
@@ -110,7 +109,7 @@ func (o *CfApply) applyDbInfra() error {
 	}
 
 	// Merging values/db-infra into main values
-	mainConfigChange, err := ReadYamlFile(c.DbInfraMainConfigChangeValuesFile)
+	mainConfigChange, err := ReadYamlFile(o.filePath(c.DbInfraMainConfigChangeValuesFile))
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse db-infra values file %s", c.DbInfraMainConfigChangeValuesFile)
 	}
@@ -123,6 +122,10 @@ func (o *CfApply) applyDbInfra() error {
 		helmWaitSave := o.Helm.Wait
 		o.Helm.Atomic = true
 		o.Helm.Wait = true
+		defer func(){
+			o.Helm.Atomic = helmAtomicSave
+			o.Helm.Wait = helmWaitSave
+		}()
 		dbInfraRelease, err := DeployHelmRelease(
 			dbInfraReleaseName,
 			c.DbInfraHelmChartName,
@@ -134,8 +137,7 @@ func (o *CfApply) applyDbInfra() error {
 			return errors.Wrapf(err, "Failed to deploy db-infra chart")
 		}
 		PrintHelmReleaseInfo(dbInfraRelease, c.Debug)
-		o.Helm.Atomic = helmAtomicSave
-		o.Helm.Wait = helmWaitSave
+
 	}
 
 	return nil
@@ -156,9 +158,6 @@ func (o *CfApply) ValidateCodefresh() error {
 func (o *CfApply) ApplyCodefresh() error {
 
 	// Calculating addional configurations
-	baseDir := filepath.Dir(o.ConfigFile)
-	o.vals[c.KeyBaseDir] = baseDir
-
 	valsX := objx.New(o.vals)
 
 	//--- Docker Registry secret
@@ -187,6 +186,9 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 		o.vals = MergeMaps(o.vals, webTlsValues)
 	}
+
+	// Db Infra
+	o.applyDbInfra()
 
 	//--- If a release does not exist add seeded jobs
 	histClient := helm.NewHistory(o.cfg)
