@@ -1,0 +1,31 @@
+metadata:
+  kind: backup-manager
+  installer:
+    type: helm
+    helm:
+      chart: cf-backup-manager
+      release: cf-backup-manager
+
+kubernetes:
+  namespace: codefresh
+  #context: 
+  #kubeconfig:
+
+storage:
+  longTerm:
+    accessMode: "ReadWriteOnce"
+    storageClass: "standard"
+    size: 10Gi
+  tmp:
+    accessMode: "ReadWriteOnce"
+    storageClass: "standard" 
+    size: 3Gi
+        
+jobConfigs:
+  cfBackupPlan:
+    target:
+      uri: ""
+    scheduler:
+      cron: "0 */6 * * *"
+      retention: 28
+      timeout: 60

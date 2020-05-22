@@ -56,6 +56,8 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	switch kind {
 	case kindCodefresh:
 		return o.ApplyCodefresh()
+	case kindBackupManager:
+		return o.ApplyBackupMgr()
 	case "":
 		return fmt.Errorf("Please specifiy the installer kind")
 	default:

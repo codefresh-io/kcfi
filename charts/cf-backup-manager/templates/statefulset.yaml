@@ -1,0 +1,80 @@
+apiVersion: apps/v1 # Change to "apps/v1beta1" for Kubernetes < 1.10.
+kind: StatefulSet
+metadata:
+  name: {{ template "name" . }}
+spec:
+  serviceName: {{ template "name" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      role: {{ .Values.selector.role }}
+  template:
+    metadata:
+      labels:
+        role: {{ .Values.selector.role }}
+      annotations:
+        checksum/jobConfigs: {{ toYaml .Values.jobConfigs | sha256sum }}
+    spec:
+      containers:
+      - name: {{ template "name" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+{{- range $envVar := .Values.env }}
+        - name: {{ $envVar.name }}
+          value: {{ $envVar.value }}
+{{- end }}
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+          protocol: TCP
+        volumeMounts:
+        - name: "bkp-storage"
+          mountPath: "/storage"
+        - name: "bkp-tmp"
+          mountPath: "/tmp"
+        - name: "bkp-tmp"
+          mountPath: "/data"
+{{- range $name, $value := .Values.jobConfigs }}
+        - mountPath: "/config/{{ $name }}.yml"
+          name: bkp-config
+          subPath: {{ $name | quote }}
+{{ end }}
+{{- range $secret := .Values.secret }}
+        - mountPath: "/secret/{{ $secret.name }}"
+          name: {{ $secret.name }}
+{{ end }}
+      volumes:
+      - name: bkp-config
+        configMap:
+          name: cf-backup-manager
+          items:
+{{- range $name, $value := .Values.jobConfigs }}
+          - key: {{ $name }}
+            path: {{ $name }}
+{{ end }}
+{{- range $secret := .Values.secret }}
+      - name: {{ $secret.name }}
+        secret:
+          secretName: {{ $secret.name }}
+{{ end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: bkp-storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: {{ .Values.storage.longTerm.storageClass }}
+    spec:
+      accessModes:
+      - {{ .Values.storage.longTerm.accessMode }}
+      resources:
+        requests:
+          storage: {{ .Values.storage.longTerm.size }}
+  - metadata:
+      name: bkp-tmp
+      annotations:
+        volume.beta.kubernetes.io/storage-class: {{ .Values.storage.tmp.storageClass }}
+    spec:
+      accessModes:
+      - {{ .Values.storage.tmp.accessMode }}
+      resources:
+        requests:
+          storage: {{ .Values.storage.tmp.size }}
