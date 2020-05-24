@@ -5,7 +5,7 @@ metadata:
 spec:
   backoffLimit: {{ .Values.nodeRegistarJob.backoffLimit }}
   activeDeadlineSeconds: {{ .Values.nodeRegistarJob.activeDeadlineSeconds }}
-  ttlSecondsAfterFinished: {{ .Values.nodeRegistarJob.ttlSecondsAfterFinished }}
+  # ttlSecondsAfterFinished: {{ .Values.nodeRegistarJob.ttlSecondsAfterFinished }}
   template:
     spec:
       restartPolicy: Never
@@ -16,17 +16,20 @@ spec:
           - bash
           - -c
           - |
-            mkdir -pv /opt/codefresh
-            cp -rLv /opt/mounts/* /opt/codefresh
-            /opt/codefresh/register-all-nodes.sh
-            /opt/codefresh/deploy-all-re.sh
+            BASE_DIR=/tmp/codefresh
+            mkdir -pv ${BASE_DIR}
+            cp -rLv /opt/mounts/* ${BASE_DIR}/
+            chmod +x ${BASE_DIR}/scripts/*.sh
+            ${BASE_DIR}/scripts/register-all-nodes.sh
+            ${BASE_DIR}/scripts/deploy-all-re.sh
+            # sleep 3600
         volumeMounts:
         - name: scripts
-          path: /opt/mounts/scripts
+          mountPath: /opt/mounts/scripts
         - name: nodes-config
-          path: /opt/mounts/nodes
+          mountPath: /opt/mounts/nodes
         - name: runtime-environments-config
-          path: /opt/mounts/runtime-environments
+          mountPath: /opt/mounts/runtime-environments
       volumes:
       - name: scripts
         configMap:

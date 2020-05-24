@@ -284,4 +284,60 @@ disableHelm: false
 helm3: false
 useConfig: false
 useNamespaceWideRole: false
+existingServiceAccount: ""# replicaCount number of pods to be schedualed
+replicaCount: 1
+
+## imagePullPolicy 'Always' if imageTag is 'latest', else set to 'IfNotPresent' ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+imagePullPolicy: Always
+
+# redeploy whenever to force redeploy
+redeploy: false
+
+# imageTag set the tag of the image
+imageTag: stable
+
+# image name, takes from variable
+image:  "codefresh/agent"
+
+# env set of evnrionment varialbe to be add to the containers
+#env:
+
+# clusterUrl - optional. for setup outside cluster when current context is used
+# clusterToken - optional. for setup outside cluster when current context is used
+# clusterCA - optional. for setup outside cluster when current context is used
+# apiToken - should be set when the chart is installing
+# clusterId - cluster name as it registered in account
+# useCurrentContext - use current context instead of cluster credentials. False by default.
+apiUrl: https://g.codefresh.io/api/k8s-monitor/events
+clusterId: clusterName
+clusterUrl: ""
+clean: false
+
+# port container port
+port: 9020
+
+# servicePort port of the kubernetes service listen to
+servicePort: 80
+
+accountId: user
+apiToken: ""
+
+rbacEnabled: true
+
+newRelicLicenseKey: ""
+
+heapSize: 4096
+
+namespaceInterval: 60000
+podInterval: 120000
+deploymentInterval: 120000
+releaseInterval: 600000
+serviceInterval: 120000
+secretInterval: 120000
+
+disableHelm: false
+
+helm3: false
+useConfig: false
+useNamespaceWideRole: false
 existingServiceAccount: ""

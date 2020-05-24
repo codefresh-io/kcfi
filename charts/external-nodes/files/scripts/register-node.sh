@@ -70,7 +70,7 @@ if [[ -n ${DRY_RUN} ]]; then
 fi
 curl -X PUT -d "${NODE_SERVICE_DEF}" ${CONSUL}/v1/catalog/register
 curl -X PUT -d "${NODE_ADDRESS}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/publicAddress
-curl -X PUT -d "${ACCOUNT}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/account
+curl -X PUT -d "${NODE_CLUSTER}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/account
 curl -X PUT -d "${NODE_ROLE}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/role
 curl -X PUT -d "${PROVIDER}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/systemData
 curl -X PUT -d "${SYSTEM_DATA}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/provider

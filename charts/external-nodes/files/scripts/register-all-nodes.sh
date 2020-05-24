@@ -20,7 +20,7 @@ REGISTER_NODE=${DIR}/register-node.sh
 
 echo "Registering docker nodes"
 
-for ii in $(ls ${NODES_DEF_DIR}/node*.env)
+for ii in $(ls ${NODES_DEF_DIR}/*.env)
 do
   echo "
 -----------------
