@@ -12,17 +12,12 @@ kubernetes:
   #kubeconfig:
 
 nodeRegistarJob:
-  backoffLimit: 10
-  activeDeadlineSeconds: 3600
-  ttlSecondsAfterFinished: 3600
   dockerRegistry:
   image: codefresh/cli
   imageTag: latest
 
 cf-api-token: 
-consul:
-  address: cf-consul
-  port: 8500
+consul: http://cf-consul:8500
 
 ## Set runtime environments
 runtimeEnvironments:

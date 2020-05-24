@@ -1,0 +1,2 @@
+See status and log of cf-node-registar pod status:
+  kubectl get pods -l app=cf-node-registar

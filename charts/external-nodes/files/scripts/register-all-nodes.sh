@@ -19,7 +19,7 @@ NODES_DEF_DIR=${DIR}/../nodes
 REGISTER_NODE=${DIR}/register-node.sh
 
 echo "Registering docker nodes"
-
+FAILED_NODES=
 for ii in $(ls ${NODES_DEF_DIR}/*.env)
 do
   echo "
@@ -31,7 +31,15 @@ set -a
 source $ii
 set +a
 $REGISTER_NODE
-
+if [[ $? != 0 ]]; then
+    echo "ERROR: NODE $NODE_NAME registration failed"
+    FAILED_NODES+="$NODE_NAME "
+fi
 done
+
+if [[ -n "${FAILED_NODES}" ]]; then
+  echo "FAILED NODES: $FAILED_NODES"
+  exit 1
+fi
 
 
