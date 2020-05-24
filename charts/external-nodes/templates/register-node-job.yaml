@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-registar-{{}}
+spec:
+  backoffLimit: {{ .Values.backoffLimit }}
+  activeDeadlineSeconds: 200
+  ttlSecondsAfterFinished: 200
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: reg
+        image: codefresh/cli:latest
+        command:
+          - bash
+          - -c
+          - |
+            mkdir -pv /opt/codefresh
+            cp -rLv /opt/mounts/* /opt/codefresh
+            /opt/codefresh/register-all-nodes.sh

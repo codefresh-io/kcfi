@@ -1,0 +1,29 @@
+nodeRegistarJob:
+  backoffLimit: 10
+  activeDeadlineSeconds: 3600
+  ttlSecondsAfterFinished: 3600
+  dockerRegistry:
+  image: codefresh/cli
+  tag: latest
+
+consul:
+  address: cf-consul
+  port: 8500
+
+## Set runtime environments
+runtimeEnvironments:
+  name: default-nodes
+  extends: system/default
+  cluster: codefresh
+  nodes:
+  - address: 
+    # port: 2376
+    # protocol: http
+    # alternateLoggerConf: false
+
+cf-api-token: 
+
+alternateLoggerConf:
+  mongoUri: 
+  redisUri:
+
