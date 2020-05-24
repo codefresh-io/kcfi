@@ -19,6 +19,8 @@ spec:
       {{- if and (kindIs "invalid" $podSecurityContext) (not (.Capabilities.APIVersions.Has "apps.openshift.io/v1"))}}
       securityContext:
         fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 26
       {{- else }}
       {{- with $podSecurityContext }}
       securityContext:
