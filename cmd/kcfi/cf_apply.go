@@ -85,7 +85,7 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 	//f.MarkDeprecated("recreate-pods", "functionality will no longer be updated. Consult the documentation for other methods to recreate pods")
 	//f.BoolVar(&client.Helm.Force, "force", false, "force resource updates through a replacement strategy")
 	f.BoolVar(&client.Helm.DisableHooks, "no-hooks", false, "disable pre/post upgrade hooks")
-	//f.BoolVar(&client.Helm.DisableOpenAPIValidation, "disable-openapi-validation", false, "if set, the upgrade process will not validate rendered templates against the Kubernetes OpenAPI Schema")
+	f.BoolVar(&client.Helm.DisableOpenAPIValidation, "disable-openapi-validation", false, "if set, the upgrade process will not validate rendered templates against the Kubernetes OpenAPI Schema")
 	//f.BoolVar(&client.Helm.SkipCRDs, "skip-crds", false, "if set, no CRDs will be installed when an upgrade is performed with install flag enabled. By default, CRDs are installed if not already present, when an upgrade is performed with install flag enabled")
 	f.DurationVar(&client.Helm.Timeout, "timeout", 300*time.Second, "time to wait for any individual Kubernetes operation (like Jobs for hooks)")
 	f.BoolVar(&client.Helm.ResetValues, "reset-values", false, "when upgrading, reset the values to the ones built into the chart")

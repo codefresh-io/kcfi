@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.namePrefix}}ws
+spec:
+  host: {{ .Values.host }}
+  path: /ws
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: cf-cfapi
+    weight: 100
+  # wildcardPolicy: None

@@ -1,0 +1,1 @@
+# openshift routes for Codefresh

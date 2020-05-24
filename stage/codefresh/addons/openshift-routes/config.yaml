@@ -1,0 +1,22 @@
+##
+## Due to the bug https://github.com/openshift/origin/issues/24060:
+## kcfi deploy -c openshift-routes/config.yaml --disable-openapi-validation
+
+metadata:
+  kind: helmChart
+  installer:
+    type: helm
+    helm:
+      chart: openshift-routes
+      release: cf-routes
+
+kubernetes:
+  namespace: codefresh
+  #context: 
+  #kubeconfig:
+
+# Codefresh Host name - mandatory
+host: 
+
+## nameprefix for route names
+#namePrefix: cf-
