@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cf-node-registar-nodes
+data:
+{{- range .Values.runtimeEnvironments }}
+{{- $cluster := .cluster }}
+{{- range .nodes }}
+{{- $node_name := ( .name | default .address ) }}
+{{- if $node_name }}
+{{- $_ := set . "cluster" $cluster }}
+  {{ print $node_name ".env" }}: |-
+{{- include "node_def" . | indent 4}}
+  {{- end }}
+{{- end }}
+{{- end }}

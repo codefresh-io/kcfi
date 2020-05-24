@@ -10,6 +10,10 @@ reset_node_vars() {
     unset NODE_ROLE
 }
 
+echo "-----------------------------
+Starting $0 at $(date)
+"
+
 DIR=$(dirname $0)
 NODES_DEF_DIR=${DIR}/../nodes
 REGISTER_NODE=${DIR}/register-node.sh
@@ -22,6 +26,7 @@ do
 -----------------
 Processing $ii
 "
+reset_node_vars
 set -a
 source $ii
 set +a

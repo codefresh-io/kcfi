@@ -1,17 +1,17 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: node-registar-{{}}
+  name: cf-node-registar
 spec:
-  backoffLimit: {{ .Values.backoffLimit }}
-  activeDeadlineSeconds: 200
-  ttlSecondsAfterFinished: 200
+  backoffLimit: {{ .Values.nodeRegistarJob.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.nodeRegistarJob.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: {{ .Values.nodeRegistarJob.ttlSecondsAfterFinished }}
   template:
     spec:
       restartPolicy: Never
       containers:
-      - name: reg
-        image: codefresh/cli:latest
+      - name: register
+        image: "{{ .Values.nodeRegistarJob.dockerRegistry | default "docker.io" }}/{{ .Values.nodeRegistarJob.image }}:{{ .Values.nodeRegistarJob.imageTag | default "latest" }}"
         command:
           - bash
           - -c
@@ -19,3 +19,21 @@ spec:
             mkdir -pv /opt/codefresh
             cp -rLv /opt/mounts/* /opt/codefresh
             /opt/codefresh/register-all-nodes.sh
+            /opt/codefresh/deploy-all-re.sh
+        volumeMounts:
+        - name: scripts
+          path: /opt/mounts/scripts
+        - name: nodes-config
+          path: /opt/mounts/nodes
+        - name: runtime-environments-config
+          path: /opt/mounts/runtime-environments
+      volumes:
+      - name: scripts
+        configMap:
+          name: cf-node-registar-scripts
+      - name: nodes-config
+        configMap:
+          name: cf-node-registar-nodes
+      - name: runtime-environments-config
+        configMap:
+          name: cf-node-registar-runtime-environments
