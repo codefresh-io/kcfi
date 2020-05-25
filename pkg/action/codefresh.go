@@ -30,8 +30,8 @@ import (
 	"helm.sh/helm/v3/pkg/storage/driver"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"k8s.io/cli-runtime/pkg/resource"
 	c "github.com/codefresh-io/kcfi/pkg/config"
+	"k8s.io/cli-runtime/pkg/resource"
 )
 
 // GetDockerRegistryVars - calculater docker registry vals
@@ -324,7 +324,7 @@ func (o *CfApply) ApplyCodefresh() error {
 func (o *CfApply) ApplyBackupMgr() error {
 	valsX := objx.New(o.vals)
 
-	mongoURI := valsX.Get(c.BkpManagerMongoURI).Str()
+	mongoURI := valsX.Get(c.KeyBkpManagerMongoURI).Str()
 	if mongoURI == "" {
 		info("Mongo URI is not specified, trying to get it automatically from the installed Codefresh release")
 		var err error
@@ -335,7 +335,7 @@ func (o *CfApply) ApplyBackupMgr() error {
 	}
 
 	debug("Mongo URI is: %s", mongoURI)
-	valsX.Set(c.BkpManagerMongoURI, mongoURI)
+	valsX.Set(c.KeyBkpManagerMongoURI, mongoURI)
 
 	installerType := valsX.Get(c.KeyInstallerType).String()
 	if installerType == installerTypeHelm {
@@ -367,9 +367,9 @@ func (o *CfApply) getMongoURIFromRelease() (string, error) {
 
 	cfRelValsX := objx.New(cfRelVals)
 
-	runtimeMongoURI := cfRelValsX.Get(c.ReleaseMongoURI).Str()
-	mongoRootUser := cfRelValsX.Get(c.ReleaseRootUser).Str()
-	mongoRootPassword := cfRelValsX.Get(c.ReleaseRootPassword).Str()
+	runtimeMongoURI := cfRelValsX.Get(c.KeyGlobalMongoURI).Str()
+	mongoRootUser := cfRelValsX.Get(c.KeyGlobalMongoRootUser).Str()
+	mongoRootPassword := cfRelValsX.Get(c.KeyGlobalMongoRootPassword).Str()
 
 	debug("runtimeMongoURI: %s, mongoRootUser: %s, mongoRootPassword: %s", runtimeMongoURI, mongoRootUser, mongoRootPassword)
 
