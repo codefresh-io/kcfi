@@ -11,7 +11,7 @@ kubernetes:
   #context: 
   #kubeconfig:
 
-persistance: true
+persistence: true
 #storageClass: 
 
 mongodb: {}
