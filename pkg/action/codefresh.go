@@ -373,8 +373,8 @@ func (o *CfApply) getMongoURIFromRelease() (string, error) {
 
 	debug("runtimeMongoURI: %s, mongoRootUser: %s, mongoRootPassword: %s", runtimeMongoURI, mongoRootUser, mongoRootPassword)
 
-	if runtimeMongoURI == "" || mongoRootUser == "" || mongoRootPassword == "" {
-		return "", fmt.Errorf("Failed to get the mongo URI value")
+	if !strings.Contains(runtimeMongoURI, "@") || mongoRootUser == "" || mongoRootPassword == "" {
+		return "", fmt.Errorf("Failed to get the mongo URI value from an existing release")
 	}
 
 	rootMongoURI := "mongodb://" + mongoRootUser + ":" + mongoRootPassword + "@" + strings.Split(runtimeMongoURI, "@")[1]
