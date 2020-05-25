@@ -7,18 +7,17 @@ metadata:
       release: cf-external-nodes
 
 kubernetes:
-  namespace: codefresh
+  namespace: codefresh-dev
   #context: 
   #kubeconfig:
 
 nodeRegistarJob:
-  dockerRegistry:
+  dockerRegistry: artifactory.six-group.net
   image: codefresh/cli
   imageTag: latest
 
 cf-api-token: 
-consul: http://cf-consul
-  port: 8500
+consul: http://cf-consul:8500
 
 ## Set runtime environments
 runtimeEnvironments:
@@ -28,9 +27,9 @@ runtimeEnvironments:
     protocol: http
     #alternateLoggerConf: external-nodes
     nodes:
-    - address: 
-      # name: node1
-      # port: 2376
+    - address: mdzhlbmac07.standard.six-group.net
+      name: test-node-1
+      port: 4243
     # - address:
       # name:
       # port:

@@ -1,0 +1,52 @@
+metadata:
+  name: system/default-node
+  agent: false
+description: System default template for plan
+extends: []
+runtimeScheduler:
+  type: KubernetesPod
+  workflowLimits:
+    MAXIMUM_ALLOWED_WORKFLOW_AGE_BEFORE_TERMINATION: '86400'
+  internalInfra: true
+  cluster:
+    inCluster: true
+    namespace: codefresh-dev
+  image: 'artifactory.six-group.net/codefresh/engine:cf-onprem-v1.0.93-http'
+  envVars:
+    LOGGER_ALTERNATE_CONFIG_OPTS: >-
+      {"type":"composition","description":"config that should be used as default for in-house logging","progressType":"build",
+      "loggersDefs":[{"opts":{"type":"mongo","mongo":{"mongoURI":"mongodb://cfuser:mTiXcU2wafr9@mongodb-codefresh-dev.v12.np01.ocp.six-group.net:20006/codefresh","mongoDBName":"codefresh"}}},{"opts":{"type":"redis","redis":{"host":"cf-redis-codefresh-dev.v12.np01.ocp.six-group.net","password":"hoC9szf7NtrU","db":1,"port":20005}}}]}
+    LOGGER_LEVEL: debug
+    NODE_ENV: kubernetes
+    DOCKER_PUSHER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-pusher:cf-onprem-v1.0.92'
+    DOCKER_PULLER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-puller:cf-onprem-v1.0.90'
+    DOCKER_BUILDER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-builder:cf-onprem-v1.0.90'
+    CONTAINER_LOGGER_IMAGE: 'artifactory.six-group.net/codefresh/cf-container-logger:cf-onprem-v1.0.90'
+    GIT_CLONE_IMAGE: 'artifactory.six-group.net/cf-git-cloner:cf-onprem-v1.0.90'
+    DOCKER_TAG_PUSHER_IMAGE: artifactory.six-group.net/codefresh/cf-docker-tag-pusher
+    FS_OPS_IMAGE: 'artifactory.six-group.net/codefresh/fs-ops:latest'
+    COMPOSE_IMAGE: 'artifactory.six-group.net/codefresh/compose:1.25.0-sp'
+    KUBE_DEPLOY: 'artifactory.six-group.net/codefresh/cf-deploy-kubernetes:sp-1'
+    TEMPLATE_ENGINE: 'artifactory.six-group.net/codefresh/pikolo:latest'
+    NO_EXT_MONITOR: 'true'
+    DISABLE_WORKSPACE_CACHE: 'true'
+  volumeMounts:
+    cf-certs:
+      name: cf-certs
+      mountPath: /etc/ssl/cf
+      readOnly: true
+  volumes:
+    cf-certs:
+      name: cf-certs
+      secret:
+        secretName: cf-codefresh-certs-client
+dockerDaemonScheduler:
+  type: ConsulNodes
+  cluster:
+    name: codefresh
+    type: builder
+    returnRunnerIfNoBuilder: true
+  notCheckServerCa: true
+  clientCertPath: /etc/ssl/cf/
+isPublic: true
+environmentCertPath: /etc/ssl/cf/
