@@ -210,3 +210,10 @@ func PrintHelmReleaseInfo(release *release.Release, debug bool) error {
 	}
 	return nil
 }
+
+func GetReleaseValues(releaseName string, cfg *helm.Configuration) (map[string]interface{}, error) {
+	debug("Getting values from the release named \"%s\"", releaseName)
+	client := helm.NewGetValues(cfg)
+	client.AllValues = true
+	return client.Run(releaseName)
+}

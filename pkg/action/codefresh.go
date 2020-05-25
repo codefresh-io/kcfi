@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
@@ -29,8 +30,8 @@ import (
 	"helm.sh/helm/v3/pkg/storage/driver"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"k8s.io/cli-runtime/pkg/resource"
 	c "github.com/codefresh-io/kcfi/pkg/config"
+	"k8s.io/cli-runtime/pkg/resource"
 )
 
 // GetDockerRegistryVars - calculater docker registry vals
@@ -320,6 +321,64 @@ func (o *CfApply) ApplyCodefresh() error {
 
 	info("\nCodefresh has been deployed to namespace %s\n", o.Helm.Namespace)
 	return nil
+}
+
+func (o *CfApply) ApplyBackupMgr() error {
+	valsX := objx.New(o.vals)
+
+	mongoURI := valsX.Get(c.KeyBkpManagerMongoURI).Str()
+	if mongoURI == "" {
+		info("Mongo URI is not specified, trying to get it automatically from the installed Codefresh release")
+		var err error
+		mongoURI, err = o.getMongoURIFromRelease()
+		if err != nil {
+			return err
+		}
+	}
+
+	debug("Mongo URI is: %s", mongoURI)
+	valsX.Set(c.KeyBkpManagerMongoURI, mongoURI)
+
+	installerType := valsX.Get(c.KeyInstallerType).String()
+	if installerType == installerTypeHelm {
+		helmChartName := valsX.Get(c.KeyHelmChart).String()
+		helmReleaseName := valsX.Get(c.KeyHelmRelease).Str(kindBackupManager)
+		rel, err := DeployHelmRelease(
+			helmReleaseName,
+			helmChartName,
+			valsX,
+			o.cfg,
+			o.Helm,
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to deploy %s chart", helmChartName)
+		}
+		PrintHelmReleaseInfo(rel, c.Debug)
+		info("\n%s has been deployed to namespace %s\n", helmReleaseName, o.Helm.Namespace)
+		return nil
+	}
+	return fmt.Errorf("Wrong installer type %s", installerType)
+}
+
+func (o *CfApply) getMongoURIFromRelease() (string, error) {
+
+	cfRelVals, err := GetReleaseValues(codefreshHelmReleaseName, o.cfg)
+	if err != nil {
+		return "", err
+	}
+
+	cfRelValsX := objx.New(cfRelVals)
+
+	runtimeMongoURI := cfRelValsX.Get(c.KeyGlobalMongoURI).Str()
+	mongoRootUser := cfRelValsX.Get(c.KeyGlobalMongoRootUser).Str()
+	mongoRootPassword := cfRelValsX.Get(c.KeyGlobalMongoRootPassword).Str()
+
+	if !strings.Contains(runtimeMongoURI, "@") || mongoRootUser == "" || mongoRootPassword == "" {
+		return "", fmt.Errorf("Failed to get the mongo URI value from an existing release")
+	}
+
+	rootMongoURI := "mongodb://" + mongoRootUser + ":" + mongoRootPassword + "@" + strings.Split(runtimeMongoURI, "@")[1]
+	return rootMongoURI, nil
 }
 
 // ValuesTpl is a template to format final helm values
