@@ -1,3 +1,9 @@
+metadata:
+  kind: k8s-agent
+  installer:
+    type: helm
+    helm:
+      chart: k8s-agent
 # replicaCount number of pods to be schedualed
 replicaCount: 1
 
