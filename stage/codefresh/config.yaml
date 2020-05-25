@@ -48,6 +48,10 @@ dbinfra:
   enabled: false
   #storageClass: 
 
+### Includes addional configurations
+# include:
+# - values/openshift.yaml
+
 ### Firebase secret - set if you use Firebase for log streaming
 firebaseSecret: 
 
