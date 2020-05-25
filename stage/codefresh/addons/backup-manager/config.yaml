@@ -24,6 +24,8 @@ storage:
 jobConfigs:
   cfBackupPlan:
     target:
+      # set the value mongo URI only if you need to override the value
+      # otherwise leave it blank for the installer to get it automatically
       uri: ""
     scheduler:
       cron: "0 */6 * * *"
