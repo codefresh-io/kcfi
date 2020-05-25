@@ -9,3 +9,4 @@ charts/k8s-agent
 /pkg/embeded
 
 /charts/**/values-*.yaml
+/charts/external-nodes/files/nodes/*.env

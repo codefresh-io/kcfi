@@ -1,0 +1,7 @@
+apiVersion: v1
+description: openshift routes for Codefresh
+name: cf-external-nodes
+version: 1.0.0
+maintainers:
+  - name: codefresh
+    email: codefresh@codefresh.io

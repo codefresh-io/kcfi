@@ -1,0 +1,40 @@
+metadata:
+  kind: helmChart
+  installer:
+    type: helm
+    helm:
+      chart: external-nodes
+      release: cf-external-nodes
+
+kubernetes:
+  namespace: codefresh
+  #context: 
+  #kubeconfig:
+
+nodeRegistarJob:
+  dockerRegistry:
+  image: codefresh/cli
+  imageTag: latest
+
+cf-api-token: 
+consul: http://cf-consul:8500
+
+## Set runtime environments
+runtimeEnvironments:
+  - name: default-nodes
+    extends: system/default
+    cluster: codefresh
+    protocol: http
+    #alternateLoggerConf: external-nodes
+    nodes:
+    - address: 
+      # name: node1
+      # port: 2376
+    # - address:
+      # name:
+      # port:
+
+alternateLoggerConf:
+  external-nodes:
+    mongoUri: 
+    redisUri:

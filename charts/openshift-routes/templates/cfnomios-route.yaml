@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.namePrefix}}nomios
+spec:
+  host: {{ .Values.host }}
+  path: /nomios
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: cf-nomios
+    weight: 100
+  tls:
+    termination: edge
+  # wildcardPolicy: None

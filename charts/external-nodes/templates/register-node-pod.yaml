@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cf-node-registar-{{ randAlphaNum 5 | lower }}
+  labels:
+    app: cf-node-registar
+spec:
+  restartPolicy: Never
+  containers:
+  - name: register
+    image: "{{ .Values.nodeRegistarJob.dockerRegistry | default "docker.io" }}/{{ .Values.nodeRegistarJob.image }}:{{ .Values.nodeRegistarJob.imageTag | default "latest" }}"
+    command:
+      - bash
+      - -c
+      - |
+        FAILURE=
+        BASE_DIR=/tmp/codefresh
+        mkdir -pv ${BASE_DIR}
+        cp -rLv /opt/mounts/* ${BASE_DIR}/
+        chmod +x ${BASE_DIR}/scripts/*.sh
+        ${BASE_DIR}/scripts/register-all-nodes.sh
+        if [[ $? != 0 ]]; then
+          FAILURE+="One or more register nodes have been FAILED; "
+        fi
+        ${BASE_DIR}/scripts/deploy-all-re.sh
+        if [[ $? != 0 ]]; then
+          FAILURE+="one or more deploy runtime environments have been FAILED"
+        fi
+        if [[ -n "${FAILURE}" ]]; then
+          echo "FAILURE: $FAILURE"
+          exit 1
+        fi
+        # sleep 3600
+    volumeMounts:
+    - name: scripts
+      mountPath: /opt/mounts/scripts
+    - name: nodes-config
+      mountPath: /opt/mounts/nodes
+    - name: runtime-environments-config
+      mountPath: /opt/mounts/runtime-environments
+  volumes:
+  - name: scripts
+    configMap:
+      name: cf-node-registar-scripts
+  - name: nodes-config
+    configMap:
+      name: cf-node-registar-nodes
+  - name: runtime-environments-config
+    configMap:
+      name: cf-node-registar-runtime-environments

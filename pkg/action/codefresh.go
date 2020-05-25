@@ -117,7 +117,9 @@ func (o *CfApply) applyDbInfra() error {
 	debug("merging db-infra config change file %s", c.DbInfraMainConfigChangeValuesFile)
 	o.vals =  MergeMaps(o.vals, mainConfigChange)
 
-	if !codefreshInstalled && !dbInfraInstalled {
+	dbInfraUpgrade := valsX.Get(c.KeyDbInfraUpgrade).Bool(false)
+	debug("dbInfraUpgrade = %t", dbInfraUpgrade)
+	if ( !codefreshInstalled && !dbInfraInstalled ) || dbInfraUpgrade {
 		info("Installing db-infra release")
 		helmAtomicSave := o.Helm.Atomic 
 		helmWaitSave := o.Helm.Wait

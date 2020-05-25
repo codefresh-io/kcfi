@@ -1,0 +1,24 @@
+---
+    metadata:
+      name: system/node-1
+    extends:
+    - system/default
+    dockerDaemonScheduler:
+      type: ConsulNodes
+      cluster:
+        name: codefresh
+        type: builder
+        returnRunnerIfNoBuilder: true
+      notCheckServerCa: true
+      protocol: http
+    runtimeScheduler:
+      type: KubernetesPod
+      cluster:
+        inCluster: true
+        namespace: codefresh-dev
+      image: docker-local.jfrog1.company.com/codefresh/engine:cf-onprem-v1.0.93-http
+      envVars:
+        LOGGER_ALTERNATE_CONFIG_OPTS: >-
+            {"type":"composition","description":"config that should be used as default
+            for in-house logging","progressType":"build",
+            "loggersDefs":[{"opts":{"type":"mongo","mongo":{"mongoURI":"mongodb://cfuser:12345@internal-mongo.company.com:27017/codefresh","mongoDBName":"codefresh"}}},{"opts":{"type":"redis","redis":{"host":"internal-redis.company.com","password":"12345","db":1,"port":6379}}}]}

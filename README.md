@@ -21,11 +21,64 @@ It creates `codefresh` directory with config.yaml and other files
 
 - Edit `codefresh/config.yaml` - set global.appUrl and other parameters  
 - Set docker registry credentials - obtain sa.json from Codefesh or set your private registry address and credentials  
-- Set tls certifcates (optional) - set tls.selfSigned=false put ssl.crt and private.key into certs/ directory  
+- Set tls certifcates (optional) - set tls.selfSigned=false put ssl.crt and private.key into certs/ directory 
+- For Openshift uncomment `include: ["values/openshift.yaml"]` in config.yaml
 
 Deploy Codefresh
 ```
 kcfi deploy -c codefresh/config.yaml [ --kube-context <kube-context-name> ] [ --atomic ] [ --debug ] [ helm upgrade parameters ]
+```
+
+### Separate database infrastructure chart
+By default Codefresh installation includes persistent services (mongo, postgres, redis, rabbitmq). You can optionally install them as separate chart by setting dbinfra.enabled=true in config.yaml :
+```yaml
+dbinfra:
+  enabled: true
+ #storageClass: nfs-with-backup
+```
+You can also specify storageClass and other chart values.  
+This is preferable option for installation on Openshift  
+
+### Registering external docker nodes
+Edit [codefresh-stage-dir/addons/external-nodes/config.yaml](stage/addons/external-nodes/config.yaml) to set node addresses  
+```yaml
+metadata:
+  kind: helmChart
+  installer:
+    type: helm
+    helm:
+      chart: external-nodes
+      release: cf-external-nodes
+
+kubernetes:
+  namespace: codefresh
+  #context: 
+  #kubeconfig:
+
+runtimeEnvironments:
+  - name: default-nodes
+    extends: system/default
+    cluster: codefresh
+    protocol: http
+    #alternateLoggerConf: external-nodes
+    nodes:
+    - address: "172.31.128.95"
+      name: node-1
+      port: 4243
+    - address: "172.31.128.96"
+      name: node-2
+      port: 4243
+```
+
+Deploy nodes configuration by
+```
+kcfi deploy -c codefresh/addons/external-nodes/config.yaml
+```
+
+### Openshift Routes
+Set `host` value in `codefresh-stage-dir/addons/openshift-routes/config.yaml` and deploy:  
+```
+kcfi deploy -c codefresh/addons/openshift-routes/config.yaml
 ```
 
 ### Example - cf-k8s-agent installation

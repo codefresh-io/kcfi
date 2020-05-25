@@ -1,0 +1,4 @@
+# Codefresh host - mandatory value
+host: 
+
+namePrefix: cf-

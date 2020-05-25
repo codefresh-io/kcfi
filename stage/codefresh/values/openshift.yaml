@@ -1,0 +1,92 @@
+global:
+  stepsCatalogOnPremise: true
+  postgresUser: codefresh
+
+  clusterProvidersPort: 8080
+  runtimeEnvironmentManagerPort: 8080
+
+### Firebase secret
+firebaseSecret: none
+
+jobServiceAccountName: codefresh-app
+
+rbacCreate: false
+tls:
+  selfSigned: true
+
+ingress:
+  enabled: false
+nomios:
+  ingress:
+    enabled: false
+helm-repo-manager:
+  chartmuseum:
+    publicHelmRepo: false
+
+cfapi:
+  targetPort: 8080
+  rbacCreate: false
+  serviceAccountName: codefresh-app
+  env:
+    EVENT_REPORTING_URL: http://cf-cfapi/api/workflow/
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+
+cf-broadcaster:
+  port: 8080
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+cfui:
+  port: 8080
+
+cluster-providers:
+  port: 8080
+  targetPort: 8080
+runtime-environment-manager:
+  port: 8080
+
+builder:
+  enabled: false
+runner:
+  enabled: false
+registry:
+  enabled: false
+
+mongo:
+  enabled: false
+rabbitmq:
+  enabled: false
+redis:
+  enabled: false
+postgresql:
+  enabled: false
+
+helm-repo-manager:
+  enabled: false
+
+hermes:
+  enabled: true
+
+chartmuseum:
+  localHelmRepo: false
+
+consul:
+  Image: codefresh/consul
+  ImageTag: "1.0.0"
+  persistence:
+    enable: true
+  storageSize: 1Gi
+  # storageClass:
