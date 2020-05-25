@@ -1,0 +1,61 @@
+metadata:
+  kind: codefresh
+  installer:
+    # type: 
+    #   "operator" - apply codefresh crd definition
+    #   "helm" - install/upgrade helm chart from client
+    type: helm
+    operator:
+      #dockerRegistry: artifactory.six-group.net
+      #image: codefresh/cf-onprem-operator
+      #imageTag: 1.0.99-os-six
+      #serviceAccountName: codefresh-app
+      #skipCRD: true
+    helm:
+      chart: ./codefresh-1.0.98-six.tgz
+      #repoUrl: http://charts.codefresh.io/prod
+      #version:
+  
+kubernetes:
+  namespace: codefresh-dev
+  context: 
+  #kubeconfig:
+
+global:
+  ### Codefresh App domain name. appUrl is manadatory parameter
+  appUrl: codefresh-dev.v12.np01.ocp.six-group.net
+  appProtocol: https
+
+  stepsCatalogOnPremise: true
+  stepsCatalogOnPremiseRegistry: artifactory.six-group.net
+
+tls:
+  selfSigned: true
+  cert: certs/ssl.crt
+  key: certs/private.key
+
+images:
+  codefreshRegistrySa: sa.json
+  usePrivateRegistry: true
+  privateRegistry:
+    address: artifactory.six-group.net
+    username: registry-user
+    password: registry-password
+  lists:
+  - images/images-list-1.0.98
+
+dbinfra:
+  enabled: true
+  rabbitmq:
+    repository: artifactory.six-group.net/rabbitmq
+  postgresql:
+    repository: artifactory.six-group.net/centos/postgresql-95-centos7
+  mongodb:
+    repository: artifactory.six-group.net/bitnami/mongodb
+  redis:
+    repository: artifactory.six-group.net/bitnami/redis
+  #storageClass: 
+
+### Includes addional configurations
+include:
+- values/openshift.yaml
