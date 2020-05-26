@@ -369,15 +369,15 @@ func (o *CfApply) getMongoURIFromRelease() (string, error) {
 
 	cfRelValsX := objx.New(cfRelVals)
 
-	runtimeMongoURI := cfRelValsX.Get(c.KeyGlobalMongoURI).Str()
+	mongoURI := cfRelValsX.Get(c.KeyGlobalMongoURI).Str()
 	mongoRootUser := cfRelValsX.Get(c.KeyGlobalMongoRootUser).Str()
 	mongoRootPassword := cfRelValsX.Get(c.KeyGlobalMongoRootPassword).Str()
 
-	if !strings.Contains(runtimeMongoURI, "@") || mongoRootUser == "" || mongoRootPassword == "" {
+	if !strings.Contains(mongoURI, "@") || mongoRootUser == "" || mongoRootPassword == "" {
 		return "", fmt.Errorf("Failed to get the mongo URI value from an existing release")
 	}
 
-	rootMongoURI := "mongodb://" + mongoRootUser + ":" + mongoRootPassword + "@" + strings.Split(runtimeMongoURI, "@")[1]
+	rootMongoURI := "mongodb://" + mongoRootUser + ":" + mongoRootPassword + "@" + strings.Split(mongoURI, "@")[1]
 	return rootMongoURI, nil
 }
 
