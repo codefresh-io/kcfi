@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -92,10 +93,12 @@ func (o *CfApply) applyDbInfra() error {
 	}
 	info("%s is enabled", c.KeyDbInfraEnabled)
 
-	dbInfraConfig, err := ReadYamlFile(o.filePath(c.DbInfraConfigFile))
+	dbInfraConfigFile := o.filePath(c.DbInfraConfigFile)
+	dbInfraConfig, err := ReadYamlFile(dbInfraConfigFile)
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse db-infra config file %s", c.DbInfraConfigFile)
 	}
+	dbInfraConfig[c.KeyBaseDir] = filepath.Dir(dbInfraConfigFile)
 	
 	dbInfraConfig = MergeMaps(dbInfraConfig, valsX.Get(c.KeyDbInfra).MSI(map[string]interface{}{}))
 	dbInfraConfigX := objx.New(dbInfraConfig)
@@ -140,7 +143,6 @@ func (o *CfApply) applyDbInfra() error {
 			return errors.Wrapf(err, "Failed to deploy db-infra chart")
 		}
 		PrintHelmReleaseInfo(dbInfraRelease, c.Debug)
-
 	}
 
 	return nil
