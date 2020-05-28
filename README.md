@@ -78,7 +78,7 @@ kcfi deploy -c codefresh/addons/external-nodes/config.yaml
 ### Openshift Routes
 Set `host` value in `codefresh-stage-dir/addons/openshift-routes/config.yaml` and deploy:  
 ```
-kcfi deploy -c codefresh/addons/openshift-routes/config.yaml
+kcfi deploy -c codefresh/addons/openshift-routes/config.yaml --disable-openapi-validation
 ```
 
 ### Example - cf-k8s-agent installation
