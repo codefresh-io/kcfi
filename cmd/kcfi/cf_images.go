@@ -60,6 +60,7 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 			}
 			
 			valueOpts := &values.Options{}
+			// set baseDir
 			var baseDir string
 			if configFileName != "" {
 				if fInfo, err := os.Stat(configFileName); err == nil && !fInfo.IsDir(){
@@ -70,7 +71,6 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 					return fmt.Errorf("%s is not a valid file", configFileName)
 				}
 			}
-			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyBaseDir, baseDir))
 			if cfRegistrySecret != "" {
 				valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyImagesCodefreshRegistrySa, cfRegistrySecret))
 			}
@@ -87,6 +87,7 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			config[c.KeyBaseDir] = baseDir
 
 			imagesPusher, err := action.NewImagesPusherFromConfig(config)
 			if err != nil {
