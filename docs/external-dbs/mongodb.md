@@ -16,9 +16,9 @@ Here is an example of all the related values:
 
 ```yaml
 global:
-  mongodbRootUser: my-mongo-admin-user
-  mongodbRootPassword: yeqTeVwqVa9qDqebq
-  mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
+  mongodbRootUser: <MONGO ROOT USER>
+  mongodbRootPassword: <MONGO ROOT PASSWORD>
+  mongoURI: <MONGO URI>
   mongoSkipUserCreation: true
   mongoDeploy: false   # disables deployment of internal mongo service
 
