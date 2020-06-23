@@ -4,7 +4,8 @@ By default Codefresh deploys the nginx-controller and [Classic Loab Balancer](ht
 
 ## NLB
 
-To use a **Network Load Balancer** - deploy a regular Codefresh installation, copy an existing `cf-ingress-controller` controller service, add the `service.beta.kubernetes.io/aws-load-balancer-type: nlb` annotation and create a new one service.
+To use a **Network Load Balancer** - deploy a regular Codefresh installation, add to the `cf-ingress-controller` controller service the `service.beta.kubernetes.io/aws-load-balancer-type: nlb` annotation.
+This annotation will create a new one Load Balancer - Network Load Balancer, which you should use in Codefresh UI DNS record.
 Update the DNS record according to the new service. 
 
 ## ALB
@@ -13,7 +14,7 @@ To use the **Application Load Balancer** the [ALB Ingress Controller](https://do
 
 To support ALB:
 
--  disable Nginx controller in the __config.yaml__:
+-  disable Nginx controller in the Codefresh init config file - __config.yaml__:
 
 ```yaml
 ingress:
@@ -63,7 +64,7 @@ spec:
 
 ## SSL termination
 
-When a **Classic Load Balancer** is used, some Codefresh features, for example `OfflineLogging`, require SSL termination for websocket connections.
+When a **Classic Load Balancer** is used, and some Codefresh features are turned on, for example `OfflineLogging`, they use websocket to connect with Codefresh API and require secure TCP (SSL) protocol for Load Balancer listener instead of HTTPS.
 To support this, update the existing configuration:
 
 - update the `cf-ingress-controller` service with new annotations:

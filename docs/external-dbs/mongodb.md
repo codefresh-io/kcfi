@@ -7,7 +7,7 @@ Codefresh does not support [DNS Seedlist Connection Format](https://docs.mongodb
 - mongo **root user** name and **password** - `mongodbRootUser`, `mongodbRootPassword`. The privileged user will be used by Codefresh only during installation for seed jobs and for automatic user addition. After installation, credentials from the provided mongo URI will be used.  Mongo root user must have permissions to create users.
 
 > ToDo
-Even if `mongoSkipUserCreation` set to `true` and `mongoURI` contains root credentials, the `mongodbRootUser` and `mongodbRootPassword` should be set anyway because mongo seed job expects them.
+Even if `mongoSkipUserCreation` set to `true` and `mongoURI` contains root credentials, the `mongodbRootUser` and `mongodbRootPassword` should be set anyway because Mongo seed job expects them.
 We should fix it
 
 Here is an example of all the related values:
@@ -19,4 +19,7 @@ global:
   mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
   mongoSkipUserCreation: true
   mongoDeploy: false   # disables deployment of internal mongo service
+
+mongo:
+  enabled: false
  ```

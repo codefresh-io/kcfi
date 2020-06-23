@@ -5,7 +5,8 @@ Codefresh requires two Redis database:
 - the main - `cf-redis`, to store sessions, cache, etc;
 - `cf-store`, to store triggers;
   
-The first one can be replaced by external Redis service, the `cf-store` unfortunately no.
+Only the first one can be replaced by external Redis service,
+the `cf-store` DB is used as a local storage for triggers and should run along with the installation.
 
 >ToDo
 update __hermes/redis__ chart to be able to use an external Redis as `cf-store`.
@@ -23,3 +24,6 @@ global:
   runtimeRedisPassword: <MY REDIS PASS>
   runtimeRedisDb: 2
 ```
+
+Where `redis*` - are for the main Redis storage, and `runtimeRedis*` - for storage is used to store pipeline logs in case of `OfflineLogging` feature is turned on.
+It's usually the same host.

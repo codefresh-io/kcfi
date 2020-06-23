@@ -2,8 +2,9 @@
 
 ## Limitations
 
-At the moment Codefresh supports only deprecated Consul API (image __consul:1.0.0__) and does not support any authentication.
+At the moment Codefresh supports only deprecated Consul API (image __consul:1.0.0__), does not support connection via HTTPS and any authentication.
 The Consul host have to expose port `8500`.
+In general, we don't recommend to take the Consul service outside the cluster.
 
 ## config.yaml
 
