@@ -1,9 +1,8 @@
 # TLS termination on AWS
 
-To use either a certificate from a third party issuer that was uploaded to IAM or one [created](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html) within AWS Certificate Manager.
-- [request]
+To use either a certificate from a third party issuer that was uploaded to IAM or a certificate [requested](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html) within AWS Certificate Manager:
 - copy a certificate ARN;
-- set the `tls.selfSigned: true` in __config.yaml__;
+- set the `tls.selfSigned: true` in the Codefresh's init config - __config.yaml__;
 - deploy a new installation;
 - update ingress service
 
@@ -33,7 +32,7 @@ spec:
     targetPort: 80
 ```
 
-Both http and https target port should be set to **80**.
+Both HTTP and HTTPS target port should be set to **80**.
 
 > ToDo
 Add automation for this to be able to point a certificate ARN in init config.
