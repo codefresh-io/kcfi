@@ -4,9 +4,8 @@ By default Codefresh deploys the nginx-controller and [Classic Loab Balancer](ht
 
 ## NLB
 
-To use a **Network Load Balancer** - deploy a regular Codefresh installation, add to the `cf-ingress-controller` controller service the `service.beta.kubernetes.io/aws-load-balancer-type: nlb` annotation.
-This annotation will create a new one Load Balancer - Network Load Balancer, which you should use in Codefresh UI DNS record.
-Update the DNS record according to the new service. 
+To use a **Network Load Balancer** - deploy a regular Codefresh installation, add to the `cf-ingress-controller` controller service the `service.beta.kubernetes.io/aws-load-balancer-type: nlb` annotation.  
+This annotation will create a new one Load Balancer - Network Load Balancer, which you need to update the Codefresh UI DNS record.
 
 ## ALB
 
