@@ -1,5 +1,13 @@
 # Configure external Redis
 
+Codefresh recommends to use Bitnami Redis [chart](https://github.com/bitnami/charts/tree/master/bitnami/redis) as a Redis store.
+
+## Limitations
+
+Codefresh does not support secure connection to Redis (TLS) and AUTH username extension.
+
+## Configuration
+
 Codefresh requires two Redis database:
 
 - the main - `cf-redis`, to store sessions, cache, etc;
