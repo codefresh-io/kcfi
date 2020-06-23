@@ -1,6 +1,6 @@
 # Configuring external Postgres database
 
-it is possible to configure Codefresh to work with user-provided Postgres database service, in case if default one provided automatically within Codefresh installation is not applicable for the user. This document describes how to do that.
+It is possible to configure Codefresh to work with user-provided Postgres database service, in case if default one provided automatically within Codefresh installation is not applicable for the user. This document describes how to do that.
 
 #### Configuration steps
 
@@ -17,12 +17,12 @@ Below is an example of a relevant piece of configuration YAML would look like:
 ```yaml
 global:
   postgresSeedJob:
-    user: postgres
-    password: zDyGp79XyZEqLq7V
-  postgresUser: cf_user
-  postgresPassword: fJTFJMGV7sg5E4Bj
+    user: <POSTGRES SEED USER>
+    password: <POSTGRES SEED PASSWORD>
+  postgresUser: <POSTGRES USER>
+  postgresPassword: <POSTGRES PASSWORD>
   postgresDatabase: codefresh
-  postgresHostname: my-postgres.ccjog7pqzunf.us-west-2.rds.amazonaws.com
+  postgresHostname: <POSTGRES HOST>
   postgresPort: 5432
 
 postgresql:
@@ -48,10 +48,10 @@ However you **still need to specify a set of values** in the Codefresh config fi
 
 ```yaml
 global:
-  postgresUser: cf_user
-  postgresPassword: fJTFJMGV7sg5E4Bj
+  postgresUser: <POSTGRES USER>
+  postgresPassword: <POSTGRES PASSWORD>
   postgresDatabase: codefresh
-  postgresHostname: my-postgres.ccjog7pqzunf.us-west-2.rds.amazonaws.com
+  postgresHostname: <POSTGRES HOST>
   postgresPort: 5432
 
 postgresql:
