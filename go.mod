@@ -24,6 +24,7 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/objx v0.2.0
 	github.com/stretchr/testify v1.5.1
+	go.mongodb.org/mongo-driver v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904
 	helm.sh/helm/v3 v3.2.0
 	k8s.io/apimachinery v0.18.0
