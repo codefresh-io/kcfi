@@ -35,6 +35,8 @@ spec:
         name: mongodb
         image: "{{ .Values.mongodb.repository }}:{{ .Values.mongodb.tag }}"
         imagePullPolicy: "{{ .Values.mongodb.pullPolicy }}"
+        resources:
+{{ toYaml $.Values.mongodb.resources | indent 10 }}
         ports:
         - containerPort: 27017
           protocol: TCP

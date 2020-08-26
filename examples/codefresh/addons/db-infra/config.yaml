@@ -1,0 +1,50 @@
+metadata:
+  kind: helmChart
+  installer:
+    type: helm
+    helm:
+      chart: codefresh-db-infra
+      release: codefresh-infra
+
+kubernetes:
+  namespace: codefresh-dev
+  #context: 
+  #kubeconfig:
+
+persistence: true
+#storageClass: 
+
+mongodb:
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 1500Mi
+    limits:
+      cpu: 1500m
+      memory: 2000Mi
+postgresql:
+  resources:
+    requests:
+      cpu: 300m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+rabbitmq:
+  resources:
+    requests:
+      cpu: 300m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+redis:
+  resources:
+    requests:
+      cpu: 300m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+
