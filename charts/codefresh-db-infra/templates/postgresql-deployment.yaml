@@ -39,6 +39,8 @@ spec:
         #command: ['sleep', '2d']
         image: "{{ .Values.postgresql.repository }}:{{ .Values.postgresql.tag }}"
         imagePullPolicy: "{{ .Values.postgresql.pullPolicy }}"
+        resources:
+{{ toYaml $.Values.postgresql.resources | indent 10 }}
         ports:
         - containerPort: 5432
           protocol: TCP
