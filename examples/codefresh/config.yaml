@@ -1,20 +1,9 @@
 metadata:
   kind: codefresh
   installer:
-    # type: 
-    #   "operator" - apply codefresh crd definition
-    #   "helm" - install/upgrade helm chart from client
     type: helm
-    operator:
-      #dockerRegistry: artifactory.six-group.net
-      #image: codefresh/cf-onprem-operator
-      #imageTag: 1.0.99-os-six
-      #serviceAccountName: codefresh-app
-      #skipCRD: true
     helm:
-      chart: ./codefresh-1.0.98-six.tgz
-      #repoUrl: http://charts.codefresh.io/prod
-      #version:
+      chart: ./codefresh-1.0.99-six.tgz
   
 kubernetes:
   namespace: codefresh-dev
@@ -42,7 +31,7 @@ images:
     username: registry-user
     password: registry-password
   lists:
-  - images/images-list-1.0.98
+  - images/images-list-1.0.99
 
 dbinfra:
   enabled: true
@@ -54,7 +43,6 @@ dbinfra:
     repository: artifactory.six-group.net/bitnami/mongodb
   redis:
     repository: artifactory.six-group.net/bitnami/redis
-  #storageClass: 
 
 ### Includes addional configurations
 include:
