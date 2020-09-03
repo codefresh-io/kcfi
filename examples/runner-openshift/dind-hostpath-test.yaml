@@ -10,7 +10,7 @@ spec:
   automountServiceAccountToken: false
   containers:
   - name: dind
-    image: docker-local.jfrog1.cf-cd.com/codefresh/dind:18.09.5-v24
+    image: artifactory.six-group.net/codefresh/dind:18.09.5-v24
     imagePullPolicy: IfNotPresent
     env:
     - name: DAEMON_JSON
