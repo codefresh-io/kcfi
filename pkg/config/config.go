@@ -91,6 +91,11 @@ const (
 	KeyInclude = "include"
 
 	EnvPusherDebug = "PUSHER_DEBUG"
+
+	KeyBkpManagerMongoURI  = "jobConfigs.cfBackupPlan.target.uri"
+	KeyGlobalMongoURI     = "global.mongoURI"
+	KeyGlobalMongoRootUser     = "global.mongodbRootUser"
+	KeyGlobalMongoRootPassword = "global.mongodbRootPassword"
 )
 
 var Debug, _ = strconv.ParseBool(os.Getenv("HELM_DEBUG"))

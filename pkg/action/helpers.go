@@ -20,8 +20,7 @@ import (
 	"bytes"
 	"text/template"
 	"io/ioutil"
-	"path/filepath"
-	c "github.com/codefresh-io/kcfi/pkg/config"
+	
 	"github.com/codefresh-io/kcfi/pkg/engine"
 	"sigs.k8s.io/yaml"
 )
@@ -38,9 +37,6 @@ func ReadYamlFile(fileName string) (map[string]interface{}, error){
 		return nil, err
 	}
 
-	if _, baseDirSet := yamlResult[c.KeyBaseDir]; !baseDirSet {
-		yamlResult[c.KeyBaseDir] = filepath.Dir(fileName)
-	}
 	return yamlResult, nil
 }
 

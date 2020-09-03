@@ -1,0 +1,39 @@
+replicaCount: 1
+image:
+  repository: stefanprodan/mgob
+  pullPolicy: IfNotPresent
+  tag: 1.1
+service:
+  externalPort: 8090
+  internalPort: 8090
+selector:
+  role: mongo-backup
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+storage:
+  longTerm:
+    accessMode: "ReadWriteOnce"
+    storageClass: "standard"
+    size: 10Gi
+  tmp:
+    accessMode: "ReadWriteOnce"
+    storageClass: "standard" 
+    size: 3Gi
+jobConfigs:
+  cfBackupPlan:
+    target:
+      uri: ""
+    scheduler:
+      cron: "0 */6 * * *"
+      retention: 28
+      timeout: 60
+
+secret: {}
+
+env: {}
+

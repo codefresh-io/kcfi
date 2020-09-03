@@ -38,6 +38,7 @@ const (
 	kindCodefresh = "codefresh"
 	kindK8sAgent = "k8sAgent"
 	kindVenona = "venona"
+	kindBackupManager = "backup-manager"
 
 	installerTypeOperator = "operator"
 	installerTypeHelm     = "helm"
