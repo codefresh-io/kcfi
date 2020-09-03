@@ -1,0 +1,12 @@
+# These values will be merged into main chart if db-infra addon is enabled
+#
+global:
+  postgresUser: codefresh
+mongo:
+  enabled: false
+rabbitmq:
+  enabled: false
+redis:
+  enabled: false
+postgresql:
+  enabled: false
