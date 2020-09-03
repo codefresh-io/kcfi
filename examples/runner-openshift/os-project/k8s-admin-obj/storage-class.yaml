@@ -1,0 +1,10 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: dind-local-volumes-runner-codefresh-runner
+  labels:
+    app: dind-volume-provisioner
+provisioner: codefresh.io/dind-volume-provisioner-runner-codefresh-runner
+parameters:
+  volumeBackend: local
+  volumeParentDir: /var/lib/origin/codefresh/dind-volumes

@@ -1,0 +1,11 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  annotations:
+    openshift.io/description: Codefresh Runner
+    openshift.io/display-name: CodefreshRunner
+#   openshift.io/node-selector: node-type:codefresh
+    openshift.io/sa.scc.mcs: s0
+    openshift.io/sa.scc.supplemental-groups: 0/10000
+    openshift.io/sa.scc.uid-range: 0/1
+  name: codefresh-runner

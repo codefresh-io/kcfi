@@ -1,0 +1,14 @@
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: volume-provisioner-runner-coodefresh-runner
+  labels:
+    app: dind-volume-provisioner-runner
+subjects:
+  - kind: ServiceAccount
+    name: volume-provisioner-runner
+    namespace: codefresh-runner
+roleRef:
+  kind: ClusterRole
+  name: volume-provisioner-runner-codefresh-runner

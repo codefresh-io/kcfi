@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: dind
+  name: dind-hostpath-1
+spec:
+  # nodeSelector:
+  #   kubernetes.io/hostname: codefresh-runner-node-1
+  automountServiceAccountToken: false
+  containers:
+  - name: dind
+    image: docker-local.jfrog1.cf-cd.com/codefresh/dind:18.09.5-v24
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: DAEMON_JSON
+      value: "notls-daemon.json"    
+    ports:
+    - containerPort: 1300
+      protocol: TCP
+    # resources:
+    #   limits:
+    #     cpu: 400m
+    #     memory: 800Mi
+    #   requests:
+    #     cpu: 400m
+    #     memory: 800Mi
+    securityContext:
+      runAsUser: 0
+      privileged: true
+    volumeMounts:
+    - mountPath: /var/lib/docker
+      name: dind
+
+  restartPolicy: Never
+  subdomain: dind
+  volumes:
+  - name: dind
+    hostPath:
+      path: /var/lib/origin/codefresh/dind-volumes/dind-hostpath-1
