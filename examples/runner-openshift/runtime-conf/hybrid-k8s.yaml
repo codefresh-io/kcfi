@@ -1,0 +1,97 @@
+metadata:
+  name: system/default/hybrid/k8s
+  agent: false
+description: Runtime that has lower dind values for newly created runtimes
+extends: []
+runtimeScheduler:
+  image: 'artifactory.six-group.net/codefresh/engine:onprem-six-1.0.99'
+  command:
+    - npm
+    - run
+    - start
+  envVars:
+    CONTAINER_LOGGER_SHOW_PROGRESS: 'true'
+    CONTAINER_LOGGER_EXEC_TIMEOUT: '1800000'
+    LOGGER_LEVEL: debug
+    NODE_ENV: kubernetes
+    METRICS_CODEFRESH_ENABLED: 'true'
+    DOCKER_PUSHER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-pusher:6.0.1'
+    DOCKER_PULLER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-puller:8.0.1'
+    DOCKER_BUILDER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-builder:1.1.11'
+    CONTAINER_LOGGER_IMAGE: 'artifactory.six-group.net/codefresh/cf-container-logger:1.4.2'
+    GIT_CLONE_IMAGE: 'artifactory.six-group.net/codefresh/cf-git-cloner:10.0.1'
+    DOCKER_TAG_PUSHER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-tag-pusher:v2'
+    FS_OPS_IMAGE: 'artifactory.six-group.net/codefresh/fs-ops:1.1.0'
+    COMPOSE_IMAGE: 'artifactory.six-group.net/codefresh/compose:1.25.0-1.1.1'
+    KUBE_DEPLOY: 'artifactory.six-group.net/codefresh/cf-deploy-kubernetes:16.1.0'
+    TEMPLATE_ENGINE: 'artifactory.six-group.net/codefresh/pikolo:latest'
+    NO_EXT_MONITOR: 'true'
+    DISABLE_WORKSPACE_CACHE: 'true'
+  workflowLimits:
+    MAXIMUM_ALLOWED_WORKFLOW_AGE_BEFORE_TERMINATION: 86400
+    SHOULD_CLEAN_PVCS: false
+    SHOULD_KEEP_PVC_FOR_PENDING_APPROVAL: false
+    TIME_INACTIVE_UNTIL_TERMINATION: 2700
+    MAXIMUM_ELECTED_STATE_AGE_ALLOWED: 900
+  type: KubernetesPod
+  cluster:
+    namespace: default
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 1000m
+      memory: 2048Mi
+  volumeMounts: {}
+  volumes: {}
+dockerDaemonScheduler:
+  internalInfra: false
+  userAccess: true
+  type: DindKubernetesPod
+  cluster:
+    namespace: default
+  dindImage: 'artifactory.six-group.net/codefresh/dind:18.09.5-v24-sp'
+  defaultDindResources:
+    requests:
+      cpu: 400m
+      memory: 800Mi
+    limits:
+      cpu: 400m
+      memory: 800Mi
+  envVars:
+    CLEAN_DOCKER: 'true'
+    CLEAN_PERIOD_BUILDS: '5'
+    IMAGE_RETAIN_PERIOD: '14400'
+    VOLUMES_RETAIN_PERIOD: '14400'
+  volumeMounts:
+    codefresh-certs-server:
+      name: codefresh-certs-server
+      mountPath: /etc/ssl/cf
+      readOnly: true
+    dind-config:
+      name: dind-config
+      mountPath: /etc/docker/daemon.json
+      subPath: daemon.json
+      readOnly: true
+  volumes:
+    codefresh-certs-server:
+      name: codefresh-certs-server
+      secret:
+        secretName: codefresh-certs-server
+    dind-config:
+      name: dind-config
+      configMap:
+        name: codefresh-dind-config
+  pvcs:
+    dind:
+      name: dind
+      volumeSize: 15Gi
+      reuseVolumeSelector: 'codefresh-app,io.codefresh.accountName'
+  tolerations:
+    dind:
+      key: codefresh/dind
+      operator: Exists
+      effect: NoSchedule
+isPublic: true
+nonComplete: false

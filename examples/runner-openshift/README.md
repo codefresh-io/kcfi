@@ -32,7 +32,26 @@ runner, engine and dind pods should be able to connect to the services on Codefr
 
 - Create Egress from codefresh-runner namespace to the ingresses of codefresh-dev namespaces
 
-## Example of running pods on codefresh-runner namespace:  
+## Codefresh Runner Configuration
+
+### Prerequisites:
+- Openshift project setup - see above
+- set customKubernetesCluster featureFlag
+- [codefresh cli](https://codefresh-io.github.io/cli/)
+- push images to the private registry:
+
+```
+kcfi images push -c ../config.yaml codefresh/dind:18.09.5-v24-sp codefresh/venona:1.4.21 codefresh/dind-volume-provisioner:v24 codefresh/dind-volume-utils:v5
+```
+### Install Codefresh runner
+Edit [runner-values.yaml](runner-values.yaml) , set CodefreshHost, Token, Context, Namespace and other parameters  
+
+Run:  
+```
+codefresh runner init --values runner-values.yaml
+```
+
+### Example of running pods on codefresh-runner namespace:  
 ```
 oc get pods -n codefresh-runner 
 NAME                                              READY     STATUS        RESTARTS   AGE

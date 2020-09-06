@@ -1,0 +1,55 @@
+# Codefresh host --api-host and token --api-token
+CodefreshHost: https://codefresh-dev.v12.np01.ocp.six-group.net
+Token: ****
+
+# Mode, always equals to "InCluster"
+# Mode: InCluster
+AgentId: "codefresh-runner-1"
+# AgentToken: 
+
+# # --docker-registry
+DockerRegistry: artifactory.six-group.net
+# Runner (venona) image 
+Image: 
+  Name: codefresh/venona
+#  Tag: 1.4.21 # default s.Version.Current.Version,
+
+## Namespace - from --kube-namespace parameter + env KUBE_NAMESPACE, for venona, runtime, monitor
+Namespace: codefresh-runner
+# ConfigPath: 
+## Context: from both --context (global arg) and 
+Context: codefresh-runner-namespace
+CreateRbac: false
+SkipClusterTest: true
+
+# NodeSelector --kube-node-selector
+NodeSelector: 
+
+
+# # --tolerations
+# Tolerations:       s.KubernetesAPI.Tolerations,
+
+## AdditionalEnvVars - for venona, coming from --envVars param
+# AdditionalEnvVars:
+#   CC: BBBB
+
+# For Attach
+#RuntimeServiceAccount:
+RuntimeInCluster: true
+
+# use InsecureSkipVerify to call cf api
+#insecure: true
+
+# Use already existing storage class
+#StorageClass: 
+Storage:
+  Backend: local
+  CreateStorageClass: false
+  LocalVolumeParentDir: /var/lib/origin/codefresh/dind-volumes
+#   VolumeProvisioner:
+#     Image: codefresh/dind-volume-provisioner:v23
+#     NodeSelector: 
+#     Tolerations: 
+  
+Monitor:
+  Enabled: false

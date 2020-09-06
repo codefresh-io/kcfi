@@ -1,0 +1,17 @@
+metadata:
+  name: system/default/hybrid/k8s_low_limits
+  agent: false
+description: Runtime that has lower dind values for newly created runtimes
+extends:
+  - system/default/hybrid/k8s
+dockerDaemonScheduler:
+  internalInfra: false
+  defaultDindResources:
+    requests:
+      cpu: 400m
+      memory: 800Mi
+    limits:
+      cpu: 400m
+      memory: 800Mi
+isPublic: true
+nonComplete: false
