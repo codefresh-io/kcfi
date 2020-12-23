@@ -3,7 +3,7 @@ metadata:
   installer:
     type: helm
     helm:
-      chart: ./codefresh-1.0.99-six.tgz
+      chart: ./codefresh-1.0.148-six.tgz
   
 kubernetes:
   namespace: codefresh-dev
@@ -31,7 +31,7 @@ images:
     username: registry-user
     password: registry-password
   lists:
-  - images/images-list-1.0.99
+  - images/images-list-1.0.148
 
 dbinfra:
   enabled: true
