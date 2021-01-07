@@ -18,20 +18,20 @@ package action
 
 import (
 	"fmt"
-	"path"
-	"path/filepath"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 	helm "helm.sh/helm/v3/pkg/action"
-	c "github.com/codefresh-io/kcfi/pkg/config"
+	"path"
+	"path/filepath"
 )
 
 // CfApply is an action to create or update Codefresh
 type CfApply struct {
 	ConfigFile string
-	vals map[string]interface{}
-	cfg *helm.Configuration
-	Helm *helm.Upgrade
+	vals       map[string]interface{}
+	cfg        *helm.Configuration
+	Helm       *helm.Upgrade
 }
 
 // NewCfApply creates object
@@ -48,13 +48,13 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 	// info("Applying Codefresh configuration from %s\n", o.ConfigFile)
 	o.vals = vals
 	valsX := objx.New(vals)
-	
+
 	// Includes additional value files
 	if valsX.Has(c.KeyInclude) {
 		var includeFiles []string
 		// cfgX.Get(c.KeyInclude).StrSlice() - not working, returns empty
 		includeFilesI := valsX.Get(c.KeyInclude).Data()
-		fileNamesI, includeIsList := includeFilesI.([]interface{}) 
+		fileNamesI, includeIsList := includeFilesI.([]interface{})
 		if !includeIsList {
 			return fmt.Errorf("Error: %s - %v is not a list", c.KeyInclude, includeFilesI)
 		}
@@ -73,11 +73,11 @@ func (o *CfApply) Run(vals map[string]interface{}) error {
 				return errors.Wrapf(err, "failed to parse included values file %s", fileName)
 			}
 			debug("merging included config change file %s", fileName)
-			o.vals =  MergeMaps(o.vals, includeConfig)
+			o.vals = MergeMaps(o.vals, includeConfig)
 		}
 	}
 
-	kind := valsX.Get(c.KeyKind).String(); 
+	kind := valsX.Get(c.KeyKind).String()
 	baseDir := filepath.Dir(o.ConfigFile)
 	o.vals[c.KeyBaseDir] = baseDir
 

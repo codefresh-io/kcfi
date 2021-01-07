@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main 
+package main
 
 import (
 	"flag"
@@ -49,7 +49,7 @@ import (
 const FeatureGateOCI = gates.Gate("HELM_EXPERIMENTAL_OCI")
 
 var (
-	settings *cli.EnvSettings
+	settings         *cli.EnvSettings
 	defaultNamespace = "codefresh"
 
 	flagConfig = "config"
@@ -61,7 +61,7 @@ func init() {
 	log.SetFlags(log.Lshortfile)
 	//Set Codefresh default namespace
 	// if _, ok := os.LookupEnv("HELM_NAMESPACE"); !ok {
-	// 	os.Setenv("HELM_NAMESPACE", defaultNamespace) 
+	// 	os.Setenv("HELM_NAMESPACE", defaultNamespace)
 	// }
 	settings = cli.New()
 }
@@ -113,7 +113,7 @@ func main() {
 
 				if ns := viper.GetString(c.KeyKubeNamespace); ns != "" {
 					configuredNamespace = ns
-				}			
+				}
 				if kubeContext := viper.GetString(c.KeyKubeContext); kubeContext != "" {
 					settings.KubeContext = kubeContext
 				}

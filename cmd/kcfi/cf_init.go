@@ -17,17 +17,14 @@ limitations under the License.
 package main
 
 import (
-
-	"io"
 	"fmt"
-	"strings"
 	"github.com/spf13/cobra"
+	"io"
+	"strings"
 
-	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/kcfi/pkg/action"
+	"helm.sh/helm/v3/cmd/helm/require"
 )
-
-
 
 func cfInitDesc() string {
 	cfInitDesc := `
@@ -36,7 +33,7 @@ This command initializes installer by creating stage directory for Codefresh pro
   kcfi init <product> [-d /path/to/stage-dir]
 	
 products are: `
-    cfInitDesc += strings.Join(action.StageDirsList(), ", ")
+	cfInitDesc += strings.Join(action.StageDirsList(), ", ")
 	cfInitDesc += `
 by default it creates stage in current directory
 `

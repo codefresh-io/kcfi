@@ -1,16 +1,7 @@
 metadata:
   kind: codefresh
   installer:
-    # type: 
-    #   "operator" - apply codefresh crd definition
-    #   "helm" - install/upgrade helm chart from client
-    type: operator
-    operator:
-      #dockerRegistry: gcr.io/codefresh-enterprise
-      #image: codefresh/cf-onprem-operator
-      #imageTag: 
-      #serviceAccountName:
-      #skipCRD:
+    type: helm
     helm:
       chart: codefresh 
       repoUrl: http://charts.codefresh.io/prod
@@ -55,3 +46,17 @@ dbinfra:
 ### Firebase secret - set if you use Firebase for log streaming
 firebaseSecret: 
 
+###### Passwords
+### Uncomment and change initial password for persistent services here
+
+#mongodb:
+#  mongodbRootPassword: 
+
+#postgresql:
+#  postgresPassword:
+
+#redis:
+#  redisPassword:
+
+#rabbitmq:
+#  rabbitmqPassword:

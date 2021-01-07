@@ -31,8 +31,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"helm.sh/helm/v3/cmd/helm/search"
 	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
+	"helm.sh/helm/v3/cmd/helm/search"
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/helmpath"
 	"helm.sh/helm/v3/pkg/repo"

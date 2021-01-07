@@ -20,17 +20,17 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
 	c "github.com/codefresh-io/kcfi/pkg/config"
+	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
 	"helm.sh/helm/v3/pkg/action"
 )
 
@@ -226,7 +226,7 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 	return cmd
 }
 
-func defaultConfigFileName() string{
+func defaultConfigFileName() string {
 	defaultConfigFileName := "config.yaml"
 	stageDir, err := os.Getwd()
 	if err != nil {

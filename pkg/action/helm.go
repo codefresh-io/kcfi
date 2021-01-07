@@ -2,28 +2,27 @@ package action
 
 import (
 	"fmt"
-	"os"
-	"time"
-	"strings"
-	"github.com/pkg/errors"
-	"github.com/stretchr/objx"
 	"github.com/codefresh-io/kcfi/pkg/charts"
 	c "github.com/codefresh-io/kcfi/pkg/config"
+	"github.com/pkg/errors"
+	"github.com/stretchr/objx"
+	"os"
+	"strings"
+	"time"
 
 	helm "helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/chartutil"
-	"helm.sh/helm/v3/pkg/storage/driver"
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/cli/output"
-
+	"helm.sh/helm/v3/pkg/release"
+	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
 type HelmChartOptions struct {
 	ChartName string
-	baseDir string
+	baseDir   string
 	*helm.ChartPathOptions
 }
 
@@ -40,21 +39,21 @@ func NewHelmChartOptionsFromConfig(chartName string, config map[string]interface
 
 		Password: cfgX.Get(c.KeyHelmPassword).String(),
 		Username: cfgX.Get(c.KeyHelmUsername).String(),
-		Verify: cfgX.Get(c.KeyHelmVerify).Bool(false),
-		CaFile: cfgX.Get(c.KeyHelmCaFile).String(),
+		Verify:   cfgX.Get(c.KeyHelmVerify).Bool(false),
+		CaFile:   cfgX.Get(c.KeyHelmCaFile).String(),
 		CertFile: cfgX.Get(c.KeyHelmCertFile).String(),
-		KeyFile: cfgX.Get(c.KeyHelmKeyFile).String(),
-		Keyring: cfgX.Get(c.KeyHelmKeyring).String(),
+		KeyFile:  cfgX.Get(c.KeyHelmKeyFile).String(),
+		Keyring:  cfgX.Get(c.KeyHelmKeyring).String(),
 	}
 
 	return &HelmChartOptions{
-		ChartName: chartName,
-		baseDir: baseDir,
+		ChartName:        chartName,
+		baseDir:          baseDir,
 		ChartPathOptions: helmChartOptions,
 	}, nil
 }
 
-func(h *HelmChartOptions) LoadChart() (*chart.Chart, error){
+func (h *HelmChartOptions) LoadChart() (*chart.Chart, error) {
 
 	settings := cli.New()
 	settings.Debug = c.Debug
@@ -76,10 +75,9 @@ func(h *HelmChartOptions) LoadChart() (*chart.Chart, error){
 	return ch, err
 }
 
-
 // DeployHelmRelease - deploy helm release using chart from config
 func DeployHelmRelease(releaseName string, chart string, vals map[string]interface{}, cfg *helm.Configuration, client *helm.Upgrade) (*release.Release, error) {
-	
+
 	info("Deploying release %s of chart %s ...", releaseName, chart)
 	helmChartOptions, err := NewHelmChartOptionsFromConfig(chart, vals)
 	if err != nil {
@@ -100,9 +98,9 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 	histClient.Max = 1
 	if _, err := histClient.Run(releaseName); err == driver.ErrReleaseNotFound {
 		// Only print this to stdout for table output
-	
+
 		info("Release %q does not exist. Installing it now.\n", releaseName)
-		
+
 		instClient := helm.NewInstall(cfg)
 		instClient.CreateNamespace = false //TODO
 		instClient.ChartPathOptions = client.ChartPathOptions
@@ -119,12 +117,12 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 		instClient.SubNotes = client.SubNotes
 
 		instClient.ReleaseName = releaseName
-	
+
 		if chartRequested.Metadata.Deprecated {
 			fmt.Println("WARNING: This chart is deprecated")
 		}
 		return instClient.Run(chartRequested, vals)
-	
+
 	} else if err != nil {
 		return nil, err
 	}
@@ -148,7 +146,7 @@ func DeployHelmRelease(releaseName string, chart string, vals map[string]interfa
 func IsHelmReleaseInstalled(releaseName string, cfg *helm.Configuration) bool {
 	histClient := helm.NewHistory(cfg)
 	histClient.Max = 1
-	
+
 	if release, err := histClient.Run(releaseName); release != nil {
 		debug("release %s is installed", releaseName)
 		return true
@@ -158,20 +156,18 @@ func IsHelmReleaseInstalled(releaseName string, cfg *helm.Configuration) bool {
 	}
 }
 
-
 // PrintHelmReleaseInfo - prints helm release
 func PrintHelmReleaseInfo(release *release.Release, debug bool) error {
 	if release == nil {
 		return nil
 	}
-	info( "NAME: %s", release.Name)
+	info("NAME: %s", release.Name)
 	if !release.Info.LastDeployed.IsZero() {
-		info( "LAST DEPLOYED: %s", release.Info.LastDeployed.Format(time.ANSIC))
+		info("LAST DEPLOYED: %s", release.Info.LastDeployed.Format(time.ANSIC))
 	}
-	info( "NAMESPACE: %s", release.Namespace)
-	info( "STATUS: %s", release.Info.Status.String())
-	info( "REVISION: %d", release.Version)
-
+	info("NAMESPACE: %s", release.Namespace)
+	info("STATUS: %s", release.Info.Status.String())
+	info("REVISION: %d", release.Version)
 
 	out := os.Stdout
 	if debug {

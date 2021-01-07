@@ -24,7 +24,7 @@ import (
 
 	"helm.sh/helm/v3/cmd/helm/require"
 	//"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
-	
+
 	"helm.sh/helm/v3/pkg/action"
 	//cAction "github.com/codefresh-io/kcfi/pkg/action"
 )
@@ -40,14 +40,14 @@ This command deploys Codefresh operator
 func newOperatorCmd(cfg *action.Configuration, out io.Writer) *cobra.Command {
 
 	operatorCommand := &cobra.Command{
-		Use:     "operator",
-		Short:   "controls Codefresh Operator",
-		Long:    operatorDesc,
-		Args:    require.NoArgs,
+		Use:   "operator",
+		Short: "controls Codefresh Operator",
+		Long:  operatorDesc,
+		Args:  require.NoArgs,
 	}
 
 	releaseName := "cf-onprem-operator"
-  embededChart := "codefresh-operator"
+	embededChart := "codefresh-operator"
 	deploySubCmd := newEmbededChartUpgradeCmd(releaseName, embededChart, cfg, out)
 
 	operatorCommand.AddCommand(deploySubCmd)
