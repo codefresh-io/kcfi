@@ -16,9 +16,26 @@ global:
   ### Codefresh App domain name. appUrl is manadatory parameter
   appUrl: 
   appProtocol: https
-  
+
+  ### Step Catalog
   # stepsCatalogOnPremise: true
   # stepsCatalogOnPremiseRegistry: <your_registry_url>
+  
+  ###### Passwords
+  ### Uncomment and change initial password for persistent services here
+  ### Installer warns if passwords remains default
+
+  #mongodbRootUser: root
+  #mongodbRootPassword:
+
+  # Password for codefresh app user (username = "cfuser")
+  #mongodbPassword:
+
+  #postgresUser: postgres
+  #postgresPassword:
+
+  #redisPassword:
+  #rabbitmqPassword:
 
 tls:
   selfSigned: true
@@ -45,18 +62,3 @@ dbinfra:
 
 ### Firebase secret - set if you use Firebase for log streaming
 firebaseSecret: 
-
-###### Passwords
-### Uncomment and change initial password for persistent services here
-
-#mongodb:
-#  mongodbRootPassword: 
-
-#postgresql:
-#  postgresPassword:
-
-#redis:
-#  redisPassword:
-
-#rabbitmq:
-#  rabbitmqPassword:

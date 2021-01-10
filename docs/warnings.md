@@ -3,22 +3,23 @@
 ## Default passwords
 We recommend set passwords for persistent components (mongo, postgres, redis, rabbit ), otherwise default known password will be used  
 
-Add or uncomment the following strings in config.yaml:  
+Add or uncomment the following strings in config.yaml under `global:`:  
 ```yaml
 # mongodb passwords for root and cfuser
-mongodb:
+global:
+  #mongodbRootUser: root
   mongodbRootPassword: <rootPassword>
+  
+  #mongodbUsername: cfuser
   mongodbPassword: <cfuserPassword>
 
-# postgres password
-postgresql:
+  #postgresUser: postgres
   postgresPassword: <thePassword>
 
-# redis password
-redis:
-  redisPassword: <thePassword>
-
-# rabbit password
-rabbitmq:
+  # rabbit password
+  rabbitmqUsername: 
   rabbitmqPassword: <thePassword>
+
+  # redis password
+  redisPassword: <thePassword>
 ```
