@@ -113,9 +113,13 @@ const (
 	KeyLocalPostgresUser     = "postgresql.postgresUser"
 	KeyLocalPostgresPassword = "postgresql.postgresPassword"
 
+	KeyGlobalRedisURL      = "global.redisUrl"
 	KeyGlobalRedisPassword = "global.redisPassword"
 	KeyLocalRedisEnabled   = "redis.enabled"
 	KeyLocalRedisPassword  = "redis.redisPassword"
+
+	KeyGlobalRuntimeRedisHost     = "global.runtimeRedisHost"
+	KeyGlobalRuntimeRedisPassword = "global.runtimeRedisPassword"
 
 	KeyGlobalRabbitUser     = "global.rabbitmqUsername"
 	KeyGlobalRabbitPassword = "global.rabbitmqPassword"

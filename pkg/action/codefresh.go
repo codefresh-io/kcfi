@@ -180,11 +180,12 @@ func (o *CfApply) WarnIfNotSet() error {
 		for f, warnMsg := range fieldsWarnIfNotSet {
 			info("    %s is not set: %s", f, warnMsg)
 		}
-		info("see https://github.com/codefresh-io/kcfi/blob/master/docs/warnings.md for more details")
+		info("\nsee https://github.com/codefresh-io/kcfi/blob/master/docs/warnings.md for more details")
 		if os.Getenv("CI") != "true" && !IsHelmReleaseInstalled(c.CodefreshReleaseName, o.cfg) {
 			reader := bufio.NewReader(os.Stdin)
-			fmt.Print("Do you want to continue [Y/n]?")
+			fmt.Print("Do you want to continue [Y/n]? ")
 			warningAnswer, _ := reader.ReadString('\n')
+			warningAnswer = strings.Replace(warningAnswer, "\n", "", -1)
 			if strings.ToLower(warningAnswer) != "y" {
 				return fmt.Errorf("too many warnings")
 			}
@@ -217,13 +218,21 @@ func (o *CfApply) setDbPasswords() error {
 		if globalRedisPassword != "" {
 			valsX.Set(c.KeyLocalRedisPassword, globalRedisPassword)
 			debug("setting %s", c.KeyLocalRedisPassword)
+
+			redisURL := valsX.Get(c.KeyGlobalRedisURL).String()
+			runtimeRedisHost := valsX.Get(c.KeyGlobalRuntimeRedisHost).String()
+			runtimeRedisPassword := valsX.Get(c.KeyGlobalRuntimeRedisPassword).String()
+
+			if runtimeRedisPassword == "" && redisURL == runtimeRedisHost {
+				valsX.Set(c.KeyGlobalRuntimeRedisPassword, globalRedisPassword)
+				debug("setting %s", c.KeyGlobalRuntimeRedisPassword)
+			}
 		}
 	}
 
 	//// rabbit
 	if localRabbitEnabled := valsX.Get(c.KeyLocalRabbitEnabled).Bool(true); localRabbitEnabled {
-		globalRabbitPassword := valsX.Get(c.KeyLocalRabbitPassword).String()
-
+		globalRabbitPassword := valsX.Get(c.KeyGlobalRabbitPassword).String()
 		if globalRabbitPassword != "" {
 			valsX.Set(c.KeyLocalRabbitPassword, globalRabbitPassword)
 			debug("setting %s", c.KeyLocalRabbitPassword)
@@ -252,14 +261,6 @@ func (o *CfApply) setDbPasswords() error {
 		if globalMongoUser != "" && globalMongoPassword == "" {
 			return fmt.Errorf("Cannot set globalMongoUser without setting globalMongoPassword")
 		}
-		if globalMongoUser != "" {
-			valsX.Set(c.KeyLocalMongoUser, globalMongoUser)
-			debug("setting %s", c.KeyLocalMongoUser)
-		}
-		if globalMongoPassword != "" {
-			valsX.Set(c.KeyLocalMongoPassword, globalMongoPassword)
-			debug("setting %s", c.KeyLocalMongoPassword)
-		}
 
 		if globalMongoURI == "" && globalMongoPassword != "" {
 			if globalMongoUser == "" {
@@ -287,43 +288,9 @@ func (o *CfApply) ApplyCodefresh() error {
 		return err
 	}
 
-	// Local DB pods - adjust passwords from global
-	//// mongo
-	localMongoEnabled := valsX.Get(c.KeyLocalMongoEnabled).Bool(true)
-	if localMongoEnabled {
-		// Mongo Root User
-		globalMongoRootUser := valsX.Get(c.KeyGlobalMongoRootUser).String()
-		globalMongoRootPassword := valsX.Get(c.KeyGlobalMongoRootPassword).String()
-
-		if globalMongoRootUser != "" {
-			valsX.Set(c.KeyLocalMongoRootUser, globalMongoRootUser)
-		}
-		if globalMongoRootPassword != "" {
-			valsX.Set(c.KeyLocalMongoRootPassword, globalMongoRootPassword)
-		}
-
-		// Mongo URI and app user password
-		globalMongoURI := valsX.Get(c.KeyGlobalMongoURI).String()
-		globalMongoUser := valsX.Get(c.KeyGlobalMongoUser).String()
-		globalMongoPassword := valsX.Get(c.KeyGlobalMongoPassword).String()
-		if globalMongoUser != "" && globalMongoPassword == "" {
-			return fmt.Errorf("Cannot set globalMongoUser without setting globalMongoPassword")
-		}
-		if globalMongoUser != "" {
-			valsX.Set(c.KeyLocalMongoUser, globalMongoUser)
-		}
-		if globalMongoPassword != "" {
-			valsX.Set(c.KeyLocalMongoPassword, globalMongoPassword)
-		}
-
-		if globalMongoURI == "" && globalMongoPassword != "" {
-			if globalMongoUser == "" {
-				globalMongoUser = c.MongoDefaultAppUser
-			}
-			globalMongoURI = fmt.Sprintf("mongodb://%s:%s@mongodb:27017", globalMongoUser, globalMongoPassword)
-			valsX.Set(c.KeyGlobalMongoURI, globalMongoURI)
-			debug("setting %s = mongodb://%s:*****@mongodb:27017", c.KeyGlobalMongoURI, globalMongoUser)
-		}
+	// Set non-default Db Passwords by values
+	if err := o.setDbPasswords(); err != nil {
+		return err
 	}
 
 	//--- Docker Registry secret
