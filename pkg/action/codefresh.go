@@ -168,7 +168,7 @@ func (o *CfApply) WarnIfNotSet() error {
 	if valsX.Get(c.KeyDbInfraEnabled).Bool(false) {
 		debug("%s is enabled - do not warn on db passwords", c.KeyDbInfraEnabled)
 		return nil
-	}	
+	}
 	fieldsWarnIfNotSet := make(map[string]string)
 	for f, warnMsg := range c.CodefreshValuesFieldsWarnIfNotSet {
 		if valsX.Get(f).String() == "" {
@@ -194,7 +194,6 @@ func (o *CfApply) WarnIfNotSet() error {
 	return nil
 }
 
-
 // setDbPasswords - adjust passwords from global for local DB pods
 func (o *CfApply) setDbPasswords() error {
 	valsX := objx.New(o.vals)
@@ -204,62 +203,62 @@ func (o *CfApply) setDbPasswords() error {
 		globalPostgresPassword := valsX.Get(c.KeyGlobalPostgresPassword).String()
 		if globalPostgresUser != "" {
 			valsX.Set(c.KeyLocalPostgresUser, globalPostgresUser)
-			debug("setting %s", c.KeyLocalPostgresUser )
+			debug("setting %s", c.KeyLocalPostgresUser)
 		}
 		if globalPostgresPassword != "" {
 			valsX.Set(c.KeyLocalPostgresPassword, globalPostgresPassword)
-			debug("setting %s", c.KeyLocalPostgresPassword )
+			debug("setting %s", c.KeyLocalPostgresPassword)
 		}
 	}
-	
+
 	// redis
 	if localRedisEnabled := valsX.Get(c.KeyLocalRedisEnabled).Bool(true); localRedisEnabled {
 		globalRedisPassword := valsX.Get(c.KeyGlobalRedisPassword).String()
 		if globalRedisPassword != "" {
 			valsX.Set(c.KeyLocalRedisPassword, globalRedisPassword)
-			debug("setting %s", c.KeyLocalRedisPassword )
+			debug("setting %s", c.KeyLocalRedisPassword)
 		}
 	}
 
-	//// rabbit	
+	//// rabbit
 	if localRabbitEnabled := valsX.Get(c.KeyLocalRabbitEnabled).Bool(true); localRabbitEnabled {
 		globalRabbitPassword := valsX.Get(c.KeyLocalRabbitPassword).String()
-	
+
 		if globalRabbitPassword != "" {
 			valsX.Set(c.KeyLocalRabbitPassword, globalRabbitPassword)
-			debug("setting %s", c.KeyLocalRabbitPassword )
+			debug("setting %s", c.KeyLocalRabbitPassword)
 		}
 	}
 
-	//// mongo	
+	//// mongo
 	if localMongoEnabled := valsX.Get(c.KeyLocalMongoEnabled).Bool(true); localMongoEnabled {
 		// Mongo Root User
 		globalMongoRootUser := valsX.Get(c.KeyGlobalMongoRootUser).String()
-		globalMongoRootPassword := valsX.Get(c.KeyGlobalMongoRootPassword).String()		
-			
+		globalMongoRootPassword := valsX.Get(c.KeyGlobalMongoRootPassword).String()
+
 		if globalMongoRootUser != "" {
 			valsX.Set(c.KeyLocalMongoRootUser, globalMongoRootUser)
-			debug("setting %s", c.KeyLocalMongoRootUser )
+			debug("setting %s", c.KeyLocalMongoRootUser)
 		}
 		if globalMongoRootPassword != "" {
 			valsX.Set(c.KeyLocalMongoRootPassword, globalMongoRootPassword)
-			debug("setting %s", c.KeyLocalMongoRootPassword )
+			debug("setting %s", c.KeyLocalMongoRootPassword)
 		}
 
 		// Mongo URI and app user password
-		globalMongoURI := valsX.Get(c.KeyGlobalMongoURI).String()		
+		globalMongoURI := valsX.Get(c.KeyGlobalMongoURI).String()
 		globalMongoUser := valsX.Get(c.KeyGlobalMongoUser).String()
-		globalMongoPassword := valsX.Get(c.KeyGlobalMongoPassword).String()		
+		globalMongoPassword := valsX.Get(c.KeyGlobalMongoPassword).String()
 		if globalMongoUser != "" && globalMongoPassword == "" {
 			return fmt.Errorf("Cannot set globalMongoUser without setting globalMongoPassword")
 		}
 		if globalMongoUser != "" {
 			valsX.Set(c.KeyLocalMongoUser, globalMongoUser)
-			debug("setting %s", c.KeyLocalMongoUser )
+			debug("setting %s", c.KeyLocalMongoUser)
 		}
 		if globalMongoPassword != "" {
 			valsX.Set(c.KeyLocalMongoPassword, globalMongoPassword)
-			debug("setting %s", c.KeyLocalMongoPassword )
+			debug("setting %s", c.KeyLocalMongoPassword)
 		}
 
 		if globalMongoURI == "" && globalMongoPassword != "" {
@@ -269,7 +268,7 @@ func (o *CfApply) setDbPasswords() error {
 			globalMongoURI = fmt.Sprintf("mongodb://%s:%s@mongodb:27017", globalMongoUser, globalMongoPassword)
 			valsX.Set(c.KeyGlobalMongoURI, globalMongoURI)
 			debug("setting %s = mongodb://%s:*****@mongodb:27017", c.KeyGlobalMongoURI, globalMongoUser)
-		}		
+		}
 	}
 	return nil
 }
@@ -282,7 +281,7 @@ func (o *CfApply) ApplyCodefresh() error {
 
 	// find if it is upgrade (codefreshInstalled==true) or install
 	codefreshInstalled := IsHelmReleaseInstalled(c.CodefreshReleaseName, o.cfg)
-	
+
 	// display and prompt on warnigs
 	if err := o.WarnIfNotSet(); err != nil {
 		return err
@@ -294,8 +293,8 @@ func (o *CfApply) ApplyCodefresh() error {
 	if localMongoEnabled {
 		// Mongo Root User
 		globalMongoRootUser := valsX.Get(c.KeyGlobalMongoRootUser).String()
-		globalMongoRootPassword := valsX.Get(c.KeyGlobalMongoRootPassword).String()		
-			
+		globalMongoRootPassword := valsX.Get(c.KeyGlobalMongoRootPassword).String()
+
 		if globalMongoRootUser != "" {
 			valsX.Set(c.KeyLocalMongoRootUser, globalMongoRootUser)
 		}
@@ -304,9 +303,9 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 
 		// Mongo URI and app user password
-		globalMongoURI := valsX.Get(c.KeyGlobalMongoURI).String()		
+		globalMongoURI := valsX.Get(c.KeyGlobalMongoURI).String()
 		globalMongoUser := valsX.Get(c.KeyGlobalMongoUser).String()
-		globalMongoPassword := valsX.Get(c.KeyGlobalMongoPassword).String()		
+		globalMongoPassword := valsX.Get(c.KeyGlobalMongoPassword).String()
 		if globalMongoUser != "" && globalMongoPassword == "" {
 			return fmt.Errorf("Cannot set globalMongoUser without setting globalMongoPassword")
 		}
@@ -324,9 +323,8 @@ func (o *CfApply) ApplyCodefresh() error {
 			globalMongoURI = fmt.Sprintf("mongodb://%s:%s@mongodb:27017", globalMongoUser, globalMongoPassword)
 			valsX.Set(c.KeyGlobalMongoURI, globalMongoURI)
 			debug("setting %s = mongodb://%s:*****@mongodb:27017", c.KeyGlobalMongoURI, globalMongoUser)
-		}		
+		}
 	}
-
 
 	//--- Docker Registry secret
 	registryValues, err := o.GetDockerRegistryVars()

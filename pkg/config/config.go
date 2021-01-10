@@ -96,22 +96,22 @@ const (
 	KeyGlobalMongoURI          = "global.mongoURI"
 	KeyGlobalMongoRootUser     = "global.mongodbRootUser"
 	KeyGlobalMongoRootPassword = "global.mongodbRootPassword"
-    KeyLocalMongoRootUser      = "mongodb.mongodbRootUser"
+	KeyLocalMongoRootUser      = "mongodb.mongodbRootUser"
 	KeyLocalMongoRootPassword  = "mongodb.mongodbRootPassword"
 
 	KeyGlobalMongoUser     = "global.mongodbUsername"
 	KeyGlobalMongoPassword = "global.mongodbPassword"
 	KeyLocalMongoEnabled   = "mongo.enabled"
 	KeyLocalMongoUser      = "mongodb.mongodbUsername"
-	KeyLocalMongoPassword  = "mongodb.mongodbPassword"	
-    MongoDefaultAppUser    = "cfuser"
+	KeyLocalMongoPassword  = "mongodb.mongodbPassword"
+	MongoDefaultAppUser    = "cfuser"
 
-	KeyGlobalPostgresUser = "global.postgresUser"
+	KeyGlobalPostgresUser     = "global.postgresUser"
 	KeyGlobalPostgresPassword = "global.postgresPassword"
 
 	KeyLocalPostgresEnabled  = "postgresql.enabled"
-	KeyLocalPostgresUser      = "postgresql.postgresUser"
-	KeyLocalPostgresPassword  = "postgresql.postgresPassword"
+	KeyLocalPostgresUser     = "postgresql.postgresUser"
+	KeyLocalPostgresPassword = "postgresql.postgresPassword"
 
 	KeyGlobalRedisPassword = "global.redisPassword"
 	KeyLocalRedisEnabled   = "redis.enabled"
@@ -121,16 +121,16 @@ const (
 	KeyGlobalRabbitPassword = "global.rabbitmqPassword"
 	KeyLocalRabbitEnabled   = "rabbitmq.enabled"
 	KeyLocalRabbitUser      = "rabbitmq.rabbitmqUsername"
-	KeyLocalRabbitPassword  = "rabbitmq.rabbitmqPassword"	
+	KeyLocalRabbitPassword  = "rabbitmq.rabbitmqPassword"
 )
 
 // CodefreshValuesFieldsWarnIfNotSet - print warning if these fields are not set on installation
 var CodefreshValuesFieldsWarnIfNotSet = map[string]string{
 	"global.mongodbRootPassword": "Installing with default password for mongodb root is not recommended",
-	"global.mongodbPassword": "Installing with default password for mongodb cfuser is not recommended",
-	"global.postgresPassword": "Installing with default password for postgres db is not recommended",
-	"global.redisPassword":  "Installing with default password for redis is not recommended",
-	"global.rabbitmqPassword": "Installing with default password for rabbitmq is not recommended",
+	"global.mongodbPassword":     "Installing with default password for mongodb cfuser is not recommended",
+	"global.postgresPassword":    "Installing with default password for postgres db is not recommended",
+	"global.redisPassword":       "Installing with default password for redis is not recommended",
+	"global.rabbitmqPassword":    "Installing with default password for rabbitmq is not recommended",
 }
 
 // Debug -
