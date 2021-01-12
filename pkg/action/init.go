@@ -18,8 +18,8 @@ package action
 
 import (
 	"fmt"
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -35,19 +35,18 @@ const (
 	// AssetsDir - folder name where we save kubernetes and helm assets
 	AssetsDir = "assets"
 
-	kindCodefresh = "codefresh"
-	kindK8sAgent = "k8sAgent"
-	kindVenona = "venona"
+	kindCodefresh     = "codefresh"
+	kindK8sAgent      = "k8sAgent"
+	kindVenona        = "venona"
 	kindBackupManager = "backup-manager"
 
 	installerTypeOperator = "operator"
 	installerTypeHelm     = "helm"
 
 	operatorHelmReleaseName = "cf-onprem-operator"
-	operatorHelmChartName = "codefresh-operator"
-	
-	codefreshHelmReleaseName = "cf"
+	operatorHelmChartName   = "codefresh-operator"
 
+	codefreshHelmReleaseName = "cf"
 )
 
 // CfInit is an action to create Codefresh config stage directory
@@ -88,8 +87,8 @@ func (o *CfInit) Run() error {
 	} else {
 		restoreDir = o.StageDir
 	}
-	
-	info("Creating stage directory %s\n", restoreDir )
+
+	info("Creating stage directory %s\n", restoreDir)
 	if dirList, err := ioutil.ReadDir(restoreDir); err == nil && len(dirList) > 0 {
 		return fmt.Errorf("Directory %s is already exists and not empty", o.ProductName)
 	}
@@ -170,7 +169,7 @@ func GetAssetsDir(configFile string) string {
 
 // TODO - use logger framework
 func info(format string, v ...interface{}) {
-	fmt.Printf(format + "\n", v...)
+	fmt.Printf(format+"\n", v...)
 }
 func debug(format string, v ...interface{}) {
 	if c.Debug {

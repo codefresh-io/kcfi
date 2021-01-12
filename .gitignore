@@ -4,6 +4,7 @@ debug
 /k8s-agent
 charts/k8s-agent
 .vscode
+__debug_bin
 
 /charts/*.tgz
 /pkg/embeded

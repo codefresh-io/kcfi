@@ -1,18 +1,19 @@
 package charts
+
 import (
-	"fmt"
-	"regexp"
 	"bytes"
-	"strings"
+	"fmt"
 	"github.com/pkg/errors"
-	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/chart"
+	"helm.sh/helm/v3/pkg/chart/loader"
+	"regexp"
+	"strings"
 
 	eCharts "github.com/codefresh-io/kcfi/pkg/embeded/charts"
 )
 
-func Load(chartName string) (*chart.Chart, error){
-	
+func Load(chartName string) (*chart.Chart, error) {
+
 	var chartBufferedFile []*loader.BufferedFile
 	isArchivedChart, _ := regexp.MatchString(`^.*\.tgz$`, chartName)
 	if isArchivedChart {
@@ -24,7 +25,7 @@ func Load(chartName string) (*chart.Chart, error){
 		chartBufferedFile, err = loader.LoadArchiveFiles(bytes.NewReader(chartData))
 		if err != nil {
 			return nil, errors.Wrapf(err, "Cannot load archived file for %s", chartName)
-		}		
+		}
 	} else {
 		for _, name := range eCharts.AssetNames() {
 			fileNamePrefix := fmt.Sprintf("%s/", chartName)
@@ -41,7 +42,7 @@ func Load(chartName string) (*chart.Chart, error){
 					return nil, errors.Wrapf(err, "Failed to load chart file %s", name)
 				}
 				chartBufferedFile = append(chartBufferedFile, &loader.BufferedFile{
-					Name: chartFileName, 
+					Name: chartFileName,
 					Data: chartFileData,
 				})
 			}

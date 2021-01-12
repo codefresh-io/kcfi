@@ -17,6 +17,7 @@ limitations under the License.
 package action
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -27,8 +28,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 
-	helm "helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/storage/driver"
+	//helm "helm.sh/helm/v3/pkg/action"
+	//"helm.sh/helm/v3/pkg/storage/driver"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
 	c "github.com/codefresh-io/kcfi/pkg/config"
@@ -87,7 +88,7 @@ func (o *CfApply) GetDockerRegistryVars() (map[string]interface{}, error) {
 
 func (o *CfApply) applyDbInfra() error {
 	valsX := objx.New(o.vals)
-	if ! valsX.Get(c.KeyDbInfraEnabled).Bool(false) {
+	if !valsX.Get(c.KeyDbInfraEnabled).Bool(false) {
 		debug("%s is not enabled", c.KeyDbInfraEnabled)
 		return nil
 	}
@@ -99,7 +100,7 @@ func (o *CfApply) applyDbInfra() error {
 		return errors.Wrapf(err, "failed to parse db-infra config file %s", c.DbInfraConfigFile)
 	}
 	dbInfraConfig[c.KeyBaseDir] = filepath.Dir(dbInfraConfigFile)
-	
+
 	dbInfraConfig = MergeMaps(dbInfraConfig, valsX.Get(c.KeyDbInfra).MSI(map[string]interface{}{}))
 	dbInfraConfigX := objx.New(dbInfraConfig)
 	dbInfraReleaseName := dbInfraConfigX.Get(c.KeyHelmRelease).String()
@@ -118,17 +119,17 @@ func (o *CfApply) applyDbInfra() error {
 		return errors.Wrapf(err, "failed to parse db-infra values file %s", c.DbInfraMainConfigChangeValuesFile)
 	}
 	debug("merging db-infra config change file %s", c.DbInfraMainConfigChangeValuesFile)
-	o.vals =  MergeMaps(o.vals, mainConfigChange)
+	o.vals = MergeMaps(o.vals, mainConfigChange)
 
 	dbInfraUpgrade := valsX.Get(c.KeyDbInfraUpgrade).Bool(false)
 	debug("dbInfraUpgrade = %t", dbInfraUpgrade)
-	if ( !codefreshInstalled && !dbInfraInstalled ) || dbInfraUpgrade {
+	if (!codefreshInstalled && !dbInfraInstalled) || dbInfraUpgrade {
 		info("Installing db-infra release")
-		helmAtomicSave := o.Helm.Atomic 
+		helmAtomicSave := o.Helm.Atomic
 		helmWaitSave := o.Helm.Wait
 		o.Helm.Atomic = true
 		o.Helm.Wait = true
-		defer func(){
+		defer func() {
 			o.Helm.Atomic = helmAtomicSave
 			o.Helm.Wait = helmWaitSave
 		}()
@@ -160,10 +161,137 @@ func (o *CfApply) ValidateCodefresh() error {
 	return nil
 }
 
+// WarnIfNotSet - display warning if not set
+func (o *CfApply) WarnIfNotSet() error {
+	valsX := objx.New(o.vals)
+
+	if valsX.Get(c.KeyDbInfraEnabled).Bool(false) {
+		debug("%s is enabled - do not warn on db passwords", c.KeyDbInfraEnabled)
+		return nil
+	}
+	fieldsWarnIfNotSet := make(map[string]string)
+	for f, warnMsg := range c.CodefreshValuesFieldsWarnIfNotSet {
+		if valsX.Get(f).String() == "" {
+			fieldsWarnIfNotSet[f] = warnMsg
+		}
+	}
+	if len(fieldsWarnIfNotSet) > 0 {
+		info("WARNING:")
+		for f, warnMsg := range fieldsWarnIfNotSet {
+			info("    %s is not set: %s", f, warnMsg)
+		}
+		info("\nsee https://github.com/codefresh-io/kcfi/blob/master/docs/warnings.md for more details")
+		if os.Getenv("CI") != "true" && !IsHelmReleaseInstalled(c.CodefreshReleaseName, o.cfg) {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Print("Do you want to continue [Y/n]? ")
+			warningAnswer, _ := reader.ReadString('\n')
+			warningAnswer = strings.Replace(warningAnswer, "\n", "", -1)
+			if strings.ToLower(warningAnswer) != "y" {
+				return fmt.Errorf("too many warnings")
+			}
+		}
+	}
+
+	return nil
+}
+
+// setDbPasswords - adjust passwords from global for local DB pods
+func (o *CfApply) setDbPasswords() error {
+	valsX := objx.New(o.vals)
+
+	if localPostrgresEnabled := valsX.Get(c.KeyLocalPostgresEnabled).Bool(true); localPostrgresEnabled {
+		globalPostgresUser := valsX.Get(c.KeyGlobalPostgresUser).String()
+		globalPostgresPassword := valsX.Get(c.KeyGlobalPostgresPassword).String()
+		if globalPostgresUser != "" {
+			valsX.Set(c.KeyLocalPostgresUser, globalPostgresUser)
+			debug("setting %s", c.KeyLocalPostgresUser)
+		}
+		if globalPostgresPassword != "" {
+			valsX.Set(c.KeyLocalPostgresPassword, globalPostgresPassword)
+			debug("setting %s", c.KeyLocalPostgresPassword)
+		}
+	}
+
+	// redis
+	if localRedisEnabled := valsX.Get(c.KeyLocalRedisEnabled).Bool(true); localRedisEnabled {
+		globalRedisPassword := valsX.Get(c.KeyGlobalRedisPassword).String()
+		if globalRedisPassword != "" {
+			valsX.Set(c.KeyLocalRedisPassword, globalRedisPassword)
+			debug("setting %s", c.KeyLocalRedisPassword)
+
+			redisURL := valsX.Get(c.KeyGlobalRedisURL).String()
+			runtimeRedisHost := valsX.Get(c.KeyGlobalRuntimeRedisHost).String()
+			runtimeRedisPassword := valsX.Get(c.KeyGlobalRuntimeRedisPassword).String()
+
+			if runtimeRedisPassword == "" && redisURL == runtimeRedisHost {
+				valsX.Set(c.KeyGlobalRuntimeRedisPassword, globalRedisPassword)
+				debug("setting %s", c.KeyGlobalRuntimeRedisPassword)
+			}
+		}
+	}
+
+	//// rabbit
+	if localRabbitEnabled := valsX.Get(c.KeyLocalRabbitEnabled).Bool(true); localRabbitEnabled {
+		globalRabbitPassword := valsX.Get(c.KeyGlobalRabbitPassword).String()
+		if globalRabbitPassword != "" {
+			valsX.Set(c.KeyLocalRabbitPassword, globalRabbitPassword)
+			debug("setting %s", c.KeyLocalRabbitPassword)
+		}
+	}
+
+	//// mongo
+	if localMongoEnabled := valsX.Get(c.KeyLocalMongoEnabled).Bool(true); localMongoEnabled {
+		// Mongo Root User
+		globalMongoRootUser := valsX.Get(c.KeyGlobalMongoRootUser).String()
+		globalMongoRootPassword := valsX.Get(c.KeyGlobalMongoRootPassword).String()
+
+		if globalMongoRootUser != "" {
+			valsX.Set(c.KeyLocalMongoRootUser, globalMongoRootUser)
+			debug("setting %s", c.KeyLocalMongoRootUser)
+		}
+		if globalMongoRootPassword != "" {
+			valsX.Set(c.KeyLocalMongoRootPassword, globalMongoRootPassword)
+			debug("setting %s", c.KeyLocalMongoRootPassword)
+		}
+
+		// Mongo URI and app user password
+		globalMongoURI := valsX.Get(c.KeyGlobalMongoURI).String()
+		globalMongoUser := valsX.Get(c.KeyGlobalMongoUser).String()
+		globalMongoPassword := valsX.Get(c.KeyGlobalMongoPassword).String()
+		if globalMongoUser != "" && globalMongoPassword == "" {
+			return fmt.Errorf("Cannot set globalMongoUser without setting globalMongoPassword")
+		}
+
+		if globalMongoURI == "" && globalMongoPassword != "" {
+			if globalMongoUser == "" {
+				globalMongoUser = c.MongoDefaultAppUser
+			}
+			globalMongoURI = fmt.Sprintf("mongodb://%s:%s@mongodb:27017", globalMongoUser, globalMongoPassword)
+			valsX.Set(c.KeyGlobalMongoURI, globalMongoURI)
+			debug("setting %s = mongodb://%s:*****@mongodb:27017", c.KeyGlobalMongoURI, globalMongoUser)
+		}
+	}
+	return nil
+}
+
+// ApplyCodefresh -
 func (o *CfApply) ApplyCodefresh() error {
 
 	// Calculating addional configurations
 	valsX := objx.New(o.vals)
+
+	// find if it is upgrade (codefreshInstalled==true) or install
+	codefreshInstalled := IsHelmReleaseInstalled(c.CodefreshReleaseName, o.cfg)
+
+	// display and prompt on warnigs
+	if err := o.WarnIfNotSet(); err != nil {
+		return err
+	}
+
+	// Set non-default Db Passwords by values
+	if err := o.setDbPasswords(); err != nil {
+		return err
+	}
 
 	//--- Docker Registry secret
 	registryValues, err := o.GetDockerRegistryVars()
@@ -175,8 +303,8 @@ func (o *CfApply) ApplyCodefresh() error {
 		privateRegistryAddress := valsX.Get(c.KeyImagesPrivateRegistryAddress).String()
 		privateRegistryGlobalValues := map[string]interface{}{
 			"global": map[string]interface{}{
-				"privateRegistry":  true,
-				"dockerRegistry": privateRegistryAddress + "/",
+				"privateRegistry": true,
+				"dockerRegistry":  privateRegistryAddress + "/",
 			},
 		}
 		o.vals = MergeMaps(o.vals, privateRegistryGlobalValues)
@@ -184,7 +312,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	o.vals = MergeMaps(o.vals, registryValues)
 
 	//--- WebTls Values
-	if ! valsX.Get(c.KeyTlsSelfSigned).Bool(true) {
+	if !valsX.Get(c.KeyTlsSelfSigned).Bool(true) {
 		webTlsValues, err := ExecuteTemplateToValues(WebTlsValuesTpl, o.vals)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to generate values.yaml")
@@ -199,9 +327,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 
 	//--- If a release does not exist add seeded jobs
-	histClient := helm.NewHistory(o.cfg)
-	histClient.Max = 1
-	if _, err := histClient.Run(codefreshHelmReleaseName); err == driver.ErrReleaseNotFound {
+	if !codefreshInstalled {
 		seedJobsValues := map[string]interface{}{
 			"global": map[string]interface{}{
 				"seedJobs":  true,
@@ -241,8 +367,8 @@ func (o *CfApply) ApplyCodefresh() error {
 	info("codefresh-resource.yaml is generated in %s\n", cfResourceYamlPath)
 
 	//--- Deploying
-    installerType := valsX.Get(c.KeyInstallerType).String()
-    if installerType == installerTypeOperator {
+	installerType := valsX.Get(c.KeyInstallerType).String()
+	if installerType == installerTypeOperator {
 		// Deploy Codefresh Operator with wait first
 		operatorChartValues := valsX.Get(c.KeyOperatorChartValues).MSI(map[string]interface{}{})
 		operatorChartValues = MergeMaps(operatorChartValues, registryValues)
@@ -268,15 +394,15 @@ func (o *CfApply) ApplyCodefresh() error {
 		}
 		PrintHelmReleaseInfo(operatorRelease, c.Debug)
 
-		// Update Codefresh resource 
-        cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
-        if err != nil {
-            return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
-        }
-        cfResources, err := o.cfg.KubeClient.Build(cfResourceYamlReader, true)
-        if err != nil {
-            return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
-        }
+		// Update Codefresh resource
+		cfResourceYamlReader, err := os.Open(cfResourceYamlPath)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to read %s ", cfResourceYamlPath)
+		}
+		cfResources, err := o.cfg.KubeClient.Build(cfResourceYamlReader, true)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to write %s ", cfResourceYamlPath)
+		}
 		info("applying %s\n %v", cfResourceYamlPath, cfResources)
 		if o.Helm.DryRun {
 			info("\n\nDryRun Mode - Codefresh Resource Definition is generatest in %s", cfResourceYamlPath)

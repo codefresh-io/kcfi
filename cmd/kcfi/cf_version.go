@@ -17,16 +17,13 @@ limitations under the License.
 package main
 
 import (
-
-	"io"
 	"fmt"
 	"github.com/spf13/cobra"
+	"io"
 
-	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/kcfi/pkg/embeded/version"
+	"helm.sh/helm/v3/cmd/helm/require"
 )
-
-
 
 func cfVersionCmd(out io.Writer) *cobra.Command {
 

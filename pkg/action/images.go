@@ -17,20 +17,20 @@ limitations under the License.
 package action
 
 import (
+	"bufio"
 	"fmt"
-	"path"
-	"strings"
-	"regexp"
+	"github.com/pkg/errors"
+	"github.com/stretchr/objx"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"io"
-	"bufio"
-	"github.com/pkg/errors"
-	"github.com/stretchr/objx"
+	"path"
+	"regexp"
+	"strings"
 
-	clogs "github.com/google/go-containerregistry/pkg/logs"
 	"github.com/google/go-containerregistry/pkg/authn"
+	clogs "github.com/google/go-containerregistry/pkg/logs"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 
@@ -41,20 +41,19 @@ import (
 type ImagesPusher struct {
 	// CfRegistryAuthConfig *authn.AuthConfig
 	// DstRegistryAuthConfig *authn.AuthConfig
-	Keychain authn.Keychain
+	Keychain    authn.Keychain
 	DstRegistry name.Registry
-	ImagesList []string
+	ImagesList  []string
 }
 
 // pusherKeychain implements authn.Keychain with the semantics of the standard Docker
 // credential keychain.
-type pusherKeychain struct{
-	cfRegistry name.Registry
-	cfRegistryAuthConfig *authn.AuthConfig
-	dstRegistry name.Registry
+type pusherKeychain struct {
+	cfRegistry            name.Registry
+	cfRegistryAuthConfig  *authn.AuthConfig
+	dstRegistry           name.Registry
 	dstRegistryAuthConfig *authn.AuthConfig
 }
-
 
 func init() {
 	//initialize go-conteinerregistry logger
@@ -66,26 +65,26 @@ func init() {
 	}
 }
 
-func(k *pusherKeychain) Resolve(target authn.Resource) (authn.Authenticator, error) {
+func (k *pusherKeychain) Resolve(target authn.Resource) (authn.Authenticator, error) {
 
-  var authenticator authn.Authenticator
-  key := target.RegistryStr()
-  switch {
-  case key == name.DefaultRegistry:
-	authenticator = authn.Anonymous
-  case key == k.cfRegistry.RegistryStr():
-	authenticator = authn.FromConfig(*k.cfRegistryAuthConfig)
-  case key == k.dstRegistry.RegistryStr():
-	authenticator = authn.FromConfig(*k.dstRegistryAuthConfig)
-  default:
-	authenticator = authn.Anonymous
-  }
+	var authenticator authn.Authenticator
+	key := target.RegistryStr()
+	switch {
+	case key == name.DefaultRegistry:
+		authenticator = authn.Anonymous
+	case key == k.cfRegistry.RegistryStr():
+		authenticator = authn.FromConfig(*k.cfRegistryAuthConfig)
+	case key == k.dstRegistry.RegistryStr():
+		authenticator = authn.FromConfig(*k.dstRegistryAuthConfig)
+	default:
+		authenticator = authn.Anonymous
+	}
 
-  return authenticator, nil
+	return authenticator, nil
 }
 
 func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, error) {
-	
+
 	cfgX := objx.New(config)
 	baseDir := cfgX.Get(c.KeyBaseDir).String()
 
@@ -107,7 +106,7 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 		info("Warning: Codefresh registry credentials are not set")
 		cfRegistryAuthConfig = &authn.AuthConfig{}
 	}
-	
+
 	// get AuthConfig for destination provate registry
 	dstRegistryAddress := cfgX.Get(c.KeyImagesPrivateRegistryAddress).String()
 	dstRegistry, err := name.NewRegistry(dstRegistryAddress)
@@ -136,9 +135,9 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 	}
 
 	keychain := &pusherKeychain{
-		cfRegistry: cfRegistry,
-		cfRegistryAuthConfig: cfRegistryAuthConfig,
-		dstRegistry: dstRegistry,
+		cfRegistry:            cfRegistry,
+		cfRegistryAuthConfig:  cfRegistryAuthConfig,
+		dstRegistry:           dstRegistry,
 		dstRegistryAuthConfig: dstRegistryAuthConfig,
 	}
 
@@ -159,7 +158,7 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 		info("Warning: %s - %v is not a list", c.KeyImagesLists, imagesListsFilesI)
 	}
 
-	for _, imagesListFile := range(imagesListsFiles) {
+	for _, imagesListFile := range imagesListsFiles {
 		imagesListF, err := ReadListFile(path.Join(baseDir, imagesListFile))
 		if err != nil {
 			info("Error: failed to read %s - %v", imagesListFile, err)
@@ -172,12 +171,12 @@ func NewImagesPusherFromConfig(config map[string]interface{}) (*ImagesPusher, er
 
 	return &ImagesPusher{
 		DstRegistry: dstRegistry,
-		Keychain: keychain,
-		ImagesList: imagesList,
+		Keychain:    keychain,
+		ImagesList:  imagesList,
 	}, nil
 }
 
-func(o *ImagesPusher) Run(images []string) error {
+func (o *ImagesPusher) Run(images []string) error {
 	info("Running images pusher")
 	if len(images) == 0 {
 		info("No images to push")
@@ -239,7 +238,7 @@ func(o *ImagesPusher) Run(images []string) error {
 			continue
 		}
 	}
-	
+
 	cntProcessed := len(images)
 	cnfFail := len(imagesWarnings)
 	cntSucess := cntProcessed - cnfFail
@@ -252,7 +251,7 @@ func(o *ImagesPusher) Run(images []string) error {
 	info("\n----- Completed! -----\n%d of %d images were successfully pushed", cntSucess, cntProcessed)
 
 	return nil
-} 
+}
 
 // ReadListFile - reads file and returns list of strings with strimmed lines without #-comments, empty lines
 func ReadListFile(fileName string) ([]string, error) {
@@ -268,7 +267,7 @@ func ReadListFile(fileName string) ([]string, error) {
 	commentLineRe, _ := regexp.Compile(`^ *#+.*$`)
 	nonEmptyLineRe, _ := regexp.Compile(`[a-zA-Z0-9]`)
 	for {
-		lineB, prefix, err :=  reader.ReadLine()
+		lineB, prefix, err := reader.ReadLine()
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -281,7 +280,7 @@ func ReadListFile(fileName string) ([]string, error) {
 			continue
 		}
 		line := string(lineB)
-		if commentLineRe.MatchString(line) || ! nonEmptyLineRe.MatchString(line) {
+		if commentLineRe.MatchString(line) || !nonEmptyLineRe.MatchString(line) {
 			continue
 		}
 		lines = append(lines, strings.Trim(line, " "))

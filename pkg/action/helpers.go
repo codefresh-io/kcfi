@@ -18,16 +18,15 @@ package action
 
 import (
 	"bytes"
-	"text/template"
 	"io/ioutil"
-	
+	"text/template"
+
 	"github.com/codefresh-io/kcfi/pkg/engine"
 	"sigs.k8s.io/yaml"
 )
 
-
 // ReadYamlFile - reads yaml file
-func ReadYamlFile(fileName string) (map[string]interface{}, error){
+func ReadYamlFile(fileName string) (map[string]interface{}, error) {
 	fileB, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, err
@@ -87,5 +86,3 @@ func MergeMaps(a, b map[string]interface{}) map[string]interface{} {
 	}
 	return out
 }
-
-

@@ -25,12 +25,12 @@ import (
 	//"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	//"sigs.k8s.io/yaml"
-	
+
+	"github.com/codefresh-io/kcfi/pkg/action"
+	c "github.com/codefresh-io/kcfi/pkg/config"
 	"helm.sh/helm/v3/cmd/helm/require"
 	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/getter"
-	"github.com/codefresh-io/kcfi/pkg/action"
-	c "github.com/codefresh-io/kcfi/pkg/config"
 )
 
 const cfImagesDesc = `
@@ -47,23 +47,23 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 
 	var configFileName, imagesListFile, cfRegistrySecret string
 	var registry, registryUsername, registryPassword string
-		
+
 	cmd := &cobra.Command{
-		Use:   "images",
-		Short: "push images to private registry",
-		Long:  cfImagesDesc,
+		Use:     "images",
+		Short:   "push images to private registry",
+		Long:    cfImagesDesc,
 		Aliases: []string{"image", "private-registry", "docker"},
-		Args:  require.MinimumNArgs(1),
+		Args:    require.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 || !(args[0] == cmdPush) {
 				return cmd.Usage()
 			}
-			
+
 			valueOpts := &values.Options{}
 			// set baseDir
 			var baseDir string
 			if configFileName != "" {
-				if fInfo, err := os.Stat(configFileName); err == nil && !fInfo.IsDir(){
+				if fInfo, err := os.Stat(configFileName); err == nil && !fInfo.IsDir() {
 					debug("Using config file: %s", configFileName)
 					valueOpts.ValueFiles = []string{configFileName}
 					baseDir = filepath.Dir(configFileName)
@@ -117,12 +117,12 @@ func cfImagesCmd(out io.Writer) *cobra.Command {
 	f.StringVar(&registry, "registry", "", "registry address")
 	f.StringVar(&registryUsername, "user", "", "registry username")
 	f.StringVar(&registryPassword, "password", "", "registry password")
-	
+
 	origHelpFunc := cmd.HelpFunc()
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		hideKubeFlags(cmd)
 		hideHelmCommonFlags(cmd)
 		origHelpFunc(cmd, args)
-	})	
+	})
 	return cmd
 }

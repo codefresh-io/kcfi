@@ -18,11 +18,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"io"
-	"time"
 	"os"
 	"path/filepath"
-	"github.com/spf13/cobra"
+	"time"
 
 	"github.com/codefresh-io/kcfi/pkg/action"
 	"helm.sh/helm/v3/cmd/helm/require"
@@ -56,14 +56,14 @@ func cfApplyCmd(cfg *helm.Configuration, out io.Writer) *cobra.Command {
 			// merging configFile with valueOpts
 			valueOpts.ValueFiles = append([]string{client.ConfigFile}, valueOpts.ValueFiles...)
 			var baseDir string
-			if fInfo, err := os.Stat(client.ConfigFile); err == nil && !fInfo.IsDir(){
+			if fInfo, err := os.Stat(client.ConfigFile); err == nil && !fInfo.IsDir() {
 				valueOpts.ValueFiles = []string{client.ConfigFile}
 				baseDir = filepath.Dir(client.ConfigFile)
 			} else {
 				return fmt.Errorf("%s is not a valid file", client.ConfigFile)
 			}
 			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyBaseDir, baseDir))
-			
+
 			valueOpts.Values = append(valueOpts.Values, fmt.Sprintf("%s=%s", c.KeyKubeNamespace, configuredNamespace))
 			vals, err := valueOpts.MergeValues(getter.All(settings))
 			if err != nil {

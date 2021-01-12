@@ -26,76 +26,116 @@ const (
 	AssetsDir = "assets"
 
 	CodefreshReleaseName = "cf"
-	OperatorReleaseName = "cf-onprem-operator"
+	OperatorReleaseName  = "cf-onprem-operator"
 
-	CfRegistryAddress = "gcr.io"
+	CfRegistryAddress  = "gcr.io"
 	CfRegistryUsername = "_json_key"
 
-	KeyKind = "metadata.kind"
+	KeyKind       = "metadata.kind"
 	KindCodefresh = "codefresh"
-	KindK8sAgent = "k8sAgent"
-	KindVenona = "venona"
-	
-	KeyImagesCodefreshRegistrySa = "images.codefreshRegistrySa"
-	KeyImagesUsePrivateRegistry = "images.usePrivateRegistry"
-	KeyImagesPrivateRegistryAddress = "images.privateRegistry.address"
+	KindK8sAgent  = "k8sAgent"
+	KindVenona    = "venona"
+
+	KeyImagesCodefreshRegistrySa     = "images.codefreshRegistrySa"
+	KeyImagesUsePrivateRegistry      = "images.usePrivateRegistry"
+	KeyImagesPrivateRegistryAddress  = "images.privateRegistry.address"
 	KeyImagesPrivateRegistryUsername = "images.privateRegistry.username"
 	KeyImagesPrivateRegistryPassword = "images.privateRegistry.password"
-	KeyImagesLists = "images.lists"
+	KeyImagesLists                   = "images.lists"
 
-	KeyRelease = "metadata.installer.release"
-	KeyInstallerType = "metadata.installer.type"
+	KeyRelease            = "metadata.installer.release"
+	KeyInstallerType      = "metadata.installer.type"
 	InstallerTypeOperator = "operator"
-	InstallerTypeHelm = "helm"
+	InstallerTypeHelm     = "helm"
 
 	KeyOperatorChartValues = "metadata.installer.operator"
-	KeyOperatorSkipCRD = "metadata.installer.operator.skipCRD"
-	KeyDockerRegistry = "dockerRegistry"
+	KeyOperatorSkipCRD     = "metadata.installer.operator.skipCRD"
+	KeyDockerRegistry      = "dockerRegistry"
 
 	OperatorHelmReleaseName = "cf-onprem-operator"
-	OperatorHelmChartName = "codefresh-operator"
-	
-	KeyHelmChart = "metadata.installer.helm.chart"
-	KeyHelmRelease = "metadata.installer.helm.release"
-	KeyHelmRepoURL = "metadata.installer.helm.repoUrl"
-	KeyHelmVersion = "metadata.installer.helm.version"
-	KeyHelmCaFile = "metadata.installer.helm.caFile"
+	OperatorHelmChartName   = "codefresh-operator"
+
+	KeyHelmChart    = "metadata.installer.helm.chart"
+	KeyHelmRelease  = "metadata.installer.helm.release"
+	KeyHelmRepoURL  = "metadata.installer.helm.repoUrl"
+	KeyHelmVersion  = "metadata.installer.helm.version"
+	KeyHelmCaFile   = "metadata.installer.helm.caFile"
 	KeyHelmCertFile = "metadata.installer.helm.certFile"
-	KeyHelmKeyFile = "metadata.installer.helm.keyFile"
-	KeyHelmKeyring = "metadata.installer.helm.keyring"
+	KeyHelmKeyFile  = "metadata.installer.helm.keyFile"
+	KeyHelmKeyring  = "metadata.installer.helm.keyring"
 	KeyHelmPassword = "metadata.installer.helm.password"
 	KeyHelmUsername = "metadata.installer.helm.username"
-	KeyHelmVerify = "metadata.installer.helm.verify"
+	KeyHelmVerify   = "metadata.installer.helm.verify"
 
 	CodefreshHelmReleaseName = "cf"
 
-	KeyKubeNamespace = "kubernetes.namespace"
-	KeyKubeContext = "kubernetes.context"
+	KeyKubeNamespace  = "kubernetes.namespace"
+	KeyKubeContext    = "kubernetes.context"
 	KeyKubeKubeconfig = "kubernetes.kubeconfig"
 
-	KeyBaseDir = "BaseDir"
+	KeyBaseDir       = "BaseDir"
 	KeyTlsSelfSigned = "tls.selfSigned"
-	KeyTlsCert = "tls.cert"
-	KeyTlsKey = "tls.key"
+	KeyTlsCert       = "tls.cert"
+	KeyTlsKey        = "tls.key"
 
 	KeyAppUrl = "global.appUrl"
 
-	KeyDbInfra = "dbinfra"
+	KeyDbInfra        = "dbinfra"
 	KeyDbInfraEnabled = "dbinfra.enabled"
 	KeyDbInfraUpgrade = "dbinfra.upgrade"
-	
-	DbInfraHelmChartName = "codefresh-db-infra"
+
+	DbInfraHelmChartName              = "codefresh-db-infra"
 	DbInfraMainConfigChangeValuesFile = "values/db-infra.yaml"
-	DbInfraConfigFile = "addons/db-infra/config.yaml"
+	DbInfraConfigFile                 = "addons/db-infra/config.yaml"
 
 	KeyInclude = "include"
 
 	EnvPusherDebug = "PUSHER_DEBUG"
 
-	KeyBkpManagerMongoURI  = "jobConfigs.cfBackupPlan.target.uri"
-	KeyGlobalMongoURI     = "global.mongoURI"
+	KeyBkpManagerMongoURI      = "jobConfigs.cfBackupPlan.target.uri"
+	KeyGlobalMongoURI          = "global.mongoURI"
 	KeyGlobalMongoRootUser     = "global.mongodbRootUser"
 	KeyGlobalMongoRootPassword = "global.mongodbRootPassword"
+	KeyLocalMongoRootUser      = "mongodb.mongodbRootUser"
+	KeyLocalMongoRootPassword  = "mongodb.mongodbRootPassword"
+
+	KeyGlobalMongoUser     = "global.mongodbUsername"
+	KeyGlobalMongoPassword = "global.mongodbPassword"
+	KeyLocalMongoEnabled   = "mongo.enabled"
+	KeyLocalMongoUser      = "mongodb.mongodbUsername"
+	KeyLocalMongoPassword  = "mongodb.mongodbPassword"
+	MongoDefaultAppUser    = "cfuser"
+
+	KeyGlobalPostgresUser     = "global.postgresUser"
+	KeyGlobalPostgresPassword = "global.postgresPassword"
+
+	KeyLocalPostgresEnabled  = "postgresql.enabled"
+	KeyLocalPostgresUser     = "postgresql.postgresUser"
+	KeyLocalPostgresPassword = "postgresql.postgresPassword"
+
+	KeyGlobalRedisURL      = "global.redisUrl"
+	KeyGlobalRedisPassword = "global.redisPassword"
+	KeyLocalRedisEnabled   = "redis.enabled"
+	KeyLocalRedisPassword  = "redis.redisPassword"
+
+	KeyGlobalRuntimeRedisHost     = "global.runtimeRedisHost"
+	KeyGlobalRuntimeRedisPassword = "global.runtimeRedisPassword"
+
+	KeyGlobalRabbitUser     = "global.rabbitmqUsername"
+	KeyGlobalRabbitPassword = "global.rabbitmqPassword"
+	KeyLocalRabbitEnabled   = "rabbitmq.enabled"
+	KeyLocalRabbitUser      = "rabbitmq.rabbitmqUsername"
+	KeyLocalRabbitPassword  = "rabbitmq.rabbitmqPassword"
 )
 
+// CodefreshValuesFieldsWarnIfNotSet - print warning if these fields are not set on installation
+var CodefreshValuesFieldsWarnIfNotSet = map[string]string{
+	"global.mongodbRootPassword": "Installing with default password for mongodb root is not recommended",
+	"global.mongodbPassword":     "Installing with default password for mongodb cfuser is not recommended",
+	"global.postgresPassword":    "Installing with default password for postgres db is not recommended",
+	"global.redisPassword":       "Installing with default password for redis is not recommended",
+	"global.rabbitmqPassword":    "Installing with default password for rabbitmq is not recommended",
+}
+
+// Debug -
 var Debug, _ = strconv.ParseBool(os.Getenv("HELM_DEBUG"))

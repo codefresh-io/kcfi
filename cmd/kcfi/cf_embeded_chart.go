@@ -24,16 +24,16 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"helm.sh/helm/v3/cmd/helm/require"
 	"github.com/codefresh-io/kcfi/pkg/helm-internal/completion"
+	"helm.sh/helm/v3/cmd/helm/require"
 	"helm.sh/helm/v3/pkg/action"
 
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/cli/values"
 	//"helm.sh/helm/v3/pkg/downloader"
 	"helm.sh/helm/v3/pkg/getter"
-	"helm.sh/helm/v3/pkg/storage/driver"
 	"helm.sh/helm/v3/pkg/release"
+	"helm.sh/helm/v3/pkg/storage/driver"
 
 	"github.com/codefresh-io/kcfi/pkg/charts"
 )
@@ -144,7 +144,7 @@ func newEmbededChartUpgradeCmd(releaseName string, embededChart string, cfg *act
 					instClient.PostRenderer = client.PostRenderer
 					instClient.DisableOpenAPIValidation = client.DisableOpenAPIValidation
 					instClient.SubNotes = client.SubNotes
-	
+
 					rel, err := embededChartRunInstall(releaseName, embededChart, args, instClient, valueOpts, out)
 					if err != nil {
 						return err
@@ -154,42 +154,42 @@ func newEmbededChartUpgradeCmd(releaseName string, embededChart string, cfg *act
 					return err
 				}
 			}
-	
+
 			if client.Version == "" && client.Devel {
 				debug("setting version to >0.0.0-0")
 				client.Version = ">0.0.0-0"
 			}
-	
+
 			vals, err := valueOpts.MergeValues(getter.All(settings))
 			if err != nil {
 				return err
 			}
-	
+
 			// Check chart dependencies to make sure all are present in /charts
 			ch, err := charts.Load(embededChart)
 			if err != nil {
 				return err
 			}
-	
+
 			if req := ch.Metadata.Dependencies; req != nil {
 				if err := action.CheckDependencies(ch, req); err != nil {
 					return err
 				}
 			}
-	
+
 			if ch.Metadata.Deprecated {
 				fmt.Fprintln(out, "WARNING: This chart is deprecated")
 			}
-	
+
 			rel, err := client.Run(releaseName, ch, vals)
 			if err != nil {
 				return errors.Wrap(err, "UPGRADE FAILED")
 			}
-	
+
 			if outfmt == output.Table {
 				fmt.Fprintf(out, "Release %q has been upgraded. Happy Helming!\n", releaseName)
 			}
-	
+
 			return outfmt.Write(out, &statusPrinter{rel, settings.Debug})
 		},
 	}
@@ -234,6 +234,6 @@ func newEmbededChartUpgradeCmd(releaseName string, embededChart string, cfg *act
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		hideHelmCommonFlags(cmd)
 		origHelpFunc(cmd, args)
-	})	
+	})
 	return cmd
 }

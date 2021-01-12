@@ -19,16 +19,15 @@ package engine
 import (
 	"bytes"
 	"encoding/json"
-	"strings"
-	"text/template"
+	"io/ioutil"
 	"path"
 	"path/filepath"
-	"io/ioutil"
+	"strings"
+	"text/template"
 
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
 	"sigs.k8s.io/yaml"
-
 )
 
 // FuncMap returns a mapping of all of the functions that Engine has.
@@ -185,9 +184,9 @@ func fromJSONArray(str string) []interface{} {
 func getFileWithBaseDir(filename, basedir string) string {
 	var filePath string
 	if filepath.IsAbs(filename) {
-	  filePath = filename
+		filePath = filename
 	} else {
-	  filePath = path.Join(basedir, filename)
+		filePath = path.Join(basedir, filename)
 	}
 
 	fileB, err := ioutil.ReadFile(filePath)
