@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "test"
+./get-img-list.sh --repo prod > images-list
+echo $date >> images-list
 
-./get-img-list.sh --repo prod 
-# > ./stage/codefresh/images/images-list
+cat images-list
