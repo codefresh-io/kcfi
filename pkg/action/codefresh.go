@@ -321,7 +321,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 
 	//--- MongoTls Values
-	if valsX.Get(c.KeyMongoTls).Bool(true) {
+	if valsX.Get(c.KeyGlobalMongoTLS).Bool(false) {
 		mongoTlsValues, err := ExecuteTemplateToValues(MongoTlsValuesTpl, o.vals)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to generate values.yaml")

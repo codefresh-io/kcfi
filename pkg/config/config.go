@@ -78,9 +78,9 @@ const (
 	KeyTlsCert       = "tls.cert"
 	KeyTlsKey        = "tls.key"
 
-	KeyMongoTls    = "global.mongoTLS"
-	KeyMongoCaCert = "global.mongoCaCert"
-	KeyMongoCaKey  = "global.mongoCaKey"
+	KeyGlobalMongoTLS    = "global.mongoTLS"
+	KeyGlobalMongoCaCert = "global.mongoCaCert"
+	KeyGlobalMongoCaKey  = "global.mongoCaKey"
 
 	KeyAppUrl = "global.appUrl"
 
