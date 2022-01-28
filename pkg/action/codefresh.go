@@ -321,6 +321,7 @@ func (o *CfApply) ApplyCodefresh() error {
 	}
 
 	//--- MongoTls Values
+	//add mongoCaCert and mongoCaKey into values.yaml and codefresh-resource.yaml if mongoTLS: true, skip otherwise
 	if valsX.Get(c.KeyGlobalMongoTLS).Bool(false) {
 		mongoTlsValues, err := ExecuteTemplateToValues(MongoTlsValuesTpl, o.vals)
 		if err != nil {
