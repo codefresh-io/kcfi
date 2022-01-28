@@ -57,12 +57,12 @@ global:
   ### external MongoDB example
   # mongodbRootUser: root # privileged user will be used for seed jobs and for automatic user creation
   # mongodbRootPassword: WOIqcSwr0y 
-  # mongoURI: mongodb+srv://cfuser:mTiXcU2wafr9@my-mongodb.prod.svc.cluster.local
+  # mongoURI: mongodb://cfuser:mTiXcU2wafr9@my-mongodb.prod.svc.cluster.local
   # mongoSkipUserCreation: true # optional if 'cfuser' already existing (should have ReadWrite permissions)
   # mongoDeploy: false   # disables deployment of internal mongo service
   # mongodbImage: bitnami/mongodb:4.2.17-debian-10-r79 # image used in seed jobs and pre/post upgrade hooks
 
-  # runtimeMongoURI: mongodb+srv://cfuser:mTiXcU2wafr9@my-mongodb.prod.svc.cluster.local # in case OfflineLogging feature is enabled
+  # runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@my-mongodb.prod.svc.cluster.local # in case OfflineLogging feature is enabled
 
   ### MongoDB with Mutual TLS example
   # mongoTLS: true
