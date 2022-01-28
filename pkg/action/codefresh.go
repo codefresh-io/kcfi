@@ -320,6 +320,15 @@ func (o *CfApply) ApplyCodefresh() error {
 		o.vals = MergeMaps(o.vals, webTlsValues)
 	}
 
+	//--- MongoTls Values
+	if valsX.Get(c.KeyMongoTls).Bool(true) {
+		mongoTlsValues, err := ExecuteTemplateToValues(MongoTlsValuesTpl, o.vals)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to generate values.yaml")
+		}
+		o.vals = MergeMaps(o.vals, mongoTlsValues)
+	}
+
 	// Db Infra
 	err = o.applyDbInfra()
 	if err != nil {
@@ -584,4 +593,13 @@ cfui:
 {{ getFileWithBaseDir .tls.key .BaseDir | indent 6}}
     cert: |
 {{ getFileWithBaseDir .tls.cert .BaseDir | indent 6}}
+`
+
+// MongoTlsValuesTpl template
+var MongoTlsValuesTpl = `
+mongoTLS:
+  CaCert: |
+{{ getFileWithBaseDir .global.mongoCaCert .BaseDir | indent 4}}
+  CaKey: |
+{{ getFileWithBaseDir .global.mongoCaKey .BaseDir | indent 4}}
 `

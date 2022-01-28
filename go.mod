@@ -11,6 +11,7 @@ require (
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/docker/docker v1.4.2-0.20200203170920-46ec8731fbce
 	github.com/docker/go-units v0.4.0
+	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/gofrs/flock v0.7.1
 	github.com/google/go-containerregistry v0.1.2
 	github.com/gosuri/uitable v0.0.4

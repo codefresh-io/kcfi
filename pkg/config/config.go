@@ -78,6 +78,10 @@ const (
 	KeyTlsCert       = "tls.cert"
 	KeyTlsKey        = "tls.key"
 
+	KeyMongoTls    = "global.mongoTLS"
+	KeyMongoCaCert = "global.mongoCaCert"
+	KeyMongoCaKey  = "global.mongoCaKey"
+
 	KeyAppUrl = "global.appUrl"
 
 	KeyDbInfra        = "dbinfra"
