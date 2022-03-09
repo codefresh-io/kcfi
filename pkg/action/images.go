@@ -212,9 +212,9 @@ func (o *ImagesPusher) Run(images []string) error {
 		} else if len(imgNameSplit) >= 1 {
 			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[len(imgNameSplit)-1])
 		}	else {
-			imagesWarnings[imgName] = fmt.Sprintf("cannot convert image name %s to destination image", imgName)
-			info("Error: %s", imagesWarnings[imgName])
-			continue
+      			imagesWarnings[imgName] = fmt.Sprintf("cannot convert image name %s to destination image", imgName)
+      			info("Error: %s", imagesWarnings[imgName])
+      			continue
 		}
 		dstRef, err := name.ParseReference(dstImageName)
 		if err != nil {
