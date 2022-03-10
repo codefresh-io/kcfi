@@ -200,17 +200,17 @@ func (o *ImagesPusher) Run(images []string) error {
 
 		// Calculating destination image
 		/* there are 3 types of image names:
-		# 1. non-codefresh like "bitnami/mongo:123" - convert to "private-registry-addr/bitnami/mongo:123"
-		# 2. codefresh public images like "codefresh/engine:123" - convert to "private-registry-addr/codefresh/mongo:123"
-		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:cf-onprem-v1.0.86 - will be convert to "private-registry-addr/codefresh/mongo:123
-		DELIMITER='codefresh/'
+		# 1. non-codefresh like "bitnami/mongo:123" - convert to "private-registry-addr/codefresh/mongo:123"
+		# 2. codefresh public images like "codefresh/engine:123" - convert to "private-registry-addr/codefresh/engine:123"
+		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:cf-onprem-v1.0.86 - will be convert to "private-registry-addr/codefresh/cf-api:cf-onprem-v1.0.86
+		DELIMITER='/'
 		*/
 		var dstImageName string
-		imgNameSplit := strings.Split(imgName, "codefresh/")
-		if len(imgNameSplit) == 1 {
-			dstImageName = fmt.Sprintf("%s/%s", o.DstRegistry.RegistryStr(), imgName)
-		} else if len(imgNameSplit) == 2 {
-			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[1])
+		imgNameSplit := strings.SplitN(imgName, "/", -1)
+		if len(imgNameSplit) == 0 {
+			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgName)
+		} else if len(imgNameSplit) >= 1 {
+			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[len(imgNameSplit)-1])
 		} else {
 			imagesWarnings[imgName] = fmt.Sprintf("cannot convert image name %s to destination image", imgName)
 			info("Error: %s", imagesWarnings[imgName])
