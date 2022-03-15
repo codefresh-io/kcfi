@@ -117,6 +117,9 @@ const (
 	KeyLocalPostgresUser     = "postgresql.postgresUser"
 	KeyLocalPostgresPassword = "postgresql.postgresPassword"
 
+	KeyLocalPostgresImage    = "postgresql.image"
+	KeyLocalPostgresImageTag = "postgresql.imageTag"
+
 	KeyGlobalRedisURL      = "global.redisUrl"
 	KeyGlobalRedisPassword = "global.redisPassword"
 	KeyLocalRedisEnabled   = "redis.enabled"
