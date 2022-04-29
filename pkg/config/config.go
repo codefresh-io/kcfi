@@ -133,6 +133,8 @@ const (
 	KeyLocalRabbitEnabled   = "rabbitmq.enabled"
 	KeyLocalRabbitUser      = "rabbitmq.rabbitmqUsername"
 	KeyLocalRabbitPassword  = "rabbitmq.rabbitmqPassword"
+
+	KeyArgoPlatformEnabled = "argo-platform.enabled"
 )
 
 // CodefreshValuesFieldsWarnIfNotSet - print warning if these fields are not set on installation

@@ -330,6 +330,15 @@ func (o *CfApply) ApplyCodefresh() error {
 		o.vals = MergeMaps(o.vals, mongoTlsValues)
 	}
 
+	//--- ArgoPlatform Values
+	if valsX.Get(c.KeyArgoPlatformEnabled).Bool(false) {
+		argoPlatformValues, err := ExecuteTemplateToValues(ArgoPlatformValuesTpl, o.vals)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to generate values.yaml")
+		}
+		o.vals = MergeMaps(o.vals, argoPlatformValues)
+	}
+
 	// Db Infra
 	err = o.applyDbInfra()
 	if err != nil {
@@ -603,4 +612,33 @@ mongoTLS:
 {{ getFileWithBaseDir .global.mongoCaCert .BaseDir | indent 4}}
   CaKey: |
 {{ getFileWithBaseDir .global.mongoCaKey .BaseDir | indent 4}}
+`
+
+// ArgoPlatformValuesTpl template
+var ArgoPlatformValuesTpl = `
+{{ $argoPlatformMongoUri := .global.argoPlatformMongoUri }}
+{{ $argoPlatformRabbitMqUri := .global.argoPlatformRabbitMqUri }}
+{{ $argoPlatformRedisHost := .global.argoPlatformRedisHost }}
+{{ $argoPlatformRedisPassword := .global.argoPlatformRedisPassword }}
+argo-platform:
+  api-graphql:
+    env:
+      MONGODB_READMODELS_URI: {{ $argoPlatformMongoUri }}
+      RABBITMQ_URLS: {{ $argoPlatformRabbitMqUri }}
+      CACHE_HOST: {{ $argoPlatformRedisHost }}
+      CACHE_PASSWORD: {{ $argoPlatformRedisPassword }}	  
+  api-events:
+    env:
+      RABBITMQ_URLS: {{ $argoPlatformRabbitMqUri }}
+  event-handler:
+    env:
+      MONGODB_READMODELS_URI: {{ $argoPlatformMongoUri }}
+      RABBITMQ_URLS: {{ $argoPlatformRabbitMqUri }}	  
+  analytics-reporter:
+    env:
+      MONGODB_READMODELS_URI: {{ $argoPlatformMongoUri }}
+      RABBITMQ_URLS: {{ $argoPlatformRabbitMqUri }}		  
+  cron-executor:
+    env:
+      MONGODB_READMODELS_URI: {{ $argoPlatformMongoUri }}
 `
