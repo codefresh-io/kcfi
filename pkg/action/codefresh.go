@@ -330,6 +330,17 @@ func (o *CfApply) ApplyCodefresh() error {
 		o.vals = MergeMaps(o.vals, mongoTlsValues)
 	}
 
+	//--- ArgoPlatform Values
+	if valsX.Get(c.KeyArgoPlatformEnabled).Bool(false) {
+		if usePrivateRegistry {
+			argoPlatformValues, err := ExecuteTemplateToValues(ArgoPlatformValuesTpl, o.vals)
+			if err != nil {
+				return errors.Wrapf(err, "Failed to generate values.yaml")
+			}
+			o.vals = MergeMaps(o.vals, argoPlatformValues)
+		}
+	}
+
 	// Db Infra
 	err = o.applyDbInfra()
 	if err != nil {
@@ -562,16 +573,16 @@ runtime-environment-manager:
     auths:
       {{.RegistryAddress | toString }}:
         auth: {{ $auth }}
-onboarding-status:
-  dockerconfigjson:
-    auths:
-      {{.RegistryAddress | toString }}:
-        auth: {{ $auth }}
-cfanalytic:
-  dockerconfigjson:
-    auths:
-      {{.RegistryAddress | toString }}:
-        auth: {{ $auth }}
+rabbitmq:
+  image:
+    registry: {{ printf "%s" .RegistryAddress }}
+redis:
+  image:
+    registry: {{ printf "%s" .RegistryAddress }}
+ingress:
+  controller:
+    image:
+      registry: {{ printf "%s" .RegistryAddress }}     
 `
 
 // WebTlsValuesTpl template
@@ -603,4 +614,34 @@ mongoTLS:
 {{ getFileWithBaseDir .global.mongoCaCert .BaseDir | indent 4}}
   CaKey: |
 {{ getFileWithBaseDir .global.mongoCaKey .BaseDir | indent 4}}
+`
+
+// ArgoPlatformValuesTpl template
+var ArgoPlatformValuesTpl = `
+argo-platform:
+  api-graphql:
+    {{- if .global.privateRegistry }}
+    image:
+      repository:  {{ .global.dockerRegistry | toString }}codefresh/argo-platform-api-graphql
+    {{- end}}
+  api-events:
+    {{- if .global.privateRegistry }}  
+    image:
+      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-api-events
+    {{- end }}
+  event-handler:
+    {{- if .global.privateRegistry }}  
+    image:
+      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-event-handler
+    {{- end }}
+  cron-executor:
+    {{- if .global.privateRegistry }} 
+    image:
+      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-cron-executor
+    {{- end }}	  
+  ui:
+    {{- if .global.privateRegistry }}  
+    image:
+      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-ui
+    {{- end }}
 `
