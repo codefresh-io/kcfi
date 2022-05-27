@@ -201,9 +201,9 @@ func (o *ImagesPusher) Run(images []string) error {
 
 		// Calculating destination image
 		/* there are 3 types of image names:
-		# 1. non-codefresh like "bitnami/mongo:4.2 || k8s.gcr.io/ingress-nginx/controller:v1.2.0 " - convert to "private-registry-addr/bitnami/mongo:4.2 || private-registry-addr/ingress-nginx/controller:v1.2.0"
-		# 2. codefresh public images like "codefresh/engine:1.147.8" - convert to "private-registry-addr/codefresh/engine:1.147.8"
-		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:21.153.1 || gcr.io/codefresh-inc/codefresh-io/argo-platform-api-graphql:1.1175.0 - convert to "private-registry-addr/codefresh/cf-api:21.153.1 || "private-registry-addr/codefresh/argo-platform-api-graphql:1.1175.0
+		# 1. non-codefresh like bitnami/mongo:4.2 || k8s.gcr.io/ingress-nginx/controller:v1.2.0 - convert to private-registry-addr/bitnami/mongo:4.2 || private-registry-addr/ingress-nginx/controller:v1.2.0
+		# 2. codefresh public images like codefresh/engine:1.147.8 - convert to private-registry-addr/codefresh/engine:1.147.8
+		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:21.153.1 || gcr.io/codefresh-inc/codefresh-io/argo-platform-api-graphql:1.1175.0 - convert to private-registry-addr/codefresh/cf-api:21.153.1 || private-registry-addr/codefresh/argo-platform-api-graphql:1.1175.0
 		# DELIMITERS = 'codefresh || codefresh-io'
 		*/
 		var dstImageName string
