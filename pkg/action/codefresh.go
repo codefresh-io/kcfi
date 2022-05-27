@@ -308,6 +308,11 @@ func (o *CfApply) ApplyCodefresh() error {
 			},
 		}
 		o.vals = MergeMaps(o.vals, privateRegistryGlobalValues)
+		privateRegistryValues, err := ExecuteTemplateToValues(PrivateRegistryValuesTpl, o.vals)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to generate values.yaml")
+		}
+		o.vals = MergeMaps(o.vals, privateRegistryValues)
 	}
 	o.vals = MergeMaps(o.vals, registryValues)
 
@@ -328,17 +333,6 @@ func (o *CfApply) ApplyCodefresh() error {
 			return errors.Wrapf(err, "Failed to generate values.yaml")
 		}
 		o.vals = MergeMaps(o.vals, mongoTlsValues)
-	}
-
-	//--- ArgoPlatform Values
-	if valsX.Get(c.KeyArgoPlatformEnabled).Bool(false) {
-		if usePrivateRegistry {
-			argoPlatformValues, err := ExecuteTemplateToValues(ArgoPlatformValuesTpl, o.vals)
-			if err != nil {
-				return errors.Wrapf(err, "Failed to generate values.yaml")
-			}
-			o.vals = MergeMaps(o.vals, argoPlatformValues)
-		}
 	}
 
 	// Db Infra
@@ -573,16 +567,6 @@ runtime-environment-manager:
     auths:
       {{.RegistryAddress | toString }}:
         auth: {{ $auth }}
-rabbitmq:
-  image:
-    registry: {{ printf "%s" .RegistryAddress }}
-redis:
-  image:
-    registry: {{ printf "%s" .RegistryAddress }}
-ingress:
-  controller:
-    image:
-      registry: {{ printf "%s" .RegistryAddress }}     
 `
 
 // WebTlsValuesTpl template
@@ -616,32 +600,18 @@ mongoTLS:
 {{ getFileWithBaseDir .global.mongoCaKey .BaseDir | indent 4}}
 `
 
-// ArgoPlatformValuesTpl template
-var ArgoPlatformValuesTpl = `
-argo-platform:
-  api-graphql:
-    {{- if .global.privateRegistry }}
+//PrivateRegistryValuesTpl template
+var PrivateRegistryValuesTpl = `
+{{- if .global.privateRegistry }}
+rabbitmq:
+  image:
+    registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
+redis:
+  image:
+    registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
+ingress:
+  controller:
     image:
-      repository:  {{ .global.dockerRegistry | toString }}codefresh/argo-platform-api-graphql
-    {{- end}}
-  api-events:
-    {{- if .global.privateRegistry }}  
-    image:
-      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-api-events
-    {{- end }}
-  event-handler:
-    {{- if .global.privateRegistry }}  
-    image:
-      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-event-handler
-    {{- end }}
-  cron-executor:
-    {{- if .global.privateRegistry }} 
-    image:
-      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-cron-executor
-    {{- end }}	  
-  ui:
-    {{- if .global.privateRegistry }}  
-    image:
-      repository: {{ .global.dockerRegistry | toString }}codefresh/argo-platform-ui
-    {{- end }}
+      registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
+{{- end }}	  
 `
