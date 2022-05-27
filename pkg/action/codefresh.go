@@ -308,6 +308,11 @@ func (o *CfApply) ApplyCodefresh() error {
 			},
 		}
 		o.vals = MergeMaps(o.vals, privateRegistryGlobalValues)
+		privateRegistryValues, err := ExecuteTemplateToValues(PrivateRegistryValuesTpl, o.vals)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to generate values.yaml")
+		}
+		o.vals = MergeMaps(o.vals, privateRegistryValues)
 	}
 	o.vals = MergeMaps(o.vals, registryValues)
 
@@ -562,16 +567,6 @@ runtime-environment-manager:
     auths:
       {{.RegistryAddress | toString }}:
         auth: {{ $auth }}
-onboarding-status:
-  dockerconfigjson:
-    auths:
-      {{.RegistryAddress | toString }}:
-        auth: {{ $auth }}
-cfanalytic:
-  dockerconfigjson:
-    auths:
-      {{.RegistryAddress | toString }}:
-        auth: {{ $auth }}
 `
 
 // WebTlsValuesTpl template
@@ -603,4 +598,20 @@ mongoTLS:
 {{ getFileWithBaseDir .global.mongoCaCert .BaseDir | indent 4}}
   CaKey: |
 {{ getFileWithBaseDir .global.mongoCaKey .BaseDir | indent 4}}
+`
+
+//PrivateRegistryValuesTpl template
+var PrivateRegistryValuesTpl = `
+{{- if .global.privateRegistry }}
+rabbitmq:
+  image:
+    registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
+redis:
+  image:
+    registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
+ingress:
+  controller:
+    image:
+      registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
+{{- end }}	  
 `

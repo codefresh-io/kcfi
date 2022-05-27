@@ -19,8 +19,6 @@ package action
 import (
 	"bufio"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/stretchr/objx"
 	"io"
 	"io/ioutil"
 	"log"
@@ -28,6 +26,9 @@ import (
 	"path"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/stretchr/objx"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	clogs "github.com/google/go-containerregistry/pkg/logs"
@@ -200,17 +201,18 @@ func (o *ImagesPusher) Run(images []string) error {
 
 		// Calculating destination image
 		/* there are 3 types of image names:
-		# 1. non-codefresh like "bitnami/mongo:123" - convert to "private-registry-addr/codefresh/mongo:123"
-		# 2. codefresh public images like "codefresh/engine:123" - convert to "private-registry-addr/codefresh/engine:123"
-		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:cf-onprem-v1.0.86 - will be convert to "private-registry-addr/codefresh/cf-api:cf-onprem-v1.0.86
-		DELIMITER='/'
+		# 1. non-codefresh like bitnami/mongo:4.2 || k8s.gcr.io/ingress-nginx/controller:v1.2.0 - convert to private-registry-addr/bitnami/mongo:4.2 || private-registry-addr/ingress-nginx/controller:v1.2.0
+		# 2. codefresh public images like codefresh/engine:1.147.8 - convert to private-registry-addr/codefresh/engine:1.147.8
+		# 3. codefresh private images like gcr.io/codefresh-enterprise/codefresh/cf-api:21.153.1 || gcr.io/codefresh-inc/codefresh-io/argo-platform-api-graphql:1.1175.0 - convert to private-registry-addr/codefresh/cf-api:21.153.1 || private-registry-addr/codefresh/argo-platform-api-graphql:1.1175.0
+		# DELIMITERS = 'codefresh || codefresh-io'
 		*/
 		var dstImageName string
-		imgNameSplit := strings.SplitN(imgName, "/", -1)
-		if len(imgNameSplit) == 0 {
-			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgName)
-		} else if len(imgNameSplit) >= 1 {
-			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[len(imgNameSplit)-1])
+		imgNameSplit := regexp.MustCompile(`(codefresh\/|codefresh-io\/)`).Split(imgName, -1)
+		if len(imgNameSplit) == 1 {
+			dstImageName = fmt.Sprintf("%s/%s", o.DstRegistry.RegistryStr(), imgName)
+			dstImageName = regexp.MustCompile(`(docker.io\/|k8s.gcr.io\/)`).ReplaceAllString(dstImageName, "")
+		} else if len(imgNameSplit) == 2 {
+			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[1])
 		} else {
 			imagesWarnings[imgName] = fmt.Sprintf("cannot convert image name %s to destination image", imgName)
 			info("Error: %s", imagesWarnings[imgName])

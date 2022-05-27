@@ -5,34 +5,22 @@ metadata:
     helm:
       chart: codefresh 
       repoUrl: http://charts.codefresh.io/prod
-      #version:
+      #version: 
 
 kubernetes:
   namespace: codefresh
   #context: 
   #kubeconfig:
 
+### Firebase secret - set if you use Firebase for log streaming
+# firebaseSecret: 
+# firebaseUrl: 
+
 global:
   ### Codefresh App domain name. appUrl is manadatory parameter
   appUrl: 
   appProtocol: https
-
-  ### Step Catalog
-  # stepsCatalogOnPremise: true
-  # stepsCatalogOnPremiseRegistry: <your_registry_url>
   
-  ###### Passwords
-  ### Uncomment and change initial password for persistent services here
-  ### Installer warns if passwords remains default
-
-  #mongodbRootUser: root
-  #mongodbRootPassword:
-
-  # Password for codefresh app user (username = "cfuser")
-  #mongodbPassword:
-
-  #rabbitmqPassword:
-
   ### external Postgres example
   # postgresSeedJob:
   #   user: postgres
@@ -45,14 +33,19 @@ global:
   # postgresPort: 5432
 
   ### external Redis example
-  # redisUrl: my-redis.prod.svc.cluster.local
+  # redisUrl: my-redis-master.prod.svc.cluster.local
   # redisPort: 6379
   # redisPassword: 6oOhHI8fI5
   
-  # runtimeRedisHost: my-redis.prod.svc.cluster.local
+  # runtimeRedisHost: my-redis-master.prod.svc.cluster.local
   # runtimeRedisPassword: 6oOhHI8fI5
   # runtimeRedisPort: 6379
   # runtimeRedisDb: 2
+
+  ### external RabbitMQ example
+  # rabbitmqHostname: my-rabbitmq.prod.svc.cluster.local
+  # rabbitmqUsername: user
+  # rabbitmqPassword: B6BkVSDe1D
 
   ### external MongoDB example
   # mongodbRootUser: root # privileged user will be used for seed jobs and for automatic user creation
@@ -62,18 +55,25 @@ global:
   # mongoDeploy: false   # disables deployment of internal mongo service
   # mongodbImage: bitnami/mongodb:4.2.17-debian-10-r79 # image used in seed jobs and pre/post upgrade hooks
 
-  # runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@my-mongodb.prod.svc.cluster.local # in case OfflineLogging feature is enabled
+  # runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@my-mongodb.prod.svc.cluster.local # in case OfflineLogging feature is enabled (i.e. you have no Firebase)
 
   ### MongoDB with Mutual TLS example
   # mongoTLS: true
   # mongoCaCert: mongodb-ca/ca-cert.pem
   # mongoCaKey: mongodb-ca/ca-key.pem
+  
+  ### PV storage class for persistent services
+  ## If defined, storageClass: <storageClass>
+  ## If undefined (the default) or set to null, no storageClass spec is set, choosing the default provisioner
+  # storageClass: ""
 
+### TLS secret for Ingress
 tls:
   selfSigned: true
-  cert: certs/ssl.crt
+  cert: certs/certificate.crt
   key: certs/private.key
 
+### Service Account JSON to pull private Codefresh images
 images:
   codefreshRegistrySa: sa.json
   # usePrivateRegistry: false
@@ -84,21 +84,23 @@ images:
   lists:
   - images/images-list
 
-dbinfra:
-  enabled: false
-  #storageClass: 
-
-#### disable default postgresql subchart installation in case external postgresql service is used
 # postgresql:
-#   enabled: false 
+#   enabled: false ## disable default postgresql subchart installation in case external postgresql service is used
 
-### #disable default redis subchart installation in case external redis service is used
 # redis:
-#   enabled: false
+#   enabled: false ## disable default redis subchart installation in case external redis service is used
+
+# rabbitmq:
+#   enabled: false ## disable default rabbitmq subchart installation in case external rabbitmq service is used
+
+# mongo:
+#   enabled: false ## disable default mongodb subchart installation in case external mongodb service is used
 
 ### Includes addional configurations
 # include:
 # - values/openshift.yaml
 
-### Firebase secret - set if you use Firebase for log streaming
-firebaseSecret: 
+## Keep false as default!
+dbinfra:
+  enabled: false
+  #storageClass: 

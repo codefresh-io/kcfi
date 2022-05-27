@@ -137,11 +137,11 @@ const (
 
 // CodefreshValuesFieldsWarnIfNotSet - print warning if these fields are not set on installation
 var CodefreshValuesFieldsWarnIfNotSet = map[string]string{
-	"global.mongodbRootPassword": "Installing with default password for mongodb root is not recommended",
-	"global.mongodbPassword":     "Installing with default password for mongodb cfuser is not recommended",
-	"global.postgresPassword":    "Installing with default password for postgres db is not recommended",
-	"global.redisPassword":       "Installing with default password for redis is not recommended",
-	"global.rabbitmqPassword":    "Installing with default password for rabbitmq is not recommended",
+	// "global.mongodbRootPassword": "Installing with default password for mongodb root is not recommended",
+	// "global.mongodbPassword":     "Installing with default password for mongodb cfuser is not recommended",
+	// "global.postgresPassword":    "Installing with default password for postgres db is not recommended",
+	// "global.redisPassword":       "Installing with default password for redis is not recommended",
+	// "global.rabbitmqPassword":    "Installing with default password for rabbitmq is not recommended",
 }
 
 // Debug -
