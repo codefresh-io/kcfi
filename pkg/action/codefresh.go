@@ -609,7 +609,7 @@ rabbitmq:
 redis:
   image:
     registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
-ingress:
+ingress-nginx:
   controller:
     image:
       registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}

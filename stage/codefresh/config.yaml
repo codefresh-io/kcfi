@@ -87,14 +87,22 @@ images:
 # postgresql:
 #   enabled: false ## disable default postgresql subchart installation in case external postgresql service is used
 
+### https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
 # redis:
 #   enabled: false ## disable default redis subchart installation in case external redis service is used
 
+### https://github.com/bitnami/charts/blob/master/bitnami/rabbitmq/values.yaml
 # rabbitmq:
 #   enabled: false ## disable default rabbitmq subchart installation in case external rabbitmq service is used
 
 # mongo:
 #   enabled: false ## disable default mongodb subchart installation in case external mongodb service is used
+
+### https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
+# ingress-nginx:
+#   enabled: false ## disable default ingress-nginx controller subchart installation in case external ingress controller/alb contoller is used
+# ingress: ## disables creation of ingress objects
+#   enabled: false
 
 ### Includes addional configurations
 # include:
