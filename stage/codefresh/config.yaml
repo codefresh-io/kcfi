@@ -101,7 +101,7 @@ images:
 ### https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
 # ingress-nginx:
 #   enabled: false ## disable default ingress-nginx controller subchart installation in case external ingress controller/alb contoller is used
-# ingress: #disables creation of ingress objects
+# ingress: ## disables creation of ingress objects
 #   enabled: false
 
 ### Includes addional configurations
