@@ -4,7 +4,7 @@ metadata:
     type: helm
     helm:
       chart: codefresh 
-      repoUrl: http://charts.codefresh.io/prod
+      repoUrl: https://chartmuseum.codefresh.io/codefresh
       #version: 
 
 kubernetes:
