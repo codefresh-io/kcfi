@@ -210,7 +210,7 @@ func (o *ImagesPusher) Run(images []string) error {
 		imgNameSplit := regexp.MustCompile(`(codefresh\/|codefresh-io\/)`).Split(imgName, -1)
 		if len(imgNameSplit) == 1 {
 			dstImageName = fmt.Sprintf("%s/%s", o.DstRegistry.RegistryStr(), imgName)
-			dstImageName = regexp.MustCompile(`(docker.io\/|k8s.gcr.io\/|ghcr.io\/)`).ReplaceAllString(dstImageName, "")
+			dstImageName = regexp.MustCompile(`(docker.io\/|k8s.gcr.io\/|registry.k8s.io\/|ghcr.io\/)`).ReplaceAllString(dstImageName, "")
 		} else if len(imgNameSplit) == 2 {
 			dstImageName = fmt.Sprintf("%s/codefresh/%s", o.DstRegistry.RegistryStr(), imgNameSplit[1])
 		} else {
