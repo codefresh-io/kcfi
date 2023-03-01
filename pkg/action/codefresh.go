@@ -428,7 +428,7 @@ func (o *CfApply) ApplyCodefresh() error {
 				return err
 			}
 			helper := resource.NewHelper(info.Client, info.Mapping)
-			if _, err = helper.Get(info.Namespace, info.Name, info.Export); err != nil {
+			if _, err = helper.Get(info.Namespace, info.Name); err != nil {
 				if !kerrors.IsNotFound(err) {
 					return errors.Wrapf(err, fmt.Sprintf("retrieving current configuration of:\n%s\nfrom server for:", info.String()))
 				}
@@ -613,5 +613,5 @@ ingress-nginx:
   controller:
     image:
       registry: {{ .global.dockerRegistry | toString | trimSuffix "/" }}
-{{- end }}	  
+{{- end }}
 `
