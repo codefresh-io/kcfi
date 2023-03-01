@@ -205,21 +205,6 @@ func newRootCmd(actionConfig *action.Configuration, out io.Writer, args []string
 
 	cmd.AddCommand(helmCmd)
 
-	// Add *experimental* subcommands
-	// registryClient, err := registry.NewClient(
-	// 	registry.ClientOptDebug(settings.Debug),
-	// 	registry.ClientOptWriter(out),
-	// )
-	// if err != nil {
-	// 	// TODO: don't panic here, refactor newRootCmd to return error
-	// 	panic(err)
-	// }
-	// actionConfig.RegistryClient = registryClient
-	// cmd.AddCommand(
-	// 	newRegistryCmd(actionConfig, out),
-	// 	newChartCmd(actionConfig, out),
-	// )
-
 	// Find and add plugins
 	loadPlugins(helmCmd, out)
 
