@@ -40,7 +40,7 @@ You can also specify storageClass and other chart values.
 This is preferable option for installation on Openshift  
 
 ### Registering external docker nodes
-Edit [codefresh-stage-dir/addons/external-nodes/config.yaml](stage/addons/external-nodes/config.yaml) to set node addresses  
+Edit [stage/codefresh/addons/external-nodes/config.yaml](stage/codefresh/addons/external-nodes/config.yaml) to set node addresses  
 ```yaml
 metadata:
   kind: helmChart
